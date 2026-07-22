@@ -44,7 +44,7 @@ is still valid is no longer possible under normal operation.
 ### Testing
 
 ```
-cargo test -p credence_delegation
+cargo test -p trustforge_delegation
 ```
 
 All 55 tests pass (27 pre-existing + 8 new TTL tests + existing domain/pausable suites).

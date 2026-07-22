@@ -5,7 +5,7 @@ that must hold *after every state-changing operation*, regardless of the path ta
 
 Historically these checks were scattered across individual tests as ad-hoc
 `assert!` statements. They are now consolidated into a single reusable library,
-[`contracts/credence_bond/src/test_invariants.rs`](../contracts/credence_bond/src/test_invariants.rs),
+[`contracts/trustforge_bond/src/test_invariants.rs`](../contracts/trustforge_bond/src/test_invariants.rs),
 which is gated behind `#[cfg(test)]` and can be called by any unit, integration,
 fuzz, or mutation test via:
 
@@ -90,10 +90,10 @@ fail. I2 is guarded by a compile-time flag:
 
 ```bash
 # Normal: all tests pass.
-cargo test -p credence_bond
+cargo test -p trustforge_bond
 
 # Skip I2: the `slashed_over_bonded_is_detected` test no longer panics → FAILS.
-RUSTFLAGS="--cfg skip_slash_invariant" cargo test -p credence_bond --lib slashed_over_bonded_is_detected
+RUSTFLAGS="--cfg skip_slash_invariant" cargo test -p trustforge_bond --lib slashed_over_bonded_is_detected
 ```
 
 Observed result with the flag set:
@@ -108,7 +108,7 @@ This confirms that removing the invariant check is detected by the test suite.
 ## Test coverage
 
 The library is exercised at **30+ call sites** across
-[`test_invariants_usage.rs`](../contracts/credence_bond/src/test_invariants_usage.rs),
+[`test_invariants_usage.rs`](../contracts/trustforge_bond/src/test_invariants_usage.rs),
 covering the required edge cases:
 
 - **post-slash** — full-amount slash (I2 boundary), incremental slashes.

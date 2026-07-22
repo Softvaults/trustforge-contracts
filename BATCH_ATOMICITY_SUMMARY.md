@@ -8,7 +8,7 @@ Enhanced batch bond operations with comprehensive atomicity testing and boundary
 
 ## Changes Made
 
-### 1. Updated `contracts/credence_bond/src/batch.rs`
+### 1. Updated `contracts/trustforge_bond/src/batch.rs`
 
 #### Enhanced `get_batch_total_amount` function
 - Added explicit empty batch handling (returns 0)
@@ -26,7 +26,7 @@ pub fn get_batch_total_amount(params_list: &Vec<BatchBondParams>) -> i128 {
 }
 ```
 
-### 2. Enhanced `contracts/credence_bond/src/test_batch.rs`
+### 2. Enhanced `contracts/trustforge_bond/src/test_batch.rs`
 
 Added 30+ comprehensive tests covering:
 
@@ -160,7 +160,7 @@ The pre-existing compilation issues should be addressed in a separate PR to fix 
 
 ## Commit Message
 ```
-fix(credence_bond): bound batch size and enforce atomic apply semantics
+fix(trustforge_bond): bound batch size and enforce atomic apply semantics
 
 - Add explicit empty batch handling in get_batch_total_amount
 - Add 30+ comprehensive atomicity and boundary tests

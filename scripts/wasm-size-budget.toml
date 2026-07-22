@@ -8,10 +8,10 @@ default_kb = 64
 
 [contracts]
 admin = 64
-credence_arbitration = 64
-credence_bond = 64
-credence_delegation = 64
-credence_multisig = 64
-credence_treasury = 64
+trustforge_arbitration = 64
+trustforge_bond = 64
+trustforge_delegation = 64
+trustforge_multisig = 64
+trustforge_treasury = 64
 templates = 64
 timelock = 64

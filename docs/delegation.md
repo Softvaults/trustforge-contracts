@@ -101,10 +101,10 @@ The contract enforces a uniform replay security model across all mutating entry 
 
 ```bash
 # Build
-cargo build -p credence_delegation
+cargo build -p trustforge_delegation
 
 # Test
-cargo test -p credence_delegation
+cargo test -p trustforge_delegation
 ```
 
 ## Cross-namespace nonce replay guarantee

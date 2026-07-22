@@ -82,7 +82,7 @@ Use the content from `PR_DESCRIPTION.md` file - it contains:
 cargo test safe_token
 
 # Run all credence bond tests
-cargo test -p credence_bond
+cargo test -p trustforge_bond
 ```
 
 ## 📊 Impact Summary

@@ -100,15 +100,15 @@ All token movement paths have been migrated:
 ## 📋 Files Changed
 
 ### New Files
-- `contracts/credence_bond/src/safe_token.rs` - Safe token operations module
-- `contracts/credence_bond/src/safe_token_tests.rs` - Comprehensive test suite
+- `contracts/trustforge_bond/src/safe_token.rs` - Safe token operations module
+- `contracts/trustforge_bond/src/safe_token_tests.rs` - Comprehensive test suite
 - `SAFE_ERC20_MIGRATION_SUMMARY.md` - Detailed migration documentation
 
 ### Modified Files
-- `contracts/credence_bond/src/token_integration.rs` - Uses safe operations
-- `contracts/credence_bond/src/lib.rs` - Migrated direct token calls
-- `contracts/credence_bond/src/verifier.rs` - Uses safe token operations
-- `contracts/credence_bond/src/claims.rs` - Uses safe token operations
+- `contracts/trustforge_bond/src/token_integration.rs` - Uses safe operations
+- `contracts/trustforge_bond/src/lib.rs` - Migrated direct token calls
+- `contracts/trustforge_bond/src/verifier.rs` - Uses safe token operations
+- `contracts/trustforge_bond/src/claims.rs` - Uses safe token operations
 
 ## 🧪 How to Test
 
@@ -118,7 +118,7 @@ All token movement paths have been migrated:
 cargo test safe_token
 
 # Run all credence bond tests
-cargo test -p credence_bond
+cargo test -p trustforge_bond
 ```
 
 ### Integration Testing

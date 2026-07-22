@@ -20,8 +20,8 @@ Closes #(issue-number)
 - [ ] `cargo fmt --all -- --check` passes
 - [ ] `cargo clippy --workspace --all-targets --all-features -- -D warnings` passes
 - [ ] Coverage ≥ 95% for affected crates (`cargo llvm-cov --package <crate> --fail-under-lines 95`)
-- [ ] Fuzz harness passes (`cargo test -p credence_bond fuzz::test_bond_fuzz -- --nocapture`)
-- [ ] Error code wire-stability test passes (`cargo test -p credence_errors error_codes_wire`)
+- [ ] Fuzz harness passes (`cargo test -p trustforge_bond fuzz::test_bond_fuzz -- --nocapture`)
+- [ ] Error code wire-stability test passes (`cargo test -p trustforge_errors error_codes_wire`)
 - [ ] Release build passes (`cargo build --release`)
 
 ## Checklist

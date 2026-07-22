@@ -1,6 +1,6 @@
-# Admin CLI (`credence-admin`)
+# Admin CLI (`trustforge-admin`)
 
-This document describes the `credence-admin` command-line tool — the
+This document describes the `trustforge-admin` command-line tool — the
 operator's interface for administrative actions on Credence protocol contracts.
 
 > **What changed in this release?**  
@@ -16,8 +16,8 @@ operator's interface for administrative actions on Credence protocol contracts.
 The CLI is part of the workspace:
 
 ```sh
-cargo build -p credence_admin_cli
-# binary at: target/debug/credence-admin
+cargo build -p trustforge_admin_cli
+# binary at: target/debug/trustforge-admin
 ```
 
 ---
@@ -39,10 +39,10 @@ cargo build -p credence_admin_cli
 ### `bond-set-early-exit-config`
 
 Calls `set_early_exit_config(admin, treasury, penalty_bps)` on a
-`credence_bond` contract.
+`trustforge_bond` contract.
 
 ```sh
-credence-admin \
+trustforge-admin \
   --contract C… \
   --signer   S… \
   bond-set-early-exit-config \
@@ -62,10 +62,10 @@ credence-admin \
 ### `bond-set-weights`
 
 Calls `set_weight_config(admin, multiplier_bps, max_weight)` on a
-`credence_bond` contract.
+`trustforge_bond` contract.
 
 ```sh
-credence-admin \
+trustforge-admin \
   --contract C… \
   --signer   S… \
   bond-set-weights \
@@ -85,10 +85,10 @@ credence-admin \
 ### `delegation-set-pause-signer`
 
 Calls `set_pause_signer(admin, signer, enabled)` on a
-`credence_delegation` contract.
+`trustforge_delegation` contract.
 
 ```sh
-credence-admin \
+trustforge-admin \
   --contract C… \
   --signer   S… \
   delegation-set-pause-signer \
@@ -162,7 +162,7 @@ Error: --signer / CREDENCE_SIGNER is required with --submit
 
 ```sh
 # Dry-run: inspect XDR before touching the network
-credence-admin \
+trustforge-admin \
   --contract CABC123… \
   bond-set-early-exit-config \
   --admin    GABC… \
@@ -171,7 +171,7 @@ credence-admin \
 
 # Submit on testnet (key from env)
 export CREDENCE_SIGNER=SABC…
-credence-admin \
+trustforge-admin \
   --contract CABC123… \
   --submit \
   bond-set-weights \
@@ -180,7 +180,7 @@ credence-admin \
   --max-weight     100
 
 # Submit on mainnet
-credence-admin \
+trustforge-admin \
   --rpc-url https://mainnet.stellar.validationcloud.io/v1/<key>/soroban/rpc \
   --network "Public Global Stellar Network ; September 2015" \
   --contract CABC123… \
@@ -199,7 +199,7 @@ credence-admin \
 Run the integration test suite (offline — no live network required):
 
 ```sh
-cargo test -p credence_admin_cli -- --nocapture
+cargo test -p trustforge_admin_cli -- --nocapture
 ```
 
 Tests assert that:

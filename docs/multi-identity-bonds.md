@@ -1,12 +1,12 @@
 # Multi-Identity Bonds Architecture
 
-This document covers the architectural layout and keying mechanics that enable the `credence_bond` smart contract to handle multiple, separate identity stakes within a singular instance safely. This transition eliminates the bottleneck of deploying one contract instance per identity, maximizing gas efficiency and simplifying synchronization overhead.
+This document covers the architectural layout and keying mechanics that enable the `trustforge_bond` smart contract to handle multiple, separate identity stakes within a singular instance safely. This transition eliminates the bottleneck of deploying one contract instance per identity, maximizing gas efficiency and simplifying synchronization overhead.
 
 ---
 
 ## Storage Partitioning Strategy
 
-To isolate identity assets while avoiding collisions, `credence_bond` leverages a custom Soroban dynamic key formatting layout stored directly inside the **Persistent Storage** tier. This design guarantees that data keys scale unboundedly without bleeding states into neighboring profiles.
+To isolate identity assets while avoiding collisions, `trustforge_bond` leverages a custom Soroban dynamic key formatting layout stored directly inside the **Persistent Storage** tier. This design guarantees that data keys scale unboundedly without bleeding states into neighboring profiles.
 
 ### The Keying Scheme
 

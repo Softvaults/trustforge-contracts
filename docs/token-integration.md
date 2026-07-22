@@ -20,7 +20,7 @@ The bond contract uses Soroban token interfaces for all value movements:
 
 ## Security Model
 
-Token handling is centralized in `contracts/credence_bond/src/token_integration.rs` with the following controls:
+Token handling is centralized in `contracts/trustforge_bond/src/token_integration.rs` with the following controls:
 
 1. **Admin-gated token configuration**
    - Only stored admin can set token address.
@@ -54,13 +54,13 @@ Root custody tests cover:
 Run targeted tests:
 
 ```bash
-cargo test -p credence_bond token_integration_test -- --nocapture
+cargo test -p trustforge_bond token_integration_test -- --nocapture
 ```
 
 Run full package tests:
 
 ```bash
-cargo test -p credence_bond -- --nocapture
+cargo test -p trustforge_bond -- --nocapture
 ```
 
 ## Custody Invariant

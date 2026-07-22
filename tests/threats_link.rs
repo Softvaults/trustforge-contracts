@@ -93,9 +93,9 @@ fn verify_test_file(test_path: &str, test_name: &str, threat_id: &str) -> Result
     } else {
         // Handle relative paths - try multiple locations
         let fallback_paths = vec![
-            format!("contracts/credence_bond/src/{}", test_path),
-            format!("contracts/credence_delegation/src/{}", test_path),
-            format!("contracts/credence_treasury/src/{}", test_path),
+            format!("contracts/trustforge_bond/src/{}", test_path),
+            format!("contracts/trustforge_delegation/src/{}", test_path),
+            format!("contracts/trustforge_treasury/src/{}", test_path),
             test_path.to_string(),
         ];
 

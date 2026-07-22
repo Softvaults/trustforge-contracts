@@ -1,6 +1,6 @@
 # Credence Bond State Transitions
 
-Audience: contributors changing `contracts/credence_bond`.
+Audience: contributors changing `contracts/trustforge_bond`.
 
 This document records the intended lifecycle for the single `IdentityBond` stored
 under `DataKey::Bond`. Use it when reviewing changes to lifecycle entrypoints so

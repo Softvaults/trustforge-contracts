@@ -10,24 +10,24 @@ See also: [fund-flow.md](fund-flow.md) for a complete token custody trace.
 
 | Crate | Package name | Purpose |
 |---|---|---|
-| `contracts/credence_bond` | `credence_bond` | Core identity bond, attestations, slashing, governance |
-| `contracts/credence_registry` | `credence_registry` | Identity ↔ bond-contract address mapping |
-| `contracts/credence_treasury` | `credence_treasury` | Fee accounting and multi-sig withdrawal |
-| `contracts/credence_delegation` | `credence_delegation` | Delegated attestation and management rights |
-| `contracts/credence_arbitration` | `credence_arbitration` | Weighted-vote dispute resolution |
+| `contracts/trustforge_bond` | `trustforge_bond` | Core identity bond, attestations, slashing, governance |
+| `contracts/trustforge_registry` | `trustforge_registry` | Identity ↔ bond-contract address mapping |
+| `contracts/trustforge_treasury` | `trustforge_treasury` | Fee accounting and multi-sig withdrawal |
+| `contracts/trustforge_delegation` | `trustforge_delegation` | Delegated attestation and management rights |
+| `contracts/trustforge_arbitration` | `trustforge_arbitration` | Weighted-vote dispute resolution |
 | `contracts/dispute_resolution` | `dispute_resolution` | Stake-backed slash dispute with arbitrator voting |
 | `contracts/admin` | `admin` | Hierarchical role management (SuperAdmin/Admin/Operator) |
-| `contracts/credence_multisig` | `credence_multisig` | Generic M-of-N multi-signature proposals |
+| `contracts/trustforge_multisig` | `trustforge_multisig` | Generic M-of-N multi-signature proposals |
 | `contracts/timelock` | `timelock` | Time-delayed operation execution |
 | `contracts/fixed_duration_bond` | `fixed_duration_bond` | Simple fixed-term bond with optional early-exit penalty |
-| `contracts/credence_errors` | `credence_errors` | Shared `ContractError` enum used across crates |
-| `contracts/credence_math` | `credence_math` | Overflow-safe arithmetic helpers (`add_i128`, `split_bps`, …) |
+| `contracts/trustforge_errors` | `trustforge_errors` | Shared `ContractError` enum used across crates |
+| `contracts/trustforge_math` | `trustforge_math` | Overflow-safe arithmetic helpers (`add_i128`, `split_bps`, …) |
 
 ---
 
 ## Crate Details
 
-### `credence_bond`
+### `trustforge_bond`
 
 **Responsibility:** The protocol's primary contract. Manages the full lifecycle of an identity bond, the attestation system, slashing with governance approval, tiered bond levels, rolling bonds, early-exit penalties, fee collection, batch operations, and upgrade authorization.
 
@@ -47,7 +47,7 @@ See also: [fund-flow.md](fund-flow.md) for a complete token custody trace.
 | `governance_approval` | Governor-based slash proposal voting |
 | `leverage` | Max-leverage validation |
 | `liquidation_scanner` | Same-ledger collateral-increase guard |
-| `math` | Internal arithmetic (wraps `credence_math`) |
+| `math` | Internal arithmetic (wraps `trustforge_math`) |
 | `nonce` | Permit-style replay prevention |
 | `normalization` | Amount normalization utilities |
 | `parameters` | Configurable tier thresholds and max leverage |
@@ -124,7 +124,7 @@ See also: [fund-flow.md](fund-flow.md) for a complete token custody trace.
 
 ---
 
-### `credence_registry`
+### `trustforge_registry`
 
 **Responsibility:** Bidirectional mapping between identity addresses and their deployed bond contract addresses. The backend uses this as the discovery layer to find which bond contract belongs to which identity.
 
@@ -155,11 +155,11 @@ See also: [fund-flow.md](fund-flow.md) for a complete token custody trace.
 
 ---
 
-### `credence_treasury`
+### `trustforge_treasury`
 
 **Responsibility:** Pure accounting system for protocol fee revenue. Tracks fee balances and multi-sig withdrawal proposals. Does not hold tokens directly in the current implementation (see [known-simplifications.md](known-simplifications.md#3-treasury-is-a-pure-accounting-system-no-token-custody)).
 
-**State:** Defined in `contracts/credence_treasury/src/treasury.rs`. Includes signer list, threshold, proposal records, and approval tracking.
+**State:** Defined in `contracts/trustforge_treasury/src/treasury.rs`. Includes signer list, threshold, proposal records, and approval tracking.
 
 **Events emitted:** Fee receipt, withdrawal proposal creation, approval, and execution events (emitted from `treasury.rs`).
 
@@ -170,7 +170,7 @@ See also: [fund-flow.md](fund-flow.md) for a complete token custody trace.
 
 ---
 
-### `credence_delegation`
+### `trustforge_delegation`
 
 **Responsibility:** Allows bond owners to delegate attestation or management rights to another address for a bounded time period.
 
@@ -195,7 +195,7 @@ See also: [fund-flow.md](fund-flow.md) for a complete token custody trace.
 
 ---
 
-### `credence_arbitration`
+### `trustforge_arbitration`
 
 **Responsibility:** Canonical dispute status machine with weighted arbitrator voting. Enforces `Open → Voting → Resolving → Resolved / Cancelled` transitions.
 
@@ -293,11 +293,11 @@ See also: [fund-flow.md](fund-flow.md) for a complete token custody trace.
 
 ---
 
-### `credence_multisig`
+### `trustforge_multisig`
 
 **Responsibility:** Generic M-of-N multi-signature proposal system. Any operation can be proposed, approved by signers, and executed once the threshold is met.
 
-**State:** Defined in `contracts/credence_multisig/src/multisig.rs`. Includes signer list, threshold, and proposal records.
+**State:** Defined in `contracts/trustforge_multisig/src/multisig.rs`. Includes signer list, threshold, and proposal records.
 
 **Events emitted:** Proposal creation, approval, and execution events.
 
@@ -360,15 +360,15 @@ See also: [fund-flow.md](fund-flow.md) for a complete token custody trace.
 
 ---
 
-### `credence_errors`
+### `trustforge_errors`
 
-**Responsibility:** Shared `ContractError` enum. Imported by `credence_registry`, `dispute_resolution`, and other crates to emit consistent typed errors via `panic_with_error!`.
+**Responsibility:** Shared `ContractError` enum. Imported by `trustforge_registry`, `dispute_resolution`, and other crates to emit consistent typed errors via `panic_with_error!`.
 
 **No state. No events.**
 
 ---
 
-### `credence_math`
+### `trustforge_math`
 
 **Responsibility:** Overflow-safe arithmetic primitives used across contracts. Provides `add_i128`, `mul_i128`, `split_bps` (basis-point split), and related helpers.
 
@@ -381,19 +381,19 @@ See also: [fund-flow.md](fund-flow.md) for a complete token custody trace.
 For a detailed visual mapping of dynamic interactions, callbacks, token custody pathways, and authentication entrypoints, see the [Cross-Contract Call Graph & Authorization Flow](cross-contract-call-graph.md).
 
 ```
-credence_bond
-  ├── uses credence_math        (arithmetic)
-  ├── uses credence_errors      (error types, indirectly via panic)
-  └── logically paired with credence_registry (manual admin step)
+trustforge_bond
+  ├── uses trustforge_math        (arithmetic)
+  ├── uses trustforge_errors      (error types, indirectly via panic)
+  └── logically paired with trustforge_registry (manual admin step)
 
-credence_registry
-  └── uses credence_errors      (ContractError variants)
+trustforge_registry
+  └── uses trustforge_errors      (ContractError variants)
 
 dispute_resolution
-  └── uses credence_errors      (ContractError variants)
+  └── uses trustforge_errors      (ContractError variants)
 
 fixed_duration_bond
-  └── uses credence_math        (split_bps, add_i128)
+  └── uses trustforge_math        (split_bps, add_i128)
 
 All contracts
   └── share pausable module pattern (copy per crate, not a shared lib)
@@ -428,11 +428,11 @@ let after = token.balance(&contract);
 assert!(after - before == amount, "unsupported token");
 ```
 
-This pattern is implemented in `credence_bond/src/token_integration.rs`, `dispute_resolution/src/lib.rs`, and `fixed_duration_bond/src/lib.rs`.
+This pattern is implemented in `trustforge_bond/src/token_integration.rs`, `dispute_resolution/src/lib.rs`, and `fixed_duration_bond/src/lib.rs`.
 
 ### Event versioning
 
-`credence_bond` emits both `bond_created` (legacy) and `bond_created_v2` (indexed) for backward compatibility during migration. The `_v2` variants include additional indexed topics for efficient off-chain filtering. New integrations should consume `_v2` events.
+`trustforge_bond` emits both `bond_created` (legacy) and `bond_created_v2` (indexed) for backward compatibility during migration. The `_v2` variants include additional indexed topics for efficient off-chain filtering. New integrations should consume `_v2` events.
 
 ---
 
@@ -440,17 +440,17 @@ This pattern is implemented in `credence_bond/src/token_integration.rs`, `disput
 
 | What the backend needs | Where to get it |
 |---|---|
-| Identity → bond contract address | `credence_registry`: index `identity_registered`, query `get_bond_contract` |
-| Current bond state (amount, tier, active) | `credence_bond`: poll `get_identity_state()` on the bond contract |
-| Bond creation / withdrawal history | `credence_bond`: index `bond_created_v2`, `bond_withdrawn_v2` |
-| Slash history | `credence_bond`: index `bond_slashed_v2` |
-| Current tier per identity | `credence_bond`: index `tier_changed` |
-| Attestation graph | `credence_bond`: index `attestation_added`, `attestation_revoked` |
-| Active delegations | `credence_delegation`: index `delegation_created`, `delegation_revoked` |
-| Dispute outcomes | `credence_arbitration`: index `dispute_resolved`; `dispute_resolution`: index `DisputeResolved` |
-| Protocol fee revenue | `credence_treasury`: index fee-receipt events; `fixed_duration_bond`: index `fees_collected` |
+| Identity → bond contract address | `trustforge_registry`: index `identity_registered`, query `get_bond_contract` |
+| Current bond state (amount, tier, active) | `trustforge_bond`: poll `get_identity_state()` on the bond contract |
+| Bond creation / withdrawal history | `trustforge_bond`: index `bond_created_v2`, `bond_withdrawn_v2` |
+| Slash history | `trustforge_bond`: index `bond_slashed_v2` |
+| Current tier per identity | `trustforge_bond`: index `tier_changed` |
+| Attestation graph | `trustforge_bond`: index `attestation_added`, `attestation_revoked` |
+| Active delegations | `trustforge_delegation`: index `delegation_created`, `delegation_revoked` |
+| Dispute outcomes | `trustforge_arbitration`: index `dispute_resolved`; `dispute_resolution`: index `DisputeResolved` |
+| Protocol fee revenue | `trustforge_treasury`: index fee-receipt events; `fixed_duration_bond`: index `fees_collected` |
 | Admin / role changes | `admin`: index `admin_added`, `admin_removed`, `admin_role_updated` |
-| Pending governance actions | `credence_multisig`: index proposal events; `timelock`: index queued operations |
-| Supply utilization | `credence_bond`: poll `get_total_supply()`, `get_supply_cap()` |
+| Pending governance actions | `trustforge_multisig`: index proposal events; `timelock`: index queued operations |
+| Supply utilization | `trustforge_bond`: poll `get_total_supply()`, `get_supply_cap()` |
 
 For known limitations affecting backend integration (unbounded registry pagination, treasury token custody, etc.) see [known-simplifications.md](known-simplifications.md).

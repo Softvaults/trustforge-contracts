@@ -1,11 +1,11 @@
 # Doctest Authoring Guide
 
 This guide explains how to write and maintain `/// # Example` doctests on public
-entrypoints in `contracts/credence_bond/src/lib.rs` (and future contracts).
+entrypoints in `contracts/trustforge_bond/src/lib.rs` (and future contracts).
 
 ## Why doctests?
 
-Doctests are compiled and executed by `cargo test --doc -p credence_bond`.
+Doctests are compiled and executed by `cargo test --doc -p trustforge_bond`.
 They fail CI if an example no longer compiles, which prevents stale docs from
 misleading integrators. Renaming an entrypoint without updating its doctest
 immediately breaks the build.
@@ -13,7 +13,7 @@ immediately breaks the build.
 ## Running doctests
 
 ```bash
-cargo test --doc -p credence_bond
+cargo test --doc -p trustforge_bond
 ```
 
 To run all workspace tests (including doctests):
@@ -33,7 +33,7 @@ have fully runnable doctests with no annotation:
 /// # Example
 ///
 /// ```
-/// use credence_bond::create_bond;
+/// use trustforge_bond::create_bond;
 ///
 /// let bond = create_bond(1000, 0, 3600, false, 0).unwrap();
 /// assert_eq!(bond.amount, 1000);
@@ -53,7 +53,7 @@ drift) but not executed (avoiding harness limitations):
 /// # Example
 ///
 /// ```no_run
-/// use credence_bond::{CredenceBond, CredenceBondClient};
+/// use trustforge_bond::{CredenceBond, CredenceBondClient};
 /// use soroban_sdk::{Env, Address};
 /// use soroban_sdk::testutils::Address as _;
 ///
@@ -76,7 +76,7 @@ Every contract method doctest should start with this setup block:
 
 ```rust
 /// ```no_run
-/// use credence_bond::{CredenceBond, CredenceBondClient};
+/// use trustforge_bond::{CredenceBond, CredenceBondClient};
 /// use soroban_sdk::{Env, Address};
 /// use soroban_sdk::testutils::Address as _;
 ///
@@ -106,7 +106,7 @@ Use `should_panic` for examples that demonstrate a panic path:
 /// # Example — panics when bond not found
 ///
 /// ```should_panic
-/// use credence_bond::{CredenceBond, CredenceBondClient};
+/// use trustforge_bond::{CredenceBond, CredenceBondClient};
 /// use soroban_sdk::{Env, Address};
 /// use soroban_sdk::testutils::Address as _;
 ///
@@ -125,8 +125,8 @@ For pure Rust helpers that return `Result`, prefer `assert_eq!(result, Err(...))
 
 ```rust
 /// ```
-/// use credence_bond::create_bond;
-/// use credence_errors::ContractError;
+/// use trustforge_bond::create_bond;
+/// use trustforge_errors::ContractError;
 ///
 /// assert_eq!(create_bond(0, 0, 3600, false, 0), Err(ContractError::InvalidBondAmount));
 /// ```
@@ -141,12 +141,12 @@ find the full narrative documentation:
 /// See also: [`docs/early-exit.md`](../../../docs/early-exit.md)
 ```
 
-Use relative paths from the crate root (`contracts/credence_bond/`).
+Use relative paths from the crate root (`contracts/trustforge_bond/`).
 
 ## Checklist before opening a PR
 
 - [ ] Every `pub fn` on `CredenceBond` has at least one `/// # Example` block.
 - [ ] Every pure Rust `pub fn` has a fully runnable (no annotation) doctest.
-- [ ] `cargo test --doc -p credence_bond` passes locally.
+- [ ] `cargo test --doc -p trustforge_bond` passes locally.
 - [ ] Error paths are covered with `should_panic` or `Err(...)` assertions.
 - [ ] `See also:` links point to the correct markdown file.

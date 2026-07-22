@@ -98,5 +98,5 @@ println!("Snapshot at:       {}", snap.snapshot_timestamp);
 - [Slashing](slashing.md)
 - [Tier System](tier-system.md)
 - [Emergency](emergency.md)
-- Source: `contracts/credence_bond/src/status_snapshot.rs`
-- Tests: `contracts/credence_bond/src/test_status_snapshot.rs`
+- Source: `contracts/trustforge_bond/src/status_snapshot.rs`
+- Tests: `contracts/trustforge_bond/src/test_status_snapshot.rs`

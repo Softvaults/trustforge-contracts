@@ -6,7 +6,7 @@
 
 ## Overview
 
-The delegated action signature verification in `credence_delegation` traditionally relied on the **implicit Soroban auth engine**, which supports **Ed25519-only** signatures. As post-quantum cryptography requirements emerge, this contract introduces an **explicit verifier registry** that maps signature scheme tags to verifier implementations, enabling support for:
+The delegated action signature verification in `trustforge_delegation` traditionally relied on the **implicit Soroban auth engine**, which supports **Ed25519-only** signatures. As post-quantum cryptography requirements emerge, this contract introduces an **explicit verifier registry** that maps signature scheme tags to verifier implementations, enabling support for:
 
 - **Ed25519** (0): NIST-standard EdDSA using Curve25519 (default, backwards-compatible)
 - **Secp256r1** (1): ECDSA over NIST P-256 curve (future extensibility)

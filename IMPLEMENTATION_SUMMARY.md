@@ -8,7 +8,7 @@ Implemented a comprehensive governance-controlled protocol parameters system for
 
 ## Files Created
 
-### 1. `contracts/credence_bond/src/parameters.rs` (609 lines)
+### 1. `contracts/trustforge_bond/src/parameters.rs` (609 lines)
 Core parameters module implementing:
 - **8 configurable parameters** across 3 categories
 - **Governance-only access control** on all setters
@@ -16,7 +16,7 @@ Core parameters module implementing:
 - **Event emission** on every parameter change
 - **NatSpec-style documentation** on all public functions
 
-### 2. `contracts/credence_bond/src/test_parameters.rs` (689 lines)
+### 2. `contracts/trustforge_bond/src/test_parameters.rs` (689 lines)
 Comprehensive test suite with:
 - **63 test cases** covering all scenarios
 - **100% code coverage** of parameters module
@@ -31,7 +31,7 @@ Comprehensive test suite with:
   8. Event emission verification (3 tests)
   9. Edge cases and boundary conditions (5 tests)
 
-### 3. `contracts/credence_bond/docs/parameters.md` (384 lines)
+### 3. `contracts/trustforge_bond/docs/parameters.md` (384 lines)
 Complete documentation including:
 - Parameter reference table with types, units, defaults, min/max
 - Governance control documentation
@@ -41,7 +41,7 @@ Complete documentation including:
 - Integration examples
 - Security considerations
 
-### 4. `contracts/credence_bond/src/lib.rs` (modified)
+### 4. `contracts/trustforge_bond/src/lib.rs` (modified)
 Added 16 public contract methods:
 - 8 getter methods (one per parameter)
 - 8 setter methods (one per parameter)

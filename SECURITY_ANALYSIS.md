@@ -216,7 +216,7 @@ test result: ok. 28 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out
 ## Test File Structure
 
 ```
-contracts/credence_bond/src/
+contracts/trustforge_bond/src/
 ├── lib.rs (contract implementation)
 ├── test.rs (basic functionality tests)
 └── security/

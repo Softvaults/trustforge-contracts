@@ -18,7 +18,7 @@ The Credence protocol uses a **Fixed 18-Decimal Precision** for all internal acc
 
 ## Basis-Point Chains
 
-Use `credence_math::mul_div_i128(a, b, denom, mode, msg)` when a percentage, fee, penalty, or pro-rata formula would otherwise multiply and divide in multiple steps. The helper widens the intermediate product to 256 bits before division, so `a * b` can exceed `i128::MAX` as long as the final rounded result still fits in `i128`.
+Use `trustforge_math::mul_div_i128(a, b, denom, mode, msg)` when a percentage, fee, penalty, or pro-rata formula would otherwise multiply and divide in multiple steps. The helper widens the intermediate product to 256 bits before division, so `a * b` can exceed `i128::MAX` as long as the final rounded result still fits in `i128`.
 
 - Use `Rounding::Down` for back-compatible truncation toward zero. This matches the legacy `bps(amount, bps, ..)` result.
 - Use `Rounding::Up` when the protocol must collect at least the fractional fee or penalty amount.

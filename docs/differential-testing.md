@@ -3,7 +3,7 @@
 ## Purpose
 
 The repository carries three-way merge artifacts (`ours.rs`, `base.rs`, `theirs.rs`) at the
-root alongside the canonical `contracts/credence_bond` crate.  Issue #351 tracks the
+root alongside the canonical `contracts/trustforge_bond` crate.  Issue #351 tracks the
 consolidation of those artifacts.  **This document describes the safety-net harness that
 runs alongside consolidation:** a differential test suite that replays the same scripted bond
 lifecycles against every fork and asserts byte-identical state and event streams.
@@ -15,11 +15,11 @@ lifecycles against every fork and asserts byte-identical state and event streams
 
 ### Location
 
-- `contracts/credence_bond/tests/differential.rs` — integration test harness.
-- `contracts/credence_bond/src/fork_ours.rs`
-- `contracts/credence_bond/src/fork_base.rs`
-- `contracts/credence_bond/src/fork_theirs.rs`
-- `contracts/credence_bond/src/fork_divergent.rs` — deliberate-bug variant used to prove the
+- `contracts/trustforge_bond/tests/differential.rs` — integration test harness.
+- `contracts/trustforge_bond/src/fork_ours.rs`
+- `contracts/trustforge_bond/src/fork_base.rs`
+- `contracts/trustforge_bond/src/fork_theirs.rs`
+- `contracts/trustforge_bond/src/fork_divergent.rs` — deliberate-bug variant used to prove the
   harness can catch divergence.
 
 ### Fork gating
@@ -43,8 +43,8 @@ All four contracts are registered in **one** `soroban_sdk::Env` instance:
 
 ```rust
 let env = Env::default();
-let canonical_id = env.register_contract(None, credence_bond::CredenceBond);
-let ours_id      = env.register_contract(None, credence_bond::fork_ours::CredenceBond);
+let canonical_id = env.register_contract(None, trustforge_bond::CredenceBond);
+let ours_id      = env.register_contract(None, trustforge_bond::fork_ours::CredenceBond);
 // ...
 ```
 
@@ -83,13 +83,13 @@ A scenario is a `Vec<Step>` where each `Step` is an enum variant:
 ### Running the harness
 
 ```bash
-cargo test -p credence_bond --tests differential -- --nocapture
+cargo test -p trustforge_bond --tests differential -- --nocapture
 ```
 
 To run a single scenario:
 
 ```bash
-cargo test -p credence_bond scenario_full_bond_lifecycle -- --nocapture
+cargo test -p trustforge_bond scenario_full_bond_lifecycle -- --nocapture
 ```
 
 ## Edge-case coverage
@@ -125,7 +125,7 @@ merging the consolidation PR.
 
 ## Commit checklist for #351
 
-- [ ] Run `cargo test -p credence_bond --tests differential -- --nocapture` and observe **all green**.
+- [ ] Run `cargo test -p trustforge_bond --tests differential -- --nocapture` and observe **all green**.
 - [ ] If a fork is intentionally preserved (e.g. for historical reference), move it to
       `tests/differential/forks/` and update the harness registration.
 - [ ] Delete the root-level merge artifacts (`ours.rs`, `base.rs`, `theirs.rs`) once the

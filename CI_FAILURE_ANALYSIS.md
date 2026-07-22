@@ -6,7 +6,7 @@ The CI is failing with the following error:
 
 ```
 error: custom attribute panicked
-  --> contracts\credence_errors\src\lib.rs:58:1
+  --> contracts\trustforge_errors\src\lib.rs:58:1
    |
 58 | #[contracterror]
    | ^^^^^^^^^^^^^^^^
@@ -16,7 +16,7 @@ error: custom attribute panicked
 
 ## Root Cause
 
-The `#[contracterror]` macro in Soroban SDK has a limit on the number of error variants it can handle (typically 32). The `credence_errors` crate currently has **53 error variants**, which exceeds this limit.
+The `#[contracterror]` macro in Soroban SDK has a limit on the number of error variants it can handle (typically 32). The `trustforge_errors` crate currently has **53 error variants**, which exceeds this limit.
 
 ## Important: Pre-Existing Issue
 
@@ -29,7 +29,7 @@ The `#[contracterror]` macro in Soroban SDK has a limit on the number of error v
 ```bash
 # Test on main branch:
 $ git checkout main
-$ cargo check --package credence_errors
+$ cargo check --package trustforge_errors
 # Result: Same LengthExceedsMax error
 ```
 
@@ -63,7 +63,7 @@ Implement a custom error type without using the `#[contracterror]` macro.
 
 ## Action Items
 
-1. **Immediate**: Fix the `credence_errors` compilation issue in main branch
+1. **Immediate**: Fix the `trustforge_errors` compilation issue in main branch
 2. **Then**: Rebase PR #358 on the fixed main branch
 3. **Finally**: Merge PR #358
 
@@ -81,16 +81,16 @@ To verify this is a pre-existing issue:
 ```bash
 # Check main branch
 git checkout main
-cargo check --package credence_errors
+cargo check --package trustforge_errors
 # Expected: LengthExceedsMax error
 
 # Check PR branch  
 git checkout feature/bond-withdraw-lockup-gate
 # Count error variants (should be same as main)
-git show main:contracts/credence_errors/src/lib.rs | grep -E "^\s+\w+\s*=\s*\d+" | wc -l
+git show main:contracts/trustforge_errors/src/lib.rs | grep -E "^\s+\w+\s*=\s*\d+" | wc -l
 # Result: 53 variants (same as main)
 ```
 
 ## Conclusion
 
-PR #358 is ready to merge once the pre-existing `credence_errors` compilation issue is resolved in the main branch. The PR itself does not contribute to or worsen the error limit problem.
+PR #358 is ready to merge once the pre-existing `trustforge_errors` compilation issue is resolved in the main branch. The PR itself does not contribute to or worsen the error limit problem.

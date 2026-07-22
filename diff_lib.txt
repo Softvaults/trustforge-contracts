@@ -1,5 +1,5 @@
---- contracts/credence_bond/src/lib.rs	2026-05-29 16:47:25.689913263 +0100
-+++ contracts/credence_bond/src/lib_main.rs	2026-05-29 16:51:03.750395665 +0100
+--- contracts/trustforge_bond/src/lib.rs	2026-05-29 16:47:25.689913263 +0100
++++ contracts/trustforge_bond/src/lib_main.rs	2026-05-29 16:51:03.750395665 +0100
 @@ -1,126 +1,21 @@
  #![no_std]
  
@@ -128,7 +128,7 @@
 -pub use types::Attestation;
 +pub mod types;
  
-+use credence_errors::ContractError;
++use trustforge_errors::ContractError;
 +use soroban_sdk::{
 +    contract, contractimpl, contracttype, panic_with_error, Address, Env, IntoVal, String, Symbol,
 +    Val, Vec,

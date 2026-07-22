@@ -138,12 +138,12 @@ All token movement paths have been migrated:
 - ✅ **Created commit with proper message**
 
 ## Files Modified
-1. `contracts/credence_bond/src/safe_token.rs` - **NEW** - Safe token operations module
-2. `contracts/credence_bond/src/safe_token_tests.rs` - **NEW** - Comprehensive test suite
-3. `contracts/credence_bond/src/token_integration.rs` - **UPDATED** - Uses safe operations
-4. `contracts/credence_bond/src/lib.rs` - **UPDATED** - Migrated direct token calls
-5. `contracts/credence_bond/src/verifier.rs` - **UPDATED** - Uses safe token operations
-6. `contracts/credence_bond/src/claims.rs` - **UPDATED** - Uses safe token operations
+1. `contracts/trustforge_bond/src/safe_token.rs` - **NEW** - Safe token operations module
+2. `contracts/trustforge_bond/src/safe_token_tests.rs` - **NEW** - Comprehensive test suite
+3. `contracts/trustforge_bond/src/token_integration.rs` - **UPDATED** - Uses safe operations
+4. `contracts/trustforge_bond/src/lib.rs` - **UPDATED** - Migrated direct token calls
+5. `contracts/trustforge_bond/src/verifier.rs` - **UPDATED** - Uses safe token operations
+6. `contracts/trustforge_bond/src/claims.rs` - **UPDATED** - Uses safe token operations
 
 ## Next Steps
 1. **Code Review**: Team review of the safe token implementation

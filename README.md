@@ -22,7 +22,7 @@ cargo build
 For Soroban (WASM) build:
 
 ```bash
-cargo build --target wasm32-unknown-unknown --release --locked -p credence_bond -p credence_delegation
+cargo build --target wasm32-unknown-unknown --release --locked -p trustforge_bond -p trustforge_delegation
 ```
 
 For the reproducibility check and the CI hash comparison, see [docs/wasm-reproducibility.md](docs/wasm-reproducibility.md).
@@ -38,8 +38,8 @@ cargo test --workspace
 Run specific contract tests:
 
 ```bash
-cargo test -p credence_bond
-cargo test -p credence_delegation
+cargo test -p trustforge_bond
+cargo test -p trustforge_delegation
 ```
 
 The dedicated CI workflow at `.github/workflows/contracts-tests.yml` runs the full workspace tests on every PR.
@@ -86,7 +86,7 @@ Release Wasm for every deployable contract must stay within per-contract size ce
 
 ## Project layout
 
-- `contracts/credence_bond/` — Identity bond contract
+- `contracts/trustforge_bond/` — Identity bond contract
   - `create_bond()` / `top_up()` / `withdraw()` / `withdraw_early()`
   - Rolling bonds: `request_withdrawal()` and `renew_if_rolling()`
   - Tiering: `get_tier()` with auto-upgrade/downgrade events
@@ -94,7 +94,7 @@ Release Wasm for every deployable contract must stay within per-contract size ce
   - Emergency: `set_emergency_config()`, `set_emergency_mode()`, `emergency_withdraw()`
   - Emergency audit: `get_latest_emergency_record_id()`, `get_emergency_record()`
   - Lifecycle: [bond state transitions](docs/bond-state-transitions.md)
-- `contracts/credence_delegation/` — Delegation contract
+- `contracts/trustforge_delegation/` — Delegation contract
 - `docs/` — Feature docs (`EVENTS.md`, `rolling-bonds.md`, `early-exit.md`, `slashing.md`, `tier-system.md`, `delegation.md`, `emergency.md`, `UPGRADE.md`)
 
 **Known simplifications:** See [docs/known-simplifications.md](docs/known-simplifications.md) for a complete list of intentional limitations and production paths.
@@ -105,7 +105,7 @@ Configure network and deploy:
 
 ```bash
 soroban contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/credence_bond.wasm \
+  --wasm target/wasm32-unknown-unknown/release/trustforge_bond.wasm \
   --source <SECRET_KEY> \
   --network <NETWORK>
 ```

@@ -11,7 +11,7 @@ Soroban mainnet enforces hard per-transaction caps on:
 
 A contract that passes unit tests may still **fail on mainnet** if a future
 change inflates its resource footprint beyond those limits. This document
-defines the assertable ceilings for each `credence_bond` write-path
+defines the assertable ceilings for each `trustforge_bond` write-path
 entrypoint and explains how they were derived.
 
 ---
@@ -90,7 +90,7 @@ All values are expressed as CPU instruction units and memory bytes.
 To verify that `assert_budget_under` actually catches violations, run:
 
 ```sh
-cargo test -p credence_bond budget_regression_guard_fails -- --ignored
+cargo test -p trustforge_bond budget_regression_guard_fails -- --ignored
 ```
 
 This test uses an absurdly tight ceiling (1 CPU unit, 1 mem byte) and
@@ -103,13 +103,13 @@ run it manually when modifying the assertion helper.
 
 ```sh
 # All budget ceiling tests:
-cargo test -p credence_bond budget
+cargo test -p trustforge_bond budget
 
 # Specific entrypoint:
-cargo test -p credence_bond budget_create_bond
+cargo test -p trustforge_bond budget_create_bond
 
 # With verbose output to see cost values:
-cargo test -p credence_bond budget -- --nocapture
+cargo test -p trustforge_bond budget -- --nocapture
 ```
 
 ---

@@ -1,6 +1,6 @@
 # Bond Market Activation Checklist
 
-Pre-activation checklist for the `credence_bond` contract. All items must pass before a bond market is considered safe to activate.
+Pre-activation checklist for the `trustforge_bond` contract. All items must pass before a bond market is considered safe to activate.
 
 ## 1. Token Configuration
 
@@ -70,7 +70,7 @@ All thresholds must be strictly increasing:
 Run before every deployment:
 
 ```sh
-cargo test -p credence_bond
+cargo test -p trustforge_bond
 ```
 
 Key test coverage in `src/test_market_activation.rs`:

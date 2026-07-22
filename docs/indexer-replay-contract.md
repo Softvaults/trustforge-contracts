@@ -2,9 +2,9 @@
 
 Downstream indexers never read contract storage. They observe only the **event
 stream** and must reconstruct each bond's `IdentityBond` from it. This document
-specifies the contract between the `credence_bond` events and a conforming
+specifies the contract between the `trustforge_bond` events and a conforming
 replayer, and is enforced by the test suite in
-[`contracts/credence_bond/tests/indexer_replay.rs`](../contracts/credence_bond/tests/indexer_replay.rs).
+[`contracts/trustforge_bond/tests/indexer_replay.rs`](../contracts/trustforge_bond/tests/indexer_replay.rs).
 
 > **The replay invariant:** folding a pure `apply(event, state)` over a bond's
 > complete event history, in emission order, MUST yield exactly the
@@ -37,7 +37,7 @@ carried value rather than recomputing it.
 | `bond_slashed_v2`    | `slashed_amount = total_slashed`                                   | `slash_bond` |
 
 Payload field positions are documented on each emitter in
-[`src/events.rs`](../contracts/credence_bond/src/events.rs) under
+[`src/events.rs`](../contracts/trustforge_bond/src/events.rs) under
 `# Replay semantics`.
 
 ## Informational / ignored events

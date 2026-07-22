@@ -1,8 +1,8 @@
-# `credence_bond` Crate Layout
+# `trustforge_bond` Crate Layout
 
 ## Canonical source of truth
 
-`contracts/credence_bond/src/lib.rs` is the single authoritative implementation.
+`contracts/trustforge_bond/src/lib.rs` is the single authoritative implementation.
 It defines the `CredenceBond` Soroban contract compiled to WASM and deployed
 on-chain.  Every other file in `src/` is either a helper module pulled in by
 `lib.rs` or a `#[cfg(test)]`-only module.

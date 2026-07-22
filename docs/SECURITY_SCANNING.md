@@ -160,7 +160,7 @@ Clippy outputs warnings/errors with file location and explanation:
 
 ```
 warning: used `unwrap()` on a `Result` value
-  --> contracts/credence_bond/src/lib.rs:42:18
+  --> contracts/trustforge_bond/src/lib.rs:42:18
    |
 42 |     let value = result.unwrap();
    |                  ^^^^^^^^^^^^^^
@@ -189,7 +189,7 @@ Metric output format: x/y
 
 Functions  Expressions  Impls  Traits  Methods  Dependency
 
-0/0        0/0          0/0    0/0     0/0      credence_bond
+0/0        0/0          0/0    0/0     0/0      trustforge_bond
 2/2        5/5          0/0    0/0     1/1      soroban-sdk
 ```
 

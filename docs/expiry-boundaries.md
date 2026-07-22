@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `credence_delegation` contract enforces strict boundaries on delegation expiry times to prevent security issues like:
+The `trustforge_delegation` contract enforces strict boundaries on delegation expiry times to prevent security issues like:
 
 - **Never-expiring delegations**: Allowing `expires_at = u64::MAX` or extremely distant times
 - **Already-expired delegations**: Accepting `expires_at ≤ now`, which could indicate a miscalculated or malicious timestamp
@@ -150,9 +150,9 @@ The test harness validates this by:
 
 ### Test File Location
 
-- **File**: `contracts/credence_delegation/src/test_expiry_boundary.rs`
+- **File**: `contracts/trustforge_delegation/src/test_expiry_boundary.rs`
 - **Module Declaration**: `pub mod test_expiry_boundary;` in `lib.rs`
-- **Execution**: `cargo test -p credence_delegation expiry_boundary`
+- **Execution**: `cargo test -p trustforge_delegation expiry_boundary`
 
 ---
 
@@ -161,8 +161,8 @@ The test harness validates this by:
 ### Running the Tests
 
 ```bash
-cd contracts/credence_delegation
-cargo test -p credence_delegation expiry_boundary -- --nocapture
+cd contracts/trustforge_delegation
+cargo test -p trustforge_delegation expiry_boundary -- --nocapture
 ```
 
 ### Expected Output

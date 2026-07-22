@@ -15,7 +15,7 @@ Audience: **Contributors** (security-focused developers maintaining/auditing the
 
 ---
 
-## Credence Bond Contract (`credence_bond`)
+## Credence Bond Contract (`trustforge_bond`)
 
 ### Identity Bond Entrypoints
 
@@ -54,7 +54,7 @@ Audience: **Contributors** (security-focused developers maintaining/auditing the
 
 ---
 
-## Credence Delegation Contract (`credence_delegation`)
+## Credence Delegation Contract (`trustforge_delegation`)
 
 ### Delegation Entrypoints
 

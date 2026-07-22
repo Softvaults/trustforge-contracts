@@ -1,10 +1,10 @@
 # Fuzz Testing (Bond Operations)
 
-This repository includes a property-based fuzz harness for the `credence_bond` crate. It exercises randomized sequences of bond operations and asserts the core accounting invariants after every transition.
+This repository includes a property-based fuzz harness for the `trustforge_bond` crate. It exercises randomized sequences of bond operations and asserts the core accounting invariants after every transition.
 
 ## Where the tests live
 
-- `contracts/credence_bond/src/fuzz/test_bond_fuzz.rs`
+- `contracts/trustforge_bond/src/fuzz/test_bond_fuzz.rs`
 
 ## What is covered
 
@@ -33,7 +33,7 @@ These invariants protect the core bond accounting logic from overflow, underflow
 Run the harness directly with:
 
 ```bash
-cargo test -p credence_bond fuzz::test_bond_fuzz -- --nocapture
+cargo test -p trustforge_bond fuzz::test_bond_fuzz -- --nocapture
 ```
 
 The `--nocapture` flag ensures proptest prints the failing case details and shrinking output.
@@ -43,7 +43,7 @@ The `--nocapture` flag ensures proptest prints the failing case details and shri
 The repository CI already runs this harness explicitly in the test job using:
 
 ```bash
-cargo test -p credence_bond fuzz::test_bond_fuzz -- --nocapture
+cargo test -p trustforge_bond fuzz::test_bond_fuzz -- --nocapture
 ```
 
 ## Interpreting failures

@@ -6,7 +6,7 @@ This document details the cross-contract call pathways, interface checks, callba
 
 ## High-Level Call Graph
 
-The following diagram illustrates how the core contracts (`credence_bond`, `credence_registry`, `credence_delegation`, and `credence_treasury`) interact with each other and with external dependencies (the USDC Token contract, custom Verifier contracts, and custom Callback contracts).
+The following diagram illustrates how the core contracts (`trustforge_bond`, `trustforge_registry`, `trustforge_delegation`, and `trustforge_treasury`) interact with each other and with external dependencies (the USDC Token contract, custom Verifier contracts, and custom Callback contracts).
 
 ```mermaid
 graph TD
@@ -21,16 +21,16 @@ graph TD
     end
 
     subgraph Identity Layer
-        Registry["credence_registry"]
+        Registry["trustforge_registry"]
     end
 
     subgraph Reputation & Stake
-        Bond["credence_bond"]
-        Treasury["credence_treasury"]
+        Bond["trustforge_bond"]
+        Treasury["trustforge_treasury"]
     end
 
     subgraph Rights Delegation
-        Delegation["credence_delegation"]
+        Delegation["trustforge_delegation"]
     end
 
     subgraph External & Standards
@@ -63,15 +63,15 @@ graph TD
 
 ## Detailed Call Edge Specifications
 
-### 1. `credence_registry` $\leftrightarrow$ `credence_bond`
+### 1. `trustforge_registry` $\leftrightarrow$ `trustforge_bond`
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor Admin
     actor Identity
-    participant Registry as credence_registry
-    participant Bond as credence_bond
+    participant Registry as trustforge_registry
+    participant Bond as trustforge_bond
 
     Note over Registry: Admin-driven Pairing
     Admin->>Registry: register_identity(identity, bond_contract, allow_non_interface)
@@ -91,13 +91,13 @@ sequenceDiagram
 - **`supports_interface` Check:** `register_identity` performs an ERC165-equivalent interface verification on the target `bond_contract` using the identifier `IFACE_CREDENCE_BOND_V1`.
 - **`register_trustless` Hash Introspection:** To bypass the admin trust assumption, a bond contract can register itself with the registry. The registry calls `get_contract_code_hash` back on the caller and performs a constant-time memory comparison (`constant_time_eq`) against the admin-pinned reference WASM hash to ensure authenticity.
 
-### 2. `credence_delegation` $\rightarrow$ `Verifier Contract`
+### 2. `trustforge_delegation` $\rightarrow$ `Verifier Contract`
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor Delegate
-    participant Delegation as credence_delegation
+    participant Delegation as trustforge_delegation
     participant Verifier as Verifier Contract
 
     Delegate->>Delegation: verify(verifier_addr, owner, message, signature)
@@ -117,7 +117,7 @@ sequenceDiagram
 sequenceDiagram
     autonumber
     actor User
-    participant Contract as credence_bond / credence_treasury
+    participant Contract as trustforge_bond / trustforge_treasury
     participant Token as USDC Token Contract
 
     User->>Contract: create_bond_with_rolling(amount, ...) / execute_withdrawal(...)
@@ -131,13 +131,13 @@ sequenceDiagram
 - **Front-Running & Allowance Guards:** Both the bond and treasury contracts invoke standard token methods (`transfer`, `transfer_from`, `allowance`, `approve`).
 - **Balance-Delta Verification:** In custody actions, contracts query the token balance before and after execution to enforce that the exact expected amount is transferred, mitigating risks of fee-on-transfer tokens.
 
-### 4. `credence_bond` $\rightarrow$ `Callback Contract`
+### 4. `trustforge_bond` $\rightarrow$ `Callback Contract`
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor Trigger
-    participant Bond as credence_bond
+    participant Bond as trustforge_bond
     participant Callback as Callback Contract
 
     Trigger->>Bond: withdraw() / slash_bond() / collect_fees()
@@ -157,11 +157,11 @@ sequenceDiagram
 
 | Contract | Function | Caller / Auth | Nonce / Replay Check |
 |---|---|---|---|
-| `credence_bond` | `create_bond_with_rolling` | `identity.require_auth()` | No (one-off creation) |
-| `credence_bond` | `add_attestation` | `attester.require_auth()` | Yes (`nonce::consume_nonce`) |
-| `credence_bond` | `add_attestation_batch` | Each `item.attester.require_auth()` | Yes (Per-item `nonce`) |
-| `credence_bond` | `slash_bond` | `admin.require_auth()` | No (Admin/governance trigger) |
-| `credence_bond` | `collect_fees` | `admin.require_auth()` | No |
-| `credence_registry` | `register_identity` | `admin.require_auth()` | No |
-| `credence_delegation` | `create_delegation` | `owner.require_auth()` | Yes (`nonce`) |
-| `credence_treasury` | `propose_withdrawal` | `signer.require_auth()` | Yes (`nonce`) |
+| `trustforge_bond` | `create_bond_with_rolling` | `identity.require_auth()` | No (one-off creation) |
+| `trustforge_bond` | `add_attestation` | `attester.require_auth()` | Yes (`nonce::consume_nonce`) |
+| `trustforge_bond` | `add_attestation_batch` | Each `item.attester.require_auth()` | Yes (Per-item `nonce`) |
+| `trustforge_bond` | `slash_bond` | `admin.require_auth()` | No (Admin/governance trigger) |
+| `trustforge_bond` | `collect_fees` | `admin.require_auth()` | No |
+| `trustforge_registry` | `register_identity` | `admin.require_auth()` | No |
+| `trustforge_delegation` | `create_delegation` | `owner.require_auth()` | Yes (`nonce`) |
+| `trustforge_treasury` | `propose_withdrawal` | `signer.require_auth()` | Yes (`nonce`) |

@@ -18,7 +18,7 @@ Successfully implemented the core `slash_bond()` function with comprehensive tes
 
 ### 1. Core Module: `slashing.rs`
 
-**Location:** [contracts/credence_bond/src/slashing.rs](contracts/credence_bond/src/slashing.rs)
+**Location:** [contracts/trustforge_bond/src/slashing.rs](contracts/trustforge_bond/src/slashing.rs)
 
 #### Main Function: `slash_bond()`
 
@@ -53,7 +53,7 @@ pub fn slash_bond(e: &Env, admin: &Address, amount: i128) -> IdentityBond
 
 ### 2. Comprehensive Tests: `test_slashing.rs`
 
-**Location:** [contracts/credence_bond/src/test_slashing.rs](contracts/credence_bond/src/test_slashing.rs)
+**Location:** [contracts/trustforge_bond/src/test_slashing.rs](contracts/trustforge_bond/src/test_slashing.rs)
 
 #### Test Categories (47 tests):
 
@@ -390,9 +390,9 @@ pub fn emit_slashing_event(
 
 | File | Changes | Lines |
 |------|---------|-------|
-| `contracts/credence_bond/src/slashing.rs` | ✨ NEW | 366 |
-| `contracts/credence_bond/src/test_slashing.rs` | 📝 Enhanced | 747 (was 112) |
-| `contracts/credence_bond/src/lib.rs` | 📝 Updated | 15 (added module import, updated slash()) |
+| `contracts/trustforge_bond/src/slashing.rs` | ✨ NEW | 366 |
+| `contracts/trustforge_bond/src/test_slashing.rs` | 📝 Enhanced | 747 (was 112) |
+| `contracts/trustforge_bond/src/lib.rs` | 📝 Updated | 15 (added module import, updated slash()) |
 | `docs/slashing.md` | 📝 Enhanced | 4156 (was ~40) |
 
 **Total additions:** 1111 lines  

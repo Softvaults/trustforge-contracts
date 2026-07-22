@@ -85,7 +85,7 @@ plus the timestamp directly in the event itself.
 
 ## Verified Boundary Behaviour
 
-The `contracts/credence_bond/src/test_tier_boundary_fuzz.rs` suite proves the
+The `contracts/trustforge_bond/src/test_tier_boundary_fuzz.rs` suite proves the
 following invariants hold for any valid threshold configuration (default or
 admin-tuned):
 
@@ -105,9 +105,9 @@ admin-tuned):
 Run locally:
 
 ```bash
-cargo test -p credence_bond test_tier
-cargo test -p credence_bond tier
+cargo test -p trustforge_bond test_tier
+cargo test -p trustforge_bond tier
 BOND_TIER_FUZZ_ITERS=10000 BOND_TIER_FUZZ_ACTIONS=20 \
-    cargo test -p credence_bond --release fuzz_tier_tracks_bonded_amount_under_random_sequences -- --nocapture
+    cargo test -p trustforge_bond --release fuzz_tier_tracks_bonded_amount_under_random_sequences -- --nocapture
 ```
 

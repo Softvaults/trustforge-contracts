@@ -5,7 +5,7 @@
 
 This document records the storage/resource budget for the bond withdrawal and
 slashing hot paths touched by #369. The current checked-in workspace does not
-compile `ours.rs` as the active `credence_bond` crate, so these numbers are
+compile `ours.rs` as the active `trustforge_bond` crate, so these numbers are
 source-level storage operation counts rather than Soroban CPU/memory fee units.
 They are still the right optimization target for these paths because Soroban
 resource fees are dominated by storage host operations.
@@ -83,7 +83,7 @@ cargo test --workspace
 
 This passed on 2026-05-27 after restoring the workspace test prerequisites for
 the active crates. The `ours.rs` bond implementation remains a root-level source
-snapshot rather than the active `credence_bond` crate, so the numbers above are
+snapshot rather than the active `trustforge_bond` crate, so the numbers above are
 the reproducible source-level baseline for #369 until that implementation is
 reattached to the workspace and Soroban CPU/memory budget tests can be collected
 with `env.budget()`.

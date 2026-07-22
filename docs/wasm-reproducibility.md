@@ -6,8 +6,8 @@ Credence treats Soroban WASM output as a supply-chain artifact. The goal is that
 
 The workflow at [`.github/workflows/wasm-repro.yml`](../.github/workflows/wasm-repro.yml) performs two clean builds with `--locked` and compares SHA-256 digests for:
 
-- `target/wasm32-unknown-unknown/release/credence_bond.wasm`
-- `target/wasm32-unknown-unknown/release/credence_delegation.wasm`
+- `target/wasm32-unknown-unknown/release/trustforge_bond.wasm`
+- `target/wasm32-unknown-unknown/release/trustforge_delegation.wasm`
 
 If either hash differs between the two passes, the workflow fails immediately.
 
@@ -26,9 +26,9 @@ That pin is the first line of defense against drift from a moving `stable` toolc
 Run the same build twice from a clean working tree:
 
 ```bash
-cargo build --release --target wasm32-unknown-unknown --locked -p credence_bond -p credence_delegation
-sha256sum target/wasm32-unknown-unknown/release/credence_bond.wasm \
-  target/wasm32-unknown-unknown/release/credence_delegation.wasm
+cargo build --release --target wasm32-unknown-unknown --locked -p trustforge_bond -p trustforge_delegation
+sha256sum target/wasm32-unknown-unknown/release/trustforge_bond.wasm \
+  target/wasm32-unknown-unknown/release/trustforge_delegation.wasm
 ```
 
 Then clean the target directory, rebuild, and compare the digests. A passing CI run ends with the hash comparison step succeeding and no diff output.

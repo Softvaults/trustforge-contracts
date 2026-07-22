@@ -19,9 +19,9 @@ Slashed funds are now transferred to the configured slash treasury on every `sla
 
 ---
 
-## 1. Token Transfer is Stubbed in credence_bond
+## 1. Token Transfer is Stubbed in trustforge_bond
 
-**Where:** `contracts/credence_bond/src/`
+**Where:** `contracts/trustforge_bond/src/`
 
 **What:** The bond contract's token transfer calls (`transfer_from`, `transfer`) are wired to a Soroban token interface, but the reference implementation uses a mock/test token rather than a live USDC contract on mainnet. In tests, `Env::default()` with `mock_all_auths()` is used, meaning no real token approval or balance check occurs against a deployed token contract.
 
@@ -33,17 +33,17 @@ Slashed funds are now transferred to the configured slash treasury on every `sla
 
 ## 2. Single-Bond-Per-Contract-Instance Storage Model
 
-**Where:** `contracts/credence_bond/src/lib.rs`
+**Where:** `contracts/trustforge_bond/src/lib.rs`
 
 **What:** The bond contract stores one bond per contract instance (keyed by a single storage slot), not a per-identity map. Each identity that wants a bond deploys its own contract instance.
 
-**Impact:** This simplifies the storage model and avoids cross-identity data leakage, but it means the registry contract (`credence_registry`) is required to track which contract instance belongs to which identity. Batch operations across identities require iterating registry entries off-chain.
+**Impact:** This simplifies the storage model and avoids cross-identity data leakage, but it means the registry contract (`trustforge_registry`) is required to track which contract instance belongs to which identity. Batch operations across identities require iterating registry entries off-chain.
 
 **Production path:** A multi-bond contract with a `Map<Address, IdentityBond>` storage layout would allow a single contract to serve many identities. The registry would still be useful for discovery but would not be strictly required for storage. See [registry.md](registry.md).
 
 ## 7. get_all_identities() Has No Pagination
 
-**Where:** `contracts/credence_registry/src/lib.rs`
+**Where:** `contracts/trustforge_registry/src/lib.rs`
 
 **What:** `get_all_identities()` returns the full list of registered identity addresses in a single call. There is no pagination, cursor, or limit parameter.
 
@@ -59,13 +59,13 @@ Slashed funds are now transferred to the configured slash treasury on every `sla
 
 **Impact:** The admin can assign any weight to any address, making the voting system fully centralized. There is no economic cost to being an arbitrator and no slashing risk for bad votes.
 
-**Production path:** Derive arbitrator weight from the arbitrator's bond balance (queried from `credence_bond` via cross-contract call), or require arbitrators to stake tokens into the arbitration contract. This creates economic alignment and makes the system permissionless. See [arbitration.md](arbitration.md).
+**Production path:** Derive arbitrator weight from the arbitrator's bond balance (queried from `trustforge_bond` via cross-contract call), or require arbitrators to stake tokens into the arbitration contract. This creates economic alignment and makes the system permissionless. See [arbitration.md](arbitration.md).
 
 ---
 
 ## 11. Multisig Proposals Have No Expiry
 
-**Where:** `contracts/credence_multisig/src/multisig.rs`
+**Where:** `contracts/trustforge_multisig/src/multisig.rs`
 
 **What:** Multisig proposals remain open indefinitely once created. There is no deadline after which a proposal automatically fails or can be cancelled.
 
@@ -81,10 +81,10 @@ Slashed funds are now transferred to the configured slash treasury on every `sla
 
 | # | Simplification | Contract | Production Path |
 |---|---------------|----------|-----------------|
-| 1 | Token transfer stubbed in tests | credence_bond | Configure live USDC via `set_usdc_token` |
-| 2 | Single-bond-per-contract-instance | credence_bond | Multi-bond map storage |
-| 3 | Treasury is pure accounting, no token custody | credence_treasury | Add real token transfers on withdrawal |
-| 6 | Early-exit penalty dropped if no treasury | credence_bond | Require treasury before `withdraw_early` |
-| 7 | `get_all_identities()` unbounded | credence_registry | Add pagination; use event-based indexing |
-| 9 | Arbitrator weights not stake-backed | credence_arbitration | Derive weight from bond balance |
-| 11 | Multisig proposals have no expiry | credence_multisig | Add `expires_at` to proposals |
+| 1 | Token transfer stubbed in tests | trustforge_bond | Configure live USDC via `set_usdc_token` |
+| 2 | Single-bond-per-contract-instance | trustforge_bond | Multi-bond map storage |
+| 3 | Treasury is pure accounting, no token custody | trustforge_treasury | Add real token transfers on withdrawal |
+| 6 | Early-exit penalty dropped if no treasury | trustforge_bond | Require treasury before `withdraw_early` |
+| 7 | `get_all_identities()` unbounded | trustforge_registry | Add pagination; use event-based indexing |
+| 9 | Arbitrator weights not stake-backed | trustforge_arbitration | Derive weight from bond balance |
+| 11 | Multisig proposals have no expiry | trustforge_multisig | Add `expires_at` to proposals |

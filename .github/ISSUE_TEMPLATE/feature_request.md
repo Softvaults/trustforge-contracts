@@ -20,7 +20,7 @@ assignees: ''
 
 ## Impact
 
-- **Contracts affected:** <!-- Which crates would change? e.g. credence_bond, credence_treasury -->
+- **Contracts affected:** <!-- Which crates would change? e.g. trustforge_bond, trustforge_treasury -->
 - **Storage changes:** <!-- New/changed storage keys? -->
 - **New error codes:** <!-- Will new ContractError variants be needed? See docs/error-codes-wire.md -->
 - **Events:** <!-- Will new events be emitted? -->

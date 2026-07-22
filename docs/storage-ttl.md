@@ -33,10 +33,10 @@ fn bump_instance_ttl(e: &Env) {
 **Rule**: Every `persistent().set()` is immediately followed (same call frame) by `persistent().extend_ttl(key, PERSISTENT_TTL_MAX / 2, PERSISTENT_TTL_MAX)`. This applies to reads as well, so records survive read-only traversal.
 
 Applies to:
-- `credence_bond` slash history (`SlashRecord`, `SlashCount`)
-- `credence_bond` emergency audit trail (`Record`, `Transition`, `RecordSeq`, `TransitionSeq`)
+- `trustforge_bond` slash history (`SlashRecord`, `SlashCount`)
+- `trustforge_bond` emergency audit trail (`Record`, `Transition`, `RecordSeq`, `TransitionSeq`)
 
-If `PERSISTENT_TTL_MAX` ever changes on mainnet, update the single constant in `credence_bond/src/lib.rs`; all callers derive from it via `crate::PERSISTENT_TTL_MAX`.
+If `PERSISTENT_TTL_MAX` ever changes on mainnet, update the single constant in `trustforge_bond/src/lib.rs`; all callers derive from it via `crate::PERSISTENT_TTL_MAX`.
 
 ---
 
@@ -57,8 +57,8 @@ fn ttl_for_claim(e: &Env, expires_at: u64) -> u32 {
 **Buffer**: `LEDGER_BUMP_BUFFER = 17_280` (~1 day at 5 s/ledger)
 
 Applies to:
-- `credence_bond` claims (`ClaimCounter`, `ClaimById`, `PendingClaims`, `ClaimableAmount`) — in `claims.rs`
-- `credence_delegation` delegations and nonces — in `nonce.rs` (expiry-aware `bump_delegation_ttl` / `bump_nonce_ttl`)
+- `trustforge_bond` claims (`ClaimCounter`, `ClaimById`, `PendingClaims`, `ClaimableAmount`) — in `claims.rs`
+- `trustforge_delegation` delegations and nonces — in `nonce.rs` (expiry-aware `bump_delegation_ttl` / `bump_nonce_ttl`)
 
 ---
 
@@ -66,21 +66,21 @@ Applies to:
 
 | Contract | Storage tier | TTL strategy | Helper location |
 |---|---|---|---|
-| `credence_bond` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `lib.rs` |
-| `credence_bond` | persistent (slash history) | `PERSISTENT_TTL_MAX` | `slash_history.rs` |
-| `credence_bond` | persistent (emergency) | `PERSISTENT_TTL_MAX` | `emergency.rs` |
-| `credence_bond` | persistent (claims) | Expiry-aware, `PERSISTENT_TTL_MAX` cap | `claims.rs` |
-| `credence_delegation` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `lib.rs` |
-| `credence_delegation` | persistent (delegations) | Expiry-aware / `bump_delegation_ttl` | `nonce.rs` |
-| `credence_delegation` | persistent (nonces) | Expiry-aware / `bump_nonce_ttl` | `nonce.rs` |
-| `credence_registry` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `lib.rs` |
+| `trustforge_bond` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `lib.rs` |
+| `trustforge_bond` | persistent (slash history) | `PERSISTENT_TTL_MAX` | `slash_history.rs` |
+| `trustforge_bond` | persistent (emergency) | `PERSISTENT_TTL_MAX` | `emergency.rs` |
+| `trustforge_bond` | persistent (claims) | Expiry-aware, `PERSISTENT_TTL_MAX` cap | `claims.rs` |
+| `trustforge_delegation` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `lib.rs` |
+| `trustforge_delegation` | persistent (delegations) | Expiry-aware / `bump_delegation_ttl` | `nonce.rs` |
+| `trustforge_delegation` | persistent (nonces) | Expiry-aware / `bump_nonce_ttl` | `nonce.rs` |
+| `trustforge_registry` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `lib.rs` |
 | `admin` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `lib.rs` |
-| `credence_treasury` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `treasury.rs` |
+| `trustforge_treasury` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `treasury.rs` |
 | `arbitration` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `lib.rs` |
-| `credence_multisig` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `multisig.rs` |
+| `trustforge_multisig` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `multisig.rs` |
 | `timelock` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `lib.rs` |
-| `credence_errors` | — | No storage | — |
-| `credence_math` | — | No storage | — |
+| `trustforge_errors` | — | No storage | — |
+| `trustforge_math` | — | No storage | — |
 
 ---
 
@@ -92,10 +92,10 @@ Every newly covered storage path has at least one regression test that:
 3. Reads the data back and asserts it returns the correct value.
 
 Test locations:
-- `credence_bond/src/test_slashing.rs` — `SlashRecord` + `SlashCount` survive ledger advancement
-- `credence_bond/src/test_emergency.rs` — `Record` + `Transition` persist after TTL window
-- `credence_bond/src/test_claim_expiry_sweep.rs` — `ClaimCounter` + `PendingClaims` survive
-- `credence_delegation/src/test_delegation_ttl.rs` — canonical model (delegation + nonce TTL)
+- `trustforge_bond/src/test_slashing.rs` — `SlashRecord` + `SlashCount` survive ledger advancement
+- `trustforge_bond/src/test_emergency.rs` — `Record` + `Transition` persist after TTL window
+- `trustforge_bond/src/test_claim_expiry_sweep.rs` — `ClaimCounter` + `PendingClaims` survive
+- `trustforge_delegation/src/test_delegation_ttl.rs` — canonical model (delegation + nonce TTL)
 
 ---
 

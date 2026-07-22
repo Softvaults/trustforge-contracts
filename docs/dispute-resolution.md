@@ -1,6 +1,6 @@
 # Arbitration: Dispute Resolution
 
-This document describes the dispute resolution lifecycle and quorum configuration for the `credence_arbitration` contract.
+This document describes the dispute resolution lifecycle and quorum configuration for the `trustforge_arbitration` contract.
 
 ## Dispute Lifecycle
 

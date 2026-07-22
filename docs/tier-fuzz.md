@@ -24,7 +24,7 @@ The following matrix documents the invariants enforced by the property tests:
 To prove that the property test harness is load-bearing and capable of catching violations, a validation experiment was conducted by injecting a bug.
 
 ### The Injected Bug
-In `contracts/credence_bond/src/tiered_bond.rs`, a bug was introduced to map a zero available amount to the **Platinum** tier:
+In `contracts/trustforge_bond/src/tiered_bond.rs`, a bug was introduced to map a zero available amount to the **Platinum** tier:
 ```rust
 pub fn get_tier_for_amount(e: &Env, amount: i128) -> BondTier {
     // ...

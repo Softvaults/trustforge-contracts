@@ -452,5 +452,5 @@ The transfer uses `token_integration::transfer_from_contract`, which includes th
 ## References
 
 - [Security Analysis](../SECURITY_ANALYSIS.md)
-- [Contract Tests](../contracts/credence_bond/src/test_slashing.rs)
-- [Slashing Module](../contracts/credence_bond/src/slashing.rs)
+- [Contract Tests](../contracts/trustforge_bond/src/test_slashing.rs)
+- [Slashing Module](../contracts/trustforge_bond/src/slashing.rs)

@@ -37,7 +37,7 @@ cd Credence-Contracts
 cargo build
 
 # Build WASM targets (Soroban contracts)
-cargo build --target wasm32-unknown-unknown --release --locked -p credence_bond -p credence_delegation
+cargo build --target wasm32-unknown-unknown --release --locked -p trustforge_bond -p trustforge_delegation
 ```
 
 ### Run all tests
@@ -174,7 +174,7 @@ cargo test --all-targets
 
 ### 5. Coverage Gate (`coverage.yml`)
 
-The project enforces **95% line coverage** per crate. This is checked for `credence_bond`, `credence_delegation`, and `timelock`.
+The project enforces **95% line coverage** per crate. This is checked for `trustforge_bond`, `trustforge_delegation`, and `timelock`.
 
 **One-time setup:**
 
@@ -187,15 +187,15 @@ cargo install cargo-llvm-cov --locked
 
 ```bash
 # HTML report (opens in browser)
-cargo llvm-cov --package credence_bond --open
+cargo llvm-cov --package trustforge_bond --open
 
 # Enforce 95% threshold (same as CI)
-cargo llvm-cov --package credence_bond --fail-under-lines 95
-cargo llvm-cov --package credence_delegation --fail-under-lines 95
+cargo llvm-cov --package trustforge_bond --fail-under-lines 95
+cargo llvm-cov --package trustforge_delegation --fail-under-lines 95
 cargo llvm-cov --package timelock --fail-under-lines 95
 
 # LCOV output (for editor integration)
-cargo llvm-cov --package credence_bond --lcov --output-path lcov-credence_bond.info
+cargo llvm-cov --package trustforge_bond --lcov --output-path lcov-trustforge_bond.info
 ```
 
 > See [`docs/testing.md`](docs/testing.md) for full details on testing and coverage.
@@ -205,7 +205,7 @@ cargo llvm-cov --package credence_bond --lcov --output-path lcov-credence_bond.i
 The bond crate includes a property-based fuzz harness that exercises random sequences of bond operations (`create`, `top_up`, `slash`, `withdraw`) and verifies core accounting invariants.
 
 ```bash
-cargo test -p credence_bond fuzz::test_bond_fuzz -- --nocapture
+cargo test -p trustforge_bond fuzz::test_bond_fuzz -- --nocapture
 ```
 
 The `--nocapture` flag ensures proptest prints the failing case and shrinking output.
@@ -245,7 +245,7 @@ Error codes are **wire-stable** — external systems, indexers, and off-chain cl
 Run the wire-stability assertion test:
 
 ```bash
-cargo test -p credence_errors error_codes_wire
+cargo test -p trustforge_errors error_codes_wire
 ```
 
 > **Policy:** Each `ContractError` variant has a fixed numeric code. Variants must not be renumbered after deployment. New variants may only be appended at the end of their existing category block. See [`docs/error-codes-wire.md`](docs/error-codes-wire.md) for the bump procedure and [`docs/errors.md`](docs/errors.md) for the canonical code listing.
@@ -280,13 +280,13 @@ cargo build --release
 cargo test --workspace
 
 # Fuzz harness
-cargo test -p credence_bond fuzz::test_bond_fuzz -- --nocapture
+cargo test -p trustforge_bond fuzz::test_bond_fuzz -- --nocapture
 
 # Coverage (per-crate)
-cargo llvm-cov --package credence_bond --fail-under-lines 95
+cargo llvm-cov --package trustforge_bond --fail-under-lines 95
 
 # Error code wire stability
-cargo test -p credence_errors error_codes_wire
+cargo test -p trustforge_errors error_codes_wire
 
 # Dependency audit
 cargo audit
@@ -326,7 +326,7 @@ A CI check reminds you if your PR touches `contracts/**` but misses the `CHANGEL
 - Each `ContractError` variant has a fixed, wire-stable numeric code.
 - Never renumber or delete existing variants.
 - New variants must be appended at the end of their category block (see [`docs/error-codes-wire.md`](docs/error-codes-wire.md)).
-- Run `cargo test -p credence_errors error_codes_wire` to verify discriminant values.
+- Run `cargo test -p trustforge_errors error_codes_wire` to verify discriminant values.
 
 ### Architecture Overview
 
@@ -360,8 +360,8 @@ docs: add CONTRIBUTING guide and templates
 - [ ] Formatting checked (`cargo fmt --all -- --check`)
 - [ ] Clippy clean (`cargo clippy --workspace --all-targets --all-features -- -D warnings`)
 - [ ] Coverage ≥ 95% for affected crates
-- [ ] Fuzz harness passes (`cargo test -p credence_bond fuzz::test_bond_fuzz -- --nocapture`)
-- [ ] Error code wire-stability test passes (`cargo test -p credence_errors error_codes_wire`)
+- [ ] Fuzz harness passes (`cargo test -p trustforge_bond fuzz::test_bond_fuzz -- --nocapture`)
+- [ ] Error code wire-stability test passes (`cargo test -p trustforge_errors error_codes_wire`)
 - [ ] Changelog updated (if `contracts/**` touched)
 - [ ] Docs updated (if public API, storage, or architecture changed)
 

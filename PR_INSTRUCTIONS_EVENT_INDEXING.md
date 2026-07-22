@@ -64,9 +64,9 @@ Add appropriate reviewers for:
 - Migration documentation included
 
 **Files Changed**:
-- `contracts/credence_bond/src/events.rs` - V2 events
-- `contracts/credence_bond/src/lib.rs` - Dual emission  
-- `contracts/credence_bond/src/test_events_v2.rs` - Tests
+- `contracts/trustforge_bond/src/events.rs` - V2 events
+- `contracts/trustforge_bond/src/lib.rs` - Dual emission  
+- `contracts/trustforge_bond/src/test_events_v2.rs` - Tests
 - `docs/EVENT_INDEXING_MIGRATION.md` - Migration guide
 
 Ready for review! 🎉

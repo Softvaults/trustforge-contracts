@@ -333,7 +333,7 @@ Comprehensive test coverage includes:
 
 Run tests:
 ```bash
-cargo test -p credence_bond test_batch
+cargo test -p trustforge_bond test_batch
 ```
 
 ## Future Enhancements

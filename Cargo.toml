@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["contracts/credence_bond", "contracts/credence_delegation", "contracts/credence_registry", "contracts/credence_treasury", "contracts/timelock", "contracts/arbitration", "contracts/credence_multisig", "contracts/admin", "contracts/credence_errors", "contracts/credence_math", "contracts/templates", "crates/credence_admin_cli", "crates/testutils"]
+members = ["contracts/trustforge_bond", "contracts/trustforge_delegation", "contracts/trustforge_registry", "contracts/trustforge_treasury", "contracts/timelock", "contracts/trustforge_arbitration", "contracts/trustforge_multisig", "contracts/trustforge_admin", "contracts/trustforge_errors", "contracts/trustforge_math", "contracts/templates", "crates/trustforge_admin_cli", "crates/testutils"]
 
 [workspace.package]
 version = "0.1.0"

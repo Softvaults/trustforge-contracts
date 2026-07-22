@@ -1,0 +1,12 @@
+[package]
+name = "trustforge_math"
+version = "0.1.0"
+edition = "2021"
+description = "Shared overflow-safe arithmetic helpers for TrustForge contracts."
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+ethnum = { version = "1.5.2", default-features = false }
+trustforge_errors = { path = "../trustforge_errors" }

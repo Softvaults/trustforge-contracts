@@ -18,7 +18,7 @@ Most high-impact upgrades require routing through the `timelock` contract to enf
 Compile the contract to WebAssembly, ensuring deterministic builds and `#![no_std]` compliance.
 
 ```bash
-cargo build --target wasm32-unknown-unknown --release --locked -p credence_bond
+cargo build --target wasm32-unknown-unknown --release --locked -p trustforge_bond
 ```
 
 ### 2. Deploy the New Implementation
@@ -27,7 +27,7 @@ Deploy the newly built Wasm to the network to obtain its contract address. *Note
 
 ```bash
 NEW_IMPL_ID=$(soroban contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/credence_bond.wasm \
+  --wasm target/wasm32-unknown-unknown/release/trustforge_bond.wasm \
   --source admin \
   --network testnet)
 echo "New Implementation: $NEW_IMPL_ID"

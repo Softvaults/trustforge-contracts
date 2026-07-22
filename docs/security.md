@@ -6,7 +6,7 @@ Security mechanisms for the Credence bond and attestation system.
 
 - **Checked arithmetic** — All financial calculations use checked arithmetic to prevent overflows/underflows.
 - **Failure mode** — Overflows/underflows/div-by-zero revert execution with a descriptive error message.
-- **Implementation** — Shared helpers live in `contracts/credence_bond/src/math.rs` and are used for basis-point math and other amount operations.
+- **Implementation** — Shared helpers live in `contracts/trustforge_bond/src/math.rs` and are used for basis-point math and other amount operations.
 
 ## Replay attack prevention
 

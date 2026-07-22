@@ -38,17 +38,17 @@ jobs:
       - name: Install cargo-llvm-cov
         run: cargo install cargo-llvm-cov --locked
 
-      - name: Coverage — credence_bond
+      - name: Coverage — trustforge_bond
         run: |
-          cargo llvm-cov --package credence_bond \
+          cargo llvm-cov --package trustforge_bond \
             --fail-under-lines ${{ env.COVERAGE_THRESHOLD }} \
-            --lcov --output-path lcov-credence_bond.info
+            --lcov --output-path lcov-trustforge_bond.info
 
-      - name: Coverage — credence_delegation
+      - name: Coverage — trustforge_delegation
         run: |
-          cargo llvm-cov --package credence_delegation \
+          cargo llvm-cov --package trustforge_delegation \
             --fail-under-lines ${{ env.COVERAGE_THRESHOLD }} \
-            --lcov --output-path lcov-credence_delegation.info
+            --lcov --output-path lcov-trustforge_delegation.info
 
       - name: Coverage — timelock
         run: |

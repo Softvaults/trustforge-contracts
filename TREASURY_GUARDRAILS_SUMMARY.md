@@ -47,15 +47,15 @@ Created a dedicated test module with 30 comprehensive tests covering:
 
 ### 2. Updated Files
 
-#### `contracts/credence_treasury/src/lib.rs`
+#### `contracts/trustforge_treasury/src/lib.rs`
 - Added `test_withdrawal_guardrails` module
 - Commented out incomplete `test_flash_loan` module
 
-#### `contracts/credence_treasury/src/treasury.rs`
+#### `contracts/trustforge_treasury/src/treasury.rs`
 - Fixed `rescue_native` function to use existing error codes (NotAdmin instead of Unauthorized)
 - Changed ExceedsRescueableAmount to panic message for compatibility
 
-#### `contracts/credence_treasury/src/test_treasury.rs`
+#### `contracts/trustforge_treasury/src/test_treasury.rs`
 - Updated error codes in rescue_native tests to match implementation
 
 #### `docs/treasury.md`
@@ -147,7 +147,7 @@ This PR adds comprehensive test coverage to ensure:
 
 ## Commit Message
 ```
-feat(credence_treasury): add withdrawal guardrails with boundary regressions
+feat(trustforge_treasury): add withdrawal guardrails with boundary regressions
 
 - Add comprehensive liquidity floor guardrail tests (min_liquidity enforcement)
 - Add slippage protection tests (min_amount_out parameter validation)

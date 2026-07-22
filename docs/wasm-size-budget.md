@@ -9,11 +9,11 @@ CI enforces per-contract ceilings via [`.github/workflows/wasm-size.yml`](../.gi
 | Contract | Budget (KiB) | Budget (bytes) |
 | --- | ---: | ---: |
 | `admin` | 64 | 65 536 |
-| `credence_arbitration` | 64 | 65 536 |
-| `credence_bond` | 64 | 65 536 |
-| `credence_delegation` | 64 | 65 536 |
-| `credence_multisig` | 64 | 65 536 |
-| `credence_treasury` | 64 | 65 536 |
+| `trustforge_arbitration` | 64 | 65 536 |
+| `trustforge_bond` | 64 | 65 536 |
+| `trustforge_delegation` | 64 | 65 536 |
+| `trustforge_multisig` | 64 | 65 536 |
+| `trustforge_treasury` | 64 | 65 536 |
 | `templates` | 64 | 65 536 |
 | `timelock` | 64 | 65 536 |
 
@@ -31,8 +31,8 @@ Pass a single argument to override all limits for a one-off local check, e.g. `.
 
 ```bash
 cargo build --target wasm32-unknown-unknown --release --locked \
-  -p admin -p credence_arbitration -p credence_bond -p credence_delegation \
-  -p credence_multisig -p credence_treasury -p templates -p timelock
+  -p admin -p trustforge_arbitration -p trustforge_bond -p trustforge_delegation \
+  -p trustforge_multisig -p trustforge_treasury -p templates -p timelock
 chmod +x scripts/check_wasm_size.sh
 ./scripts/check_wasm_size.sh
 ```

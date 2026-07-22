@@ -145,5 +145,5 @@ The contract includes comprehensive test coverage:
 Run tests:
 
 ```bash
-cargo test -p credence_arbitration
+cargo test -p trustforge_arbitration
 ```

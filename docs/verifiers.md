@@ -4,7 +4,7 @@ Verifiers are authorized attestation providers. This contract supports **stake-b
 
 ## Delegation Signature-Scheme Dispatch
 
-`credence_delegation` ships a multi-scheme signature-verifier registry that allows
+`trustforge_delegation` ships a multi-scheme signature-verifier registry that allows
 Secp256r1 (NIST P-256) and MLDSA44 (post-quantum ML-DSA) delegated signatures to
 be validated by operator-registered verifier contracts.
 

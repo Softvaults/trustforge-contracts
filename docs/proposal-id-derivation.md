@@ -29,7 +29,7 @@ id       = first 8 bytes of hash interpreted as big-endian u64
 where `action` is `1` for Pause and `2` for Unpause.
 
 The derivation is implemented in `derive_proposal_id()` in
-`contracts/credence_delegation/src/pausable.rs`. It is a **pure**
+`contracts/trustforge_delegation/src/pausable.rs`. It is a **pure**
 function — identical inputs always produce identical output, and it
 writes nothing to storage.
 
@@ -38,7 +38,7 @@ writes nothing to storage.
 ## Epoch Bucket Size Constant
 
 Defined as `PROPOSAL_EPOCH_SIZE = 100` in
-`contracts/credence_delegation/src/pausable.rs`.
+`contracts/trustforge_delegation/src/pausable.rs`.
 
 ```rust
 /// Number of ledger sequences that form one epoch bucket for proposal-ID

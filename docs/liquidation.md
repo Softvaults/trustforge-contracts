@@ -82,7 +82,7 @@ period forward — the canonical close for rolling bonds is still
 `withdraw_bond`. Hooks for additional rolling-bond paths (such as "withdraw
 requested but not finalized within X ledgers") are deliberately deferred
 to follow-up work — extending the eligibility check is a one-line change
-in [`contracts/credence_bond/src/lib.rs`](../contracts/credence_bond/src/lib.rs).
+in [`contracts/trustforge_bond/src/lib.rs`](../contracts/trustforge_bond/src/lib.rs).
 
 A bond that is healthy, partially slashed, or still inside its lock-up
 window reverts with the descriptive panic message:
@@ -117,7 +117,7 @@ are left untouched so the audit trail remains consistent for replays.
    `Symbol` reason is one of `"fully_slashed"` or `"expired_unrenewed"`.
 
 The pre-write invariants self-check
-([`invariants::assert_self_consistent`](../contracts/credence_bond/src/invariants.rs))
+([`invariants::assert_self_consistent`](../contracts/trustforge_bond/src/invariants.rs))
 runs immediately before the event emission so storage drift is caught
 **before** the canonical event ever reaches the ledger.
 
@@ -142,7 +142,7 @@ verification. A non-admin invocation panics with
 ## Token integration sweep
 
 The sweep is **best-effort**. When the call to
-[`token_integration::transfer_from_contract`](../contracts/credence_bond/src/token_integration.rs)
+[`token_integration::transfer_from_contract`](../contracts/trustforge_bond/src/token_integration.rs)
 cannot fire — because no treasury address is configured, no bond token is
 configured, or the contract holds zero of that token — the bond is still
 finalized and the residual amount is reported through the event. The
@@ -192,7 +192,7 @@ from the bond-token contract.
 
 ## Test coverage
 
-[`contracts/credence_bond/src/test_liquidate.rs`](../contracts/credence_bond/src/test_liquidate.rs)
+[`contracts/trustforge_bond/src/test_liquidate.rs`](../contracts/trustforge_bond/src/test_liquidate.rs)
 covers the following scenarios and should be considered the source of
 truth for the entrypoint's contract:
 

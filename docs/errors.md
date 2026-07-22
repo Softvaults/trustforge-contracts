@@ -2,7 +2,7 @@
 
 ## Overview
 
-All Credence smart contracts share a single error type: `ContractError`, defined in the `credence_errors` crate. Every public entry-point returns `Result<T, ContractError>` so callers always receive a typed, categorized, wire-stable error code instead of an opaque transaction failure.
+All Credence smart contracts share a single error type: `ContractError`, defined in the `trustforge_errors` crate. Every public entry-point returns `Result<T, ContractError>` so callers always receive a typed, categorized, wire-stable error code instead of an opaque transaction failure.
 
 ---
 
@@ -12,11 +12,11 @@ All Credence smart contracts share a single error type: `ContractError`, defined
 |----------|----------------|------------------------------------------------|
 | 1-99     | Initialization | all (bond, registry, delegation, treasury, etc.) |
 | 100-199  | Authorization  | all (bond, registry, delegation, treasury, etc.) |
-| 200-299  | Bond           | credence_bond                                  |
-| 300-399  | Attestation    | credence_bond, delegation                      |
-| 400-499  | Registry       | credence_registry                              |
-| 500-599  | Delegation     | credence_delegation                            |
-| 600-699  | Treasury       | credence_treasury                              |
+| 200-299  | Bond           | trustforge_bond                                  |
+| 300-399  | Attestation    | trustforge_bond, delegation                      |
+| 400-499  | Registry       | trustforge_registry                              |
+| 500-599  | Delegation     | trustforge_delegation                            |
+| 600-699  | Treasury       | trustforge_treasury                              |
 | 700-799  | Arithmetic     | bond, treasury, and others                     |
 
 > **Stability Guarantee** — Error codes are wire-stable and must never be renumbered after deployment. New variants are appended at the end of their category block only.
@@ -80,7 +80,7 @@ Below are common contract entry-points and the Bond-related `ContractError` vari
 - `top_up()` / `extend_duration()` — `ContractError::BondNotFound (200)`, `ContractError::Overflow (700)`
 - `withdraw_bond()` — `ContractError::BondNotFound (200)`, `ContractError::NotBondOwner (101)`, `ContractError::BondNotActive (201)`, `ContractError::ReentrancyDetected (207)`
 
-This mapping is a convenience reference for authors and testers; the authoritative source is `contracts/credence_errors/src/lib.rs`.
+This mapping is a convenience reference for authors and testers; the authoritative source is `contracts/trustforge_errors/src/lib.rs`.
 
 ### Attestation (300-399)
 
@@ -139,11 +139,11 @@ This mapping is a convenience reference for authors and testers; the authoritati
 
 ## Workspace Integration
 
-### Adding credence_errors to Cargo.toml
+### Adding trustforge_errors to Cargo.toml
 ```toml
 [dependencies]
 soroban-sdk = { version = "22.0", features = ["testutils"] }
-credence_errors = { path = "../../contracts/credence_errors" }
+trustforge_errors = { path = "../../contracts/trustforge_errors" }
 
 [dev-dependencies]
 soroban-sdk = { version = "22.0", features = ["testutils"] }
@@ -151,7 +151,7 @@ soroban-sdk = { version = "22.0", features = ["testutils"] }
 
 ### Importing errors in contracts
 ```rust
-use credence_errors::ContractError;
+use trustforge_errors::ContractError;
 use soroban_sdk::panic_with_error;
 
 // In fallible functions:

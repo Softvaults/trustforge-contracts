@@ -9,7 +9,7 @@ Issue **#436** adds on-chain **post-write self-checks** so bond accounting drift
 | Slashed vs bonded | `slashed_amount <= bonded_amount` and both non-negative | `ContractError::InvariantViolation` (218) | `SlashedExceedsBonded` |
 | Attestation counter | If `SubjectAttestationCount(s)` exists, it equals `len(SubjectAttestations(s))` | Same | `AttestationCountMismatch` |
 
-Implementation: [`contracts/credence_bond/src/invariants.rs`](../contracts/credence_bond/src/invariants.rs).
+Implementation: [`contracts/trustforge_bond/src/invariants.rs`](../contracts/trustforge_bond/src/invariants.rs).
 
 ## When it runs
 
@@ -24,7 +24,7 @@ Reads and governance-only writes (e.g. `get_identity_state`, fee collection that
 
 ## Failure behaviour
 
-1. Contract emits **`bond_drift_detected`** (structured topics + data; see [`events.rs`](../contracts/credence_bond/src/events.rs)).
+1. Contract emits **`bond_drift_detected`** (structured topics + data; see [`events.rs`](../contracts/trustforge_bond/src/events.rs)).
 2. Contract panics with **`ContractError::InvariantViolation`** (`218`, bond category 200–299).
 3. Transaction fails; storage changes in that invocation roll back.
 
@@ -71,7 +71,7 @@ Wallets and SDKs decoding errors should map code **218** to a message such as: *
 ### Regression testing
 
 ```bash
-cargo test -p credence_bond drift
+cargo test -p trustforge_bond drift
 ```
 
 Covers:
@@ -82,7 +82,7 @@ Covers:
 
 ## Relation to test-only invariants
 
-[`test_invariants.rs`](../contracts/credence_bond/src/test_invariants.rs) (I1–I7) remains the **test harness** catalogue. Drift detection implements the critical subset (I2 + I7) **on-chain** after writes. Tests should continue calling `assert_all_invariants` off-chain; production uses `assert_self_consistent`.
+[`test_invariants.rs`](../contracts/trustforge_bond/src/test_invariants.rs) (I1–I7) remains the **test harness** catalogue. Drift detection implements the critical subset (I2 + I7) **on-chain** after writes. Tests should continue calling `assert_all_invariants` off-chain; production uses `assert_self_consistent`.
 
 ## Wire stability
 
@@ -93,5 +93,5 @@ Covers:
 
 - [ ] Any new bond or attestation **write** path calls `assert_self_consistent` or `assert_self_consistent_for_subject`.
 - [ ] Keep `SubjectAttestationCount` in sync when mutating `SubjectAttestations`.
-- [ ] Extend `cargo test -p credence_bond drift` if new drift classes are added.
+- [ ] Extend `cargo test -p trustforge_bond drift` if new drift classes are added.
 - [ ] Update this runbook when event schema or error code changes.

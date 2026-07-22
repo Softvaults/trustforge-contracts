@@ -73,7 +73,7 @@ User Scenario:
 All contracts now verify balance changes via balance-delta checking:
 
 ```rust
-// Example from credence_bond/src/token_integration.rs
+// Example from trustforge_bond/src/token_integration.rs
 let balance_before = token_client.balance(&contract);
 token_client.transfer_from(&contract, owner, &contract, &amount);
 let balance_after = token_client.balance(&contract);
@@ -101,11 +101,11 @@ This approach:
 - This indicates a fee-on-transfer or similar mechanism
 
 **Contracts Affected**:
-- credence_bond (all transfers)
+- trustforge_bond (all transfers)
 - dispute_resolution (stake transfers)
 - fixed_duration_bond (all transfers)
 
-**Error Type**: `ContractError::UnsupportedToken` (from credence_errors)
+**Error Type**: `ContractError::UnsupportedToken` (from trustforge_errors)
 
 **Example Scenarios**:
 
@@ -135,7 +135,7 @@ This approach:
 
 ## Contract-by-Contract Implementation
 
-### credence_bond
+### trustforge_bond
 
 **Files**: `src/token_integration.rs`
 
@@ -208,7 +208,7 @@ if (balance_before - balance_after) != expected_amount {
 }
 ```
 
-### credence_treasury
+### trustforge_treasury
 
 **Design Note**: Treasury does NOT hold tokens directly. It is a pure accounting system.
 - `receive_fee()` - Accepts fee reports from bond contracts (no token transfer)
@@ -273,7 +273,7 @@ cargo test test_create_bond_success
 
 ### Test Files
 
-- **credence_bond**: `tests/test_fee_on_transfer_rejection.rs`
+- **trustforge_bond**: `tests/test_fee_on_transfer_rejection.rs`
 - **fixed_duration_bond**: `src/tests.rs` (search "fee_on_transfer")
 - **dispute_resolution**: `src/test.rs` (search "fee_on_transfer")
 
@@ -319,12 +319,12 @@ A: The contract will panic with error 213 before any bond is created. Your token
 
 - [Issue #142](https://github.com/credenceprotocol/credence-contracts/issues/142) - Reject fee-on-transfer tokens
 - [Error Code 213](docs/error-codes.md) - UnsupportedToken
-- [Token Integration](contracts/credence_bond/src/token_integration.rs) - Implementation
+- [Token Integration](contracts/trustforge_bond/src/token_integration.rs) - Implementation
 - [Balance Delta Checks](contracts/fixed_duration_bond/src/lib.rs) - Pattern example
 
 ## Contact & Support
 
 For questions about token support:
 1. Check this document
-2. Review error codes in [credence_errors/src/lib.rs](contracts/credence_errors/src/lib.rs)
+2. Review error codes in [trustforge_errors/src/lib.rs](contracts/trustforge_errors/src/lib.rs)
 3. Open an issue with your token contract address for audit

@@ -15,15 +15,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aae1277d39aeec15cb388266ecc24b11c80469deae6067e17a1a7aa9e5c1f234"
 
 [[package]]
-name = "admin"
-version = "0.1.0"
-dependencies = [
- "credence_errors",
- "soroban-sdk",
- "testutils",
-]
-
-[[package]]
 name = "ahash"
 version = "0.8.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -484,93 +475,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9481c1c90cbf2ac953f07c8d4a58aa3945c425b7185c9154d67a65e4230da511"
 dependencies = [
  "cfg-if",
-]
-
-[[package]]
-name = "credence_admin_cli"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clap",
- "hex",
- "serde",
- "serde_json",
- "soroban-client",
- "stellar-baselib",
- "tokio",
-]
-
-[[package]]
-name = "credence_arbitration"
-version = "0.1.0"
-dependencies = [
- "credence_errors",
- "soroban-sdk",
-]
-
-[[package]]
-name = "credence_bond"
-version = "0.1.0"
-dependencies = [
- "credence_errors",
- "credence_math",
- "proptest",
- "soroban-sdk",
- "timelock",
-]
-
-[[package]]
-name = "credence_delegation"
-version = "0.1.0"
-dependencies = [
- "credence_bond",
- "credence_errors",
- "insta",
- "proptest",
- "serde",
- "serde_json",
- "soroban-sdk",
- "soroban-spec",
-]
-
-[[package]]
-name = "credence_errors"
-version = "0.1.0"
-dependencies = [
- "soroban-sdk",
-]
-
-[[package]]
-name = "credence_math"
-version = "0.1.0"
-dependencies = [
- "ethnum",
-]
-
-[[package]]
-name = "credence_multisig"
-version = "0.1.0"
-dependencies = [
- "credence_errors",
- "soroban-sdk",
-]
-
-[[package]]
-name = "credence_registry"
-version = "0.1.0"
-dependencies = [
- "credence_errors",
- "soroban-sdk",
-]
-
-[[package]]
-name = "credence_treasury"
-version = "0.1.0"
-dependencies = [
- "credence_errors",
- "ethnum",
- "proptest",
- "soroban-sdk",
 ]
 
 [[package]]
@@ -2810,8 +2714,8 @@ dependencies = [
 name = "templates"
 version = "0.1.0"
 dependencies = [
- "credence_errors",
  "soroban-sdk",
+ "trustforge_errors",
 ]
 
 [[package]]
@@ -2896,8 +2800,8 @@ dependencies = [
 name = "timelock"
 version = "0.1.0"
 dependencies = [
- "credence_errors",
  "soroban-sdk",
+ "trustforge_errors",
 ]
 
 [[package]]
@@ -2982,6 +2886,103 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "db97caf9d906fbde555dd62fa95ddba9eecfd14cb388e4f491a66d74cd5fb79a"
 dependencies = [
  "once_cell",
+]
+
+[[package]]
+name = "trustforge_admin"
+version = "0.1.0"
+dependencies = [
+ "soroban-sdk",
+ "testutils",
+ "trustforge_errors",
+]
+
+[[package]]
+name = "trustforge_admin_cli"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "hex",
+ "serde",
+ "serde_json",
+ "soroban-client",
+ "stellar-baselib",
+ "tokio",
+]
+
+[[package]]
+name = "trustforge_arbitration"
+version = "0.1.0"
+dependencies = [
+ "soroban-sdk",
+ "trustforge_errors",
+]
+
+[[package]]
+name = "trustforge_bond"
+version = "0.1.0"
+dependencies = [
+ "proptest",
+ "soroban-sdk",
+ "timelock",
+ "trustforge_errors",
+ "trustforge_math",
+]
+
+[[package]]
+name = "trustforge_delegation"
+version = "0.1.0"
+dependencies = [
+ "insta",
+ "proptest",
+ "serde",
+ "serde_json",
+ "soroban-sdk",
+ "soroban-spec",
+ "trustforge_bond",
+ "trustforge_errors",
+]
+
+[[package]]
+name = "trustforge_errors"
+version = "0.1.0"
+dependencies = [
+ "soroban-sdk",
+]
+
+[[package]]
+name = "trustforge_math"
+version = "0.1.0"
+dependencies = [
+ "ethnum",
+ "trustforge_errors",
+]
+
+[[package]]
+name = "trustforge_multisig"
+version = "0.1.0"
+dependencies = [
+ "soroban-sdk",
+ "trustforge_errors",
+]
+
+[[package]]
+name = "trustforge_registry"
+version = "0.1.0"
+dependencies = [
+ "soroban-sdk",
+ "trustforge_errors",
+]
+
+[[package]]
+name = "trustforge_treasury"
+version = "0.1.0"
+dependencies = [
+ "ethnum",
+ "proptest",
+ "soroban-sdk",
+ "trustforge_errors",
 ]
 
 [[package]]

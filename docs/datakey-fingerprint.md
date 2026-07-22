@@ -6,7 +6,7 @@ code reads/writes a *different* slot and the old entry is **orphaned** — funds
 flags, and counters silently disappear from the contract's view.
 
 `tests/datakey_fingerprint.rs` pins the XDR encoding of every
-`credence_delegation::DataKey` variant so any change that would move a key fails
+`trustforge_delegation::DataKey` variant so any change that would move a key fails
 CI instead of shipping.
 
 ## How a `#[contracttype]` enum is keyed
@@ -63,7 +63,7 @@ can ever alias the same storage slot.
 ## Refreshing the snapshot (intentional changes only)
 
 ```sh
-cargo test -p credence_delegation --test datakey_fingerprint -- --nocapture
+cargo test -p trustforge_delegation --test datakey_fingerprint -- --nocapture
 ```
 
 Copy the printed `---- DataKey fingerprints ----` block into `EXPECTED`, and
@@ -77,7 +77,7 @@ shown in the diff. Revert to restore green.
 
 ## Bond contract
 
-The same rule applies to `credence_bond`'s `DataKey`; its declaration carries the
+The same rule applies to `trustforge_bond`'s `DataKey`; its declaration carries the
 same stability doc-comment. A parallel fingerprint test there is blocked only by
 unrelated build breakage in the bond crate, and should be added with the same
 pattern once that crate compiles.

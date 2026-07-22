@@ -24,7 +24,7 @@ During migration, both v1 and v2 events are emitted simultaneously, ensuring no 
 
 ## Changes Made
 
-### 1. Enhanced Event Structure (`contracts/credence_bond/src/events.rs`)
+### 1. Enhanced Event Structure (`contracts/trustforge_bond/src/events.rs`)
 ```rust
 // Before: Only identity indexed
 pub fn emit_bond_created(e: &Env, identity: &Address, amount: i128, duration: u64, is_rolling: bool)
@@ -34,14 +34,14 @@ pub fn emit_bond_created_v2(e: &Env, identity: &Address, amount: i128, duration:
 // Indexed: identity, amount, timestamp
 ```
 
-### 2. Dual Event Emission (`contracts/credence_bond/src/lib.rs`)
+### 2. Dual Event Emission (`contracts/trustforge_bond/src/lib.rs`)
 ```rust
 // Emit both old and new events for backward compatibility during migration
 events::emit_bond_created(&e, &identity, amount, duration, is_rolling);
 events::emit_bond_created_v2(&e, &identity, amount, duration, is_rolling, bond_start);
 ```
 
-### 3. Comprehensive Testing (`contracts/credence_bond/src/test_events_v2.rs`)
+### 3. Comprehensive Testing (`contracts/trustforge_bond/src/test_events_v2.rs`)
 - Tests for both v1 and v2 event emission
 - Validates indexed field accuracy
 - Tests query efficiency improvements
@@ -111,7 +111,7 @@ const largeBonds = events.filter(event => {
 
 ### Running Tests
 ```bash
-cargo test --package credence_bond test_events_v2
+cargo test --package trustforge_bond test_events_v2
 ```
 
 ## Risk Mitigation
@@ -136,11 +136,11 @@ cargo test --package credence_bond test_events_v2
 ## Files Changed
 
 ### Core Changes
-- `contracts/credence_bond/src/events.rs` - Added v2 event functions
-- `contracts/credence_bond/src/lib.rs` - Updated to emit both v1 and v2 events
+- `contracts/trustforge_bond/src/events.rs` - Added v2 event functions
+- `contracts/trustforge_bond/src/lib.rs` - Updated to emit both v1 and v2 events
 
 ### Testing
-- `contracts/credence_bond/src/test_events_v2.rs` - Comprehensive test suite
+- `contracts/trustforge_bond/src/test_events_v2.rs` - Comprehensive test suite
 
 ### Documentation  
 - `docs/EVENT_INDEXING_MIGRATION.md` - Migration guide and strategy

@@ -1,14 +1,14 @@
 # Chaos Testing — Credence Bond
 
-> **Status:** Implemented in `contracts/credence_bond/src/test_chaos.rs`
+> **Status:** Implemented in `contracts/trustforge_bond/src/test_chaos.rs`
 >
 > Run with:
 > ```bash
-> cargo test -p credence_bond chaos_injection
+> cargo test -p trustforge_bond chaos_injection
 > ```
 > Run the full chaos suite (including validation guard test):
 > ```bash
-> cargo test -p credence_bond chaos
+> cargo test -p trustforge_bond chaos
 > ```
 
 ---
@@ -261,21 +261,21 @@ rejection.
 
 ```bash
 # All chaos tests
-cargo test -p credence_bond chaos -- --nocapture
+cargo test -p trustforge_bond chaos -- --nocapture
 
 # Only atomic-revert tests (use try_ pattern)
-cargo test -p credence_bond chaos_injection_1
-cargo test -p credence_bond chaos_injection_2
-cargo test -p credence_bond chaos_injection_3
-cargo test -p credence_bond chaos_injection_6
+cargo test -p trustforge_bond chaos_injection_1
+cargo test -p trustforge_bond chaos_injection_2
+cargo test -p trustforge_bond chaos_injection_3
+cargo test -p trustforge_bond chaos_injection_6
 
 # should_panic tests
-cargo test -p credence_bond chaos_injection_4
-cargo test -p credence_bond chaos_injection_5
-cargo test -p credence_bond chaos_injection_8
+cargo test -p trustforge_bond chaos_injection_4
+cargo test -p trustforge_bond chaos_injection_5
+cargo test -p trustforge_bond chaos_injection_8
 
 # Guard removal validation
-cargo test -p credence_bond chaos_validation
+cargo test -p trustforge_bond chaos_validation
 ```
 
 ## Coverage Mapping

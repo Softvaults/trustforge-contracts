@@ -16,7 +16,7 @@ otherwise misbehave.
 Testing
 -------
 
-- The `credence_delegation` crate includes `test_pause_signer_invariant.rs`,
+- The `trustforge_delegation` crate includes `test_pause_signer_invariant.rs`,
   which exercises idempotent add/remove flows and alternating sequences and
   asserts the invariant after every `set_pause_signer` call.
 

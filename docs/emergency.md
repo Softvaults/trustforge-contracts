@@ -15,11 +15,11 @@ All Credence contracts include a comprehensive emergency pause mechanism that al
 
 ### Contracts with Pause Mechanism
 
-- `credence_registry` - Identity registration management
-- `credence_arbitration` - Dispute resolution system  
-- `credence_delegation` - Attestation delegation management
-- `credence_treasury` - Fee collection and withdrawal management
-- `credence_bond` - Identity bond creation, withdrawal, slashing, fee, and attestation management
+- `trustforge_registry` - Identity registration management
+- `trustforge_arbitration` - Dispute resolution system  
+- `trustforge_delegation` - Attestation delegation management
+- `trustforge_treasury` - Fee collection and withdrawal management
+- `trustforge_bond` - Identity bond creation, withdrawal, slashing, fee, and attestation management
 - `admin` - Admin role management system
 
 ## Pause Mechanism API
@@ -390,9 +390,9 @@ Emergency tests validate:
 
 ## Verification Snapshot (2026-02-25)
 
-- `cargo test -p credence_bond`: **305 passed, 0 failed**.
+- `cargo test -p trustforge_bond`: **305 passed, 0 failed**.
 - `cargo test --all-targets`: **passed** (workspace test targets).
-- `cargo llvm-cov -p credence_bond --summary-only`:
+- `cargo llvm-cov -p trustforge_bond --summary-only`:
 	- **TOTAL**: 95.82% region coverage, 94.14% line coverage.
 	- **emergency.rs**: 94.92% region coverage, 95.31% line coverage.
 - CI-equivalent core checks from `.github/workflows/ci.yml`:

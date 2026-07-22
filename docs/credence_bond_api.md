@@ -91,7 +91,7 @@ All parameters are validated before the bond is created. Every violation returns
 Checks are applied in the order listed above, so the first violated constraint is the one
 reported. For non-rolling bonds, `notice_period_duration` is stored but not validated.
 
-> See [`contracts/credence_bond/docs/bond-input-constraints.md`](../contracts/credence_bond/docs/bond-input-constraints.md)
+> See [`contracts/trustforge_bond/docs/bond-input-constraints.md`](../contracts/trustforge_bond/docs/bond-input-constraints.md)
 > for the full constraint reference including boundary examples and security notes.
 
 ### `top_up(e: Env, identity: Address, amount: i128)`

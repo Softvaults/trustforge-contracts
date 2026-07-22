@@ -2,7 +2,7 @@
 
 > **Audience**: On-call engineers, security leads, contract administrators.  
 > **Last updated**: 2026-06-23  
-> **Relevant contract**: `credence_bond`  
+> **Relevant contract**: `trustforge_bond`  
 > **Issue tracker reference**: #246 (emergency mode), this runbook covers the
 > drain extension introduced in feature/bond-emergency-drain.
 
@@ -230,4 +230,4 @@ Records are stored in **persistent storage** and survive contract upgrades.
 
 ---
 
-*See also: `docs/emergency-mode.md` (issue #246), `contracts/credence_bond/src/emergency_drain.rs`.*
+*See also: `docs/emergency-mode.md` (issue #246), `contracts/trustforge_bond/src/emergency_drain.rs`.*

@@ -11,7 +11,7 @@
 //! - Add the relevant storage keys to your contract's `DataKey` enum
 //!   (e.g., `LastAccrualTimestamp`, `InterestRatePerSecond`, `TotalDebt`, `TotalReserves`).
 //! - Adapt the checked arithmetic helpers (`checked_add_i128`, `checked_mul_i128`) to
-//!   the ones your contract uses (or import from `credence_math`).
+//!   the ones your contract uses (or import from `trustforge_math`).
 //! - Call `ensure_accrued(&e)` at the start of any public `borrow`/`repay` entry
 //!   points to guarantee state is fresh before principal-mutating operations.
 

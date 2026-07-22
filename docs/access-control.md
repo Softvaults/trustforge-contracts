@@ -341,7 +341,7 @@ Project-wide numeric coverage requires an external coverage tool (for example `c
 
 Run tests with:
 ```bash
-cargo test --package credence_bond test_access_control
+cargo test --package trustforge_bond test_access_control
 ```
 
 ## Integration Example

@@ -3,10 +3,10 @@
 Adds an invariant test ensuring `PauseSignerCount` equals the number of `PauseSigner(Address)` entries set to true.
 
 What changed
-- tests: `contracts/credence_delegation/src/test_pause_signer_invariant.rs`
+- tests: `contracts/trustforge_delegation/src/test_pause_signer_invariant.rs`
 - docs: `docs/pause-signer-invariant.md`
-- doc comment: `contracts/credence_delegation/src/pausable.rs` (describes the invariant)
-- registered test module in `contracts/credence_delegation/src/lib.rs`
+- doc comment: `contracts/trustforge_delegation/src/pausable.rs` (describes the invariant)
+- registered test module in `contracts/trustforge_delegation/src/lib.rs`
 
 Why
 - Prevents drift between per-address `PauseSigner(...)` booleans and the `PauseSignerCount` counter which could undermine pause threshold checks and recovery.
@@ -14,8 +14,8 @@ Why
 How to validate locally
 ```bash
 # run the new tests
-cd contracts/credence_delegation
-cargo test -p credence_delegation pause_signer_invariant
+cd contracts/trustforge_delegation
+cargo test -p trustforge_delegation pause_signer_invariant
 ```
 
 Notes

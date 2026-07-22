@@ -2,13 +2,13 @@
 name = "templates"
 version = "0.1.0"
 edition = "2021"
-description = "Credence Soroban contract template — canonical starting point for new contracts"
+description = "TrustForge Soroban contract template — canonical starting point for new contracts"
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-credence_errors = { version = "0.1.0", path = "../credence_errors" }
+trustforge_errors = { version = "0.1.0", path = "../trustforge_errors" }
 soroban-sdk = "22.0"
 
 [dev-dependencies]

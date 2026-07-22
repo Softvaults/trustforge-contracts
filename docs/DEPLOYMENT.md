@@ -22,18 +22,18 @@ See [README.md — Prerequisites](../README.md#prerequisites) for the full envir
 
 ## Step 1 — Build WASM Artifacts
 
-Build only the deployable WASM crates. The workspace also contains library crates (`credence_errors`, `credence_math`) and scaffolding (`templates`, `credence_admin_cli`) that are not deployed to the chain.
+Build only the deployable WASM crates. The workspace also contains library crates (`trustforge_errors`, `trustforge_math`) and scaffolding (`templates`, `trustforge_admin_cli`) that are not deployed to the chain.
 
 ```bash
 cargo build \
   --target wasm32-unknown-unknown \
   --release \
   --locked \
-  -p credence_bond \
-  -p credence_delegation \
-  -p credence_treasury \
+  -p trustforge_bond \
+  -p trustforge_delegation \
+  -p trustforge_treasury \
   -p admin \
-  -p credence_multisig \
+  -p trustforge_multisig \
   -p arbitration \
   -p timelock
 ```
@@ -56,12 +56,12 @@ If the script exits non-zero, it prints the name of the offending contract and i
 
 Artifacts are located at:
 ```
-target/wasm32-unknown-unknown/release/credence_bond.wasm
-target/wasm32-unknown-unknown/release/credence_delegation.wasm
-target/wasm32-unknown-unknown/release/credence_treasury.wasm
+target/wasm32-unknown-unknown/release/trustforge_bond.wasm
+target/wasm32-unknown-unknown/release/trustforge_delegation.wasm
+target/wasm32-unknown-unknown/release/trustforge_treasury.wasm
 target/wasm32-unknown-unknown/release/admin.wasm
-target/wasm32-unknown-unknown/release/credence_multisig.wasm
-target/wasm32-unknown-unknown/release/credence_arbitration.wasm
+target/wasm32-unknown-unknown/release/trustforge_multisig.wasm
+target/wasm32-unknown-unknown/release/trustforge_arbitration.wasm
 target/wasm32-unknown-unknown/release/timelock.wasm
 ```
 
@@ -80,12 +80,12 @@ Some contracts guard against being initialized twice; others do not. **Never re-
 | Contract | Guard | Behaviour if `initialize` is called again |
 |---|---|---|
 | `admin` | `DataKey::Initialized` flag | Panics — `AlreadyInitialized` |
-| `credence_arbitration` | `has(&DataKey::Admin)` | Returns `AlreadyInitialized` error |
+| `trustforge_arbitration` | `has(&DataKey::Admin)` | Returns `AlreadyInitialized` error |
 | `timelock` | `has(&DataKey::Admin)` | Panics |
-| `credence_bond` | implicit | Panics — `AlreadyInitialized` |
-| `credence_delegation` | `has(&DataKey::Admin)` | Panics |
-| `credence_treasury` | **none** | **Overwrites existing state — dangerous** ⚠️ |
-| `credence_multisig` | **none** | **Overwrites existing state — dangerous** ⚠️ |
+| `trustforge_bond` | implicit | Panics — `AlreadyInitialized` |
+| `trustforge_delegation` | `has(&DataKey::Admin)` | Panics |
+| `trustforge_treasury` | **none** | **Overwrites existing state — dangerous** ⚠️ |
+| `trustforge_multisig` | **none** | **Overwrites existing state — dangerous** ⚠️ |
 
 ---
 
@@ -152,11 +152,11 @@ No post-init configuration required. The minimum queue delay is 86 400 seconds (
 
 ---
 
-### 3c — credence_multisig
+### 3c — trustforge_multisig
 
 ```bash
 MULTISIG_CONTRACT_ID=$(soroban contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/credence_multisig.wasm \
+  --wasm target/wasm32-unknown-unknown/release/trustforge_multisig.wasm \
   --source "$ADMIN_KEY" \
   --network "$NETWORK")
 
@@ -180,11 +180,11 @@ soroban contract invoke \
 
 ---
 
-### 3d — credence_arbitration
+### 3d — trustforge_arbitration
 
 ```bash
 ARBITRATION_CONTRACT_ID=$(soroban contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/credence_arbitration.wasm \
+  --wasm target/wasm32-unknown-unknown/release/trustforge_arbitration.wasm \
   --source "$ADMIN_KEY" \
   --network "$NETWORK")
 
@@ -218,13 +218,13 @@ Repeat for each arbitrator.
 
 ---
 
-### 3e — credence_treasury
+### 3e — trustforge_treasury
 
 The treasury requires a live token address at init. `USDC_TOKEN_ADDRESS` must be a real Stellar asset contract — not the mock token used in tests (see [known-simplifications.md #1](known-simplifications.md)).
 
 ```bash
 TREASURY_CONTRACT_ID=$(soroban contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/credence_treasury.wasm \
+  --wasm target/wasm32-unknown-unknown/release/trustforge_treasury.wasm \
   --source "$ADMIN_KEY" \
   --network "$NETWORK")
 
@@ -241,7 +241,7 @@ soroban contract invoke \
   --token "$USDC_TOKEN_ADDRESS"
 ```
 
-⚠️ `credence_treasury` has **no double-init guard** — a second `initialize` call overwrites all state.
+⚠️ `trustforge_treasury` has **no double-init guard** — a second `initialize` call overwrites all state.
 
 Configure multi-sig signers and threshold:
 
@@ -283,11 +283,11 @@ The bond contract (`$BOND_CONTRACT_ID`) will be added as an authorized depositor
 
 ---
 
-### 3f — credence_bond
+### 3f — trustforge_bond
 
 ```bash
 BOND_CONTRACT_ID=$(soroban contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/credence_bond.wasm \
+  --wasm target/wasm32-unknown-unknown/release/trustforge_bond.wasm \
   --source "$ADMIN_KEY" \
   --network "$NETWORK")
 
@@ -342,11 +342,11 @@ soroban contract invoke \
 
 ---
 
-### 3g — credence_delegation
+### 3g — trustforge_delegation
 
 ```bash
 DELEGATION_CONTRACT_ID=$(soroban contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/credence_delegation.wasm \
+  --wasm target/wasm32-unknown-unknown/release/trustforge_delegation.wasm \
   --source "$ADMIN_KEY" \
   --network "$NETWORK")
 
@@ -411,7 +411,7 @@ This authorizes the bond contract to call `treasury.receive_fee()` when collecti
 
 Run each read-only getter to confirm the expected state. None of these calls mutate state.
 
-### credence_bond
+### trustforge_bond
 
 ```bash
 # Confirm admin and early-exit config (treasury address + penalty)
@@ -431,7 +431,7 @@ soroban contract invoke \
 # Expected: true
 ```
 
-### credence_treasury
+### trustforge_treasury
 
 ```bash
 # Confirm bond contract is an authorized depositor
@@ -456,7 +456,7 @@ soroban contract invoke \
   -- get_admin
 ```
 
-### credence_multisig
+### trustforge_multisig
 
 ```bash
 soroban contract invoke \
@@ -493,7 +493,7 @@ soroban contract invoke \
   -- get_admin
 ```
 
-### credence_delegation (smoke test)
+### trustforge_delegation (smoke test)
 
 ```bash
 soroban contract invoke \
@@ -503,9 +503,9 @@ soroban contract invoke \
 # Expected: false
 ```
 
-### credence_arbitration
+### trustforge_arbitration
 
-There is no `get_arbitrators` list getter on `credence_arbitration`. Confirm registration by submitting a test dispute and verifying that an arbitrator's vote is accepted, or by indexing the `arbitrator_registered` events emitted during `register_arbitrator` calls.
+There is no `get_arbitrators` list getter on `trustforge_arbitration`. Confirm registration by submitting a test dispute and verifying that an arbitrator's vote is accepted, or by indexing the `arbitrator_registered` events emitted during `register_arbitrator` calls.
 
 ---
 
@@ -517,7 +517,7 @@ There is no `get_arbitrators` list getter on `credence_arbitration`. Confirm reg
 |---|---|
 | Wrong config setter value | Call the setter again — setters are not one-shot; admin can update at any time. |
 | Wrong `initialize` argument on a guarded contract | The contract panics on re-init. Deploy a new instance; update `deploy_addresses.env`; re-run all wiring steps. |
-| Wrong `initialize` argument on `credence_treasury` or `credence_multisig` | These have no guard — calling `initialize` again overwrites state. Do this only if no funds or proposals exist. Then re-run wiring. |
+| Wrong `initialize` argument on `trustforge_treasury` or `trustforge_multisig` | These have no guard — calling `initialize` again overwrites state. Do this only if no funds or proposals exist. Then re-run wiring. |
 | Full re-deploy of one contract | Update its `$CONTRACT_ID` variable in `deploy_addresses.env`. Re-run all wiring calls that reference it (both as caller and as argument). |
 
 Keep `deploy_addresses.env` in a secure location. It is the source of truth for all contract IDs across the deploy and is required to run any subsequent admin call.
@@ -529,11 +529,11 @@ Keep `deploy_addresses.env` in a secure location. It is the source of truth for 
 ```
 Step 3a  deploy + init   admin
 Step 3b  deploy + init   timelock
-Step 3c  deploy + init   credence_multisig  (signers + threshold at init)
-Step 3d  deploy + init   credence_arbitration  (+register_arbitrator calls)
-Step 3e  deploy + init   credence_treasury  (+add_signer, set_threshold)
-Step 3f  deploy + init   credence_bond  (+set_early_exit_config, set_weight_config, register_attester)
-Step 3g  deploy + init   credence_delegation  (+register_verifier optional)
+Step 3c  deploy + init   trustforge_multisig  (signers + threshold at init)
+Step 3d  deploy + init   trustforge_arbitration  (+register_arbitrator calls)
+Step 3e  deploy + init   trustforge_treasury  (+add_signer, set_threshold)
+Step 3f  deploy + init   trustforge_bond  (+set_early_exit_config, set_weight_config, register_attester)
+Step 3g  deploy + init   trustforge_delegation  (+register_verifier optional)
 Step 4a  wire            treasury.add_depositor($BOND_CONTRACT_ID)
 Step 5   verify          read-back getters on all contracts
 ```

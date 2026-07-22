@@ -7,8 +7,8 @@
 cargo test
 
 # Single crate
-cargo test -p credence_bond
-cargo test -p credence_delegation
+cargo test -p trustforge_bond
+cargo test -p trustforge_delegation
 cargo test -p timelock
 ```
 
@@ -28,15 +28,15 @@ cargo install cargo-llvm-cov --locked
 
 ```bash
 # HTML report (opens in browser)
-cargo llvm-cov --package credence_bond --open
+cargo llvm-cov --package trustforge_bond --open
 
 # Enforce threshold (same check as CI)
-cargo llvm-cov --package credence_bond --fail-under-lines 95
-cargo llvm-cov --package credence_delegation --fail-under-lines 95
+cargo llvm-cov --package trustforge_bond --fail-under-lines 95
+cargo llvm-cov --package trustforge_delegation --fail-under-lines 95
 cargo llvm-cov --package timelock --fail-under-lines 95
 
 # LCOV output (for editor integration)
-cargo llvm-cov --package credence_bond --lcov --output-path lcov.info
+cargo llvm-cov --package trustforge_bond --lcov --output-path lcov.info
 ```
 
 ### CI workflow
