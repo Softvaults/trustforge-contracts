@@ -17,10 +17,10 @@ use crate::test_helpers::{self, advance_ledger_sequence};
 use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::Env;
 
-fn setup(e: &Env) -> (CredenceBondClient<'_>, Address) {
+fn setup(e: &Env) -> (TrustForgeBondClient<'_>, Address) {
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = Address::generate(e);
     client.initialize(&admin, &None);
     (client, admin)
@@ -38,8 +38,8 @@ fn test_version() {
 #[test]
 fn test_describe_config_returns_none_when_uninitialized() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     assert!(client.describe_config().is_none());
 }
 
@@ -80,8 +80,8 @@ fn test_describe_config_no_auth_required() {
     // without any auth context.
     let e = Env::default();
     e.mock_all_auths(); // needed only for initialize
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
 
@@ -222,8 +222,8 @@ fn test_describe_bond_no_auth_required() {
     // describe_bond must not require any auth.
     let e = Env::default();
     e.mock_all_auths(); // only for setup
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     let identity = Address::generate(&e);
     client.initialize(&admin, &None);

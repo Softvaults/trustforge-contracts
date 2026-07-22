@@ -1,4 +1,4 @@
-//! Storage-key fingerprint snapshot for `admin::DataKey`.
+//! Storage-key fingerprint snapshot for `trustforge_admin::DataKey`.
 //!
 //! Every `DataKey` variant encodes to a specific byte sequence that becomes the
 //! literal ledger key for its entry. This test pins the XDR encoding of each
@@ -9,7 +9,7 @@
 //! Field values are fixed, deterministic placeholders: the fingerprint is about
 //! the variant *tag and shape*, not the runtime data stored under it.
 
-use admin::{DataKey, AdminRole};
+use trustforge_admin::{DataKey, AdminRole};
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::xdr::ToXdr;
 use soroban_sdk::{Address, Bytes, Env};

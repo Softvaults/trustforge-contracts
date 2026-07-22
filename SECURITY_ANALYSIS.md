@@ -1,8 +1,8 @@
-# Arithmetic Security Analysis - Credence Bond Contract
+# Arithmetic Security Analysis - TrustForge Bond Contract
 
 ## Overview
 
-This document provides a comprehensive security analysis of arithmetic operations in the Credence Bond smart contract, focusing on overflow and underflow protection.
+This document provides a comprehensive security analysis of arithmetic operations in the TrustForge Bond smart contract, focusing on overflow and underflow protection.
 
 **Analysis Date:** February 22, 2026  
 **Contract Version:** 0.1.0  
@@ -259,7 +259,7 @@ The `withdraw_bond` function enforces:
 
 ## Conclusion
 
-The Credence Bond contract demonstrates **robust arithmetic security**:
+The TrustForge Bond contract demonstrates **robust arithmetic security**:
 
 ✅ All operations use checked arithmetic  
 ✅ Proper error handling with descriptive messages  

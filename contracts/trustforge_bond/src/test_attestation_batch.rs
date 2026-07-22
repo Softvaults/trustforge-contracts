@@ -1,16 +1,16 @@
 extern crate std;
 
-use crate::{AttestationBatchItem, CredenceBond, CredenceBondClient};
+use crate::{AttestationBatchItem, TrustForgeBond, TrustForgeBondClient};
 use soroban_sdk::{
     testutils::{Address as _, Events},
     Address, Env, FromVal, String, Symbol, Vec,
 };
 use std::panic::AssertUnwindSafe;
 
-fn setup(e: &Env) -> (CredenceBondClient<'_>, Address, Address) {
+fn setup(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address) {
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = Address::generate(e);
     client.initialize(&admin, &None);
     (client, admin, contract_id)

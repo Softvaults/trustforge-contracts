@@ -1,6 +1,6 @@
 # Bond Token Custody
 
-`CredenceBond` escrows the configured token inside the bond contract instead of tracking phantom balances in storage alone.
+`TrustForgeBond` escrows the configured token inside the bond contract instead of tracking phantom balances in storage alone.
 
 ## Custody Rules
 

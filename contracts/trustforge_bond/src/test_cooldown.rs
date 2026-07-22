@@ -5,20 +5,20 @@
 
 use crate::cooldown;
 use crate::test_helpers;
-use crate::{CredenceBond, CredenceBondClient};
+use crate::{TrustForgeBond, TrustForgeBondClient};
 use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::{Address, Env};
 
-fn setup(e: &Env) -> (CredenceBondClient<'_>, Address) {
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+fn setup(e: &Env) -> (TrustForgeBondClient<'_>, Address) {
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = Address::generate(e);
     client.initialize(&admin, &None);
     (client, admin)
 }
 
 /// Setup with token for tests that call create_bond.
-fn setup_with_token(e: &Env) -> (CredenceBondClient<'_>, Address, Address) {
+fn setup_with_token(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address) {
     let (client, admin, identity, _token, _bond_id) = test_helpers::setup_with_token(e);
     (client, admin, identity)
 }

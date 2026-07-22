@@ -3,7 +3,7 @@
 //!
 //!
 //! This module contains comprehensive security tests for arithmetic operations
-//! to verify overflow and underflow protection in the Credence Bond contract.
+//! to verify overflow and underflow protection in the TrustForge Bond contract.
 //!
 //! Test Categories:
 //! 1. i128 Overflow Tests - Verify safe handling of large bond amounts
@@ -25,8 +25,8 @@ use soroban_sdk::{Address, Env};
 fn test_i128_bond_amount_at_max() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -47,8 +47,8 @@ fn test_i128_bond_amount_at_max() {
 fn test_i128_overflow_on_top_up() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -68,8 +68,8 @@ fn test_i128_overflow_on_top_up() {
 fn test_i128_overflow_on_max_top_up() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -88,8 +88,8 @@ fn test_i128_overflow_on_max_top_up() {
 fn test_i128_overflow_on_massive_slashing() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -116,8 +116,8 @@ fn test_i128_overflow_on_massive_slashing() {
 fn test_i128_large_bond_operations() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -139,8 +139,8 @@ fn test_i128_large_bond_operations() {
 fn test_negative_bond_amount_handling() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -164,8 +164,8 @@ fn test_negative_bond_amount_handling() {
 fn test_u64_max_duration() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -183,8 +183,8 @@ fn test_u64_max_duration() {
 fn test_u64_overflow_on_duration_extension() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -211,8 +211,8 @@ fn test_u64_overflow_on_end_timestamp() {
         li.timestamp = u64::MAX - 86400;
     });
 
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -227,8 +227,8 @@ fn test_u64_overflow_on_end_timestamp() {
 fn test_u64_large_duration_extension() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -255,8 +255,8 @@ fn test_timestamp_boundary_conditions() {
         li.timestamp = u64::MAX - 31_536_000;
     });
 
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -280,8 +280,8 @@ fn test_timestamp_boundary_conditions() {
 fn test_withdrawal_exceeds_available_balance() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -299,8 +299,8 @@ fn test_withdrawal_exceeds_available_balance() {
 fn test_withdrawal_after_slashing() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -321,8 +321,8 @@ fn test_withdrawal_after_slashing() {
 fn test_withdrawal_exact_available_balance() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -340,8 +340,8 @@ fn test_withdrawal_exact_available_balance() {
 fn test_withdrawal_zero_amount() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -360,8 +360,8 @@ fn test_withdrawal_zero_amount() {
 fn test_multiple_withdrawals_causing_underflow() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -381,8 +381,8 @@ fn test_multiple_withdrawals_causing_underflow() {
 fn test_withdrawal_with_max_i128_bond() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -401,8 +401,8 @@ fn test_withdrawal_with_max_i128_bond() {
 fn test_withdrawal_when_fully_slashed() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -427,8 +427,8 @@ fn test_withdrawal_when_fully_slashed() {
 fn test_slashing_normal_amount() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -447,8 +447,8 @@ fn test_slashing_normal_amount() {
 fn test_slashing_exceeds_bonded_amount() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -469,8 +469,8 @@ fn test_slashing_exceeds_bonded_amount() {
 fn test_multiple_slashing_operations() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -494,8 +494,8 @@ fn test_multiple_slashing_operations() {
 fn test_slashing_zero_amount() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -514,8 +514,8 @@ fn test_slashing_zero_amount() {
 fn test_slashing_after_withdrawal() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -537,8 +537,8 @@ fn test_slashing_after_withdrawal() {
 fn test_slashing_with_max_values() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -560,8 +560,8 @@ fn test_slashing_with_max_values() {
 fn test_complex_arithmetic_scenario() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -593,8 +593,8 @@ fn test_complex_arithmetic_scenario() {
 fn test_withdrawal_leaves_insufficient_for_slashed() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -616,8 +616,8 @@ fn test_withdrawal_leaves_insufficient_for_slashed() {
 fn test_boundary_arithmetic_with_zero_values() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);

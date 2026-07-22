@@ -1,14 +1,14 @@
 #![cfg(test)]
 
 use crate::test_helpers;
-use crate::{CredenceBond, CredenceBondClient};
+use crate::{TrustForgeBond, TrustForgeBondClient};
 use soroban_sdk::testutils::{Address as _, Events as _};
 use soroban_sdk::{Address, Env};
 
-fn setup_no_token(e: &Env) -> (CredenceBondClient<'_>, Address) {
+fn setup_no_token(e: &Env) -> (TrustForgeBondClient<'_>, Address) {
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = Address::generate(e);
     client.initialize(&admin, &None);
     (client, admin)

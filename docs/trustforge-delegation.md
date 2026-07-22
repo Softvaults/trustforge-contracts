@@ -1,6 +1,6 @@
-# Crate: Credence Delegation
+# Crate: TrustForge Delegation
 
-**Path:** `contracts/credence-delegation`
+**Path:** `contracts/trustforge_delegation`
 
 ## Overview
 

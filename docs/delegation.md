@@ -4,7 +4,7 @@ Soroban contract enabling bond owners to delegate attestation and management rig
 
 ## Overview
 
-The `CredenceDelegation` contract stores delegations keyed by `(owner, delegate, DelegationType)`. Each delegation carries a bounded expiry timestamp and can be revoked by the owner at any time.
+The `TrustForgeDelegation` contract stores delegations keyed by `(owner, delegate, DelegationType)`. Each delegation carries a bounded expiry timestamp and can be revoked by the owner at any time.
 
 ## Types
 
@@ -109,6 +109,6 @@ cargo test -p trustforge_delegation
 
 ## Cross-namespace nonce replay guarantee
 
-Delegation nonces are scoped to the delegation contract namespace and are additionally bound by each delegated payload's `contract_id` and `DomainTag`. A payload whose nonce value is correct in another Credence namespace, such as the bond contract's signed-action namespace, is rejected by the delegated execution entry points before the delegation nonce is consumed.
+Delegation nonces are scoped to the delegation contract namespace and are additionally bound by each delegated payload's `contract_id` and `DomainTag`. A payload whose nonce value is correct in another TrustForge namespace, such as the bond contract's signed-action namespace, is rejected by the delegated execution entry points before the delegation nonce is consumed.
 
 The regression suite covers replay attempts from a bond-bound payload into `execute_delegated_delegate`, `execute_delegated_revoke`, and `execute_delegated_revoke_attest`. It also verifies that `invalidate_nonce_range` burns only the delegation window: stale delegation payloads below the new nonce are rejected, the counter remains monotonic, and contract-domain mismatches do not advance or leak into another namespace.

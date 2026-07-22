@@ -2,11 +2,11 @@
 //! Covers multi-sig verification, vote tracking, quorum, delegation, and events.
 
 use crate::test_helpers;
-use crate::CredenceBondClient;
+use crate::TrustForgeBondClient;
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::{Address, Env, Vec};
 
-fn setup(e: &Env) -> (CredenceBondClient<'_>, Address, Address) {
+fn setup(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address) {
     // Use helper that sets up token + bonded identity so governance tests can create bonds safely.
     let (client, admin, identity, ..) = test_helpers::setup_with_token(e);
     (client, admin, identity)
@@ -17,7 +17,7 @@ fn setup_with_bond_and_governance<'a>(
     governors: &[Address],
     quorum_bps: u32,
     min_governors: u32,
-) -> (CredenceBondClient<'a>, Address, Address) {
+) -> (TrustForgeBondClient<'a>, Address, Address) {
     let (client, admin, identity) = setup(e);
     client.create_bond_with_rolling(&identity, &1000000_i128, &86400_u64, &false, &0_u64);
     test_helpers::advance_ledger_sequence(e);

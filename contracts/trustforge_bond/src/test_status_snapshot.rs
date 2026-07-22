@@ -8,13 +8,13 @@
 //! - snapshot_timestamp reflects ledger time
 
 use crate::test_helpers;
-use crate::{BondTier, CredenceBondClient};
+use crate::{BondTier, TrustForgeBondClient};
 use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::{Address, Env, Symbol};
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
-fn setup(e: &Env) -> (CredenceBondClient<'_>, Address, Address, Address, Address) {
+fn setup(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address, Address, Address) {
     let (client, admin, identity, ..) = test_helpers::setup_with_token(e);
     let governance = Address::generate(e);
     let treasury = Address::generate(e);

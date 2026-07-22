@@ -2,9 +2,9 @@ use super::*;
 use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::Env;
 
-fn setup(e: &Env) -> (CredenceBondClient<'_>, Address) {
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+fn setup(e: &Env) -> (TrustForgeBondClient<'_>, Address) {
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = Address::generate(e);
     e.mock_all_auths();
     client.initialize(&admin, &None);
@@ -15,8 +15,8 @@ fn setup(e: &Env) -> (CredenceBondClient<'_>, Address) {
 #[test]
 fn test_create_bond_success() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -38,8 +38,8 @@ fn test_create_bond_success() {
 #[test]
 fn test_create_bond_zero_amount() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -55,8 +55,8 @@ fn test_create_bond_zero_amount() {
 #[test]
 fn test_create_bond_negative_amount() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -71,8 +71,8 @@ fn test_create_bond_negative_amount() {
 #[test]
 fn test_set_supply_cap_success() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -87,8 +87,8 @@ fn test_set_supply_cap_success() {
 #[should_panic(expected = "supply cap must be non-negative")]
 fn test_set_supply_cap_negative() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -101,8 +101,8 @@ fn test_set_supply_cap_negative() {
 #[test]
 fn test_supply_cap_enforcement_below_cap() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -123,8 +123,8 @@ fn test_supply_cap_enforcement_below_cap() {
 #[should_panic(expected = "supply cap exceeded")]
 fn test_supply_cap_enforcement_above_cap() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -140,8 +140,8 @@ fn test_supply_cap_enforcement_above_cap() {
 #[test]
 fn test_supply_cap_with_multiple_bonds() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -162,8 +162,8 @@ fn test_supply_cap_with_multiple_bonds() {
 #[test]
 fn test_supply_cap_no_cap() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -180,8 +180,8 @@ fn test_supply_cap_no_cap() {
 #[test]
 fn test_supply_cap_withdrawal_reduces_supply() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -208,8 +208,8 @@ fn test_supply_cap_withdrawal_reduces_supply() {
 #[test]
 fn test_create_bond_max_amount() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -225,8 +225,8 @@ fn test_create_bond_max_amount() {
 #[test]
 fn test_create_bond_zero_duration() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -242,8 +242,8 @@ fn test_create_bond_zero_duration() {
 #[test]
 fn test_create_bond_max_duration() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -264,8 +264,8 @@ fn test_create_bond_duration_overflow() {
         li.timestamp = u64::MAX - 1000; // Set timestamp close to max
     });
 
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -279,8 +279,8 @@ fn test_create_bond_duration_overflow() {
 #[test]
 fn test_create_bond_duplicate() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -305,8 +305,8 @@ fn test_create_bond_duplicate() {
 #[test]
 fn test_create_bond_different_identities() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -327,8 +327,8 @@ fn test_create_bond_different_identities() {
 #[test]
 fn test_create_bond_field_initialization() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -347,8 +347,8 @@ fn test_create_bond_field_initialization() {
 #[test]
 fn test_create_bond_storage_persistence() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -369,8 +369,8 @@ fn test_create_bond_storage_persistence() {
 #[test]
 fn test_create_bond_min_positive_amount() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -386,8 +386,8 @@ fn test_create_bond_min_positive_amount() {
 #[test]
 fn test_create_bond_usdc_amount() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -403,8 +403,8 @@ fn test_create_bond_usdc_amount() {
 #[test]
 fn test_create_bond_timestamp() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -421,8 +421,8 @@ fn test_create_bond_timestamp() {
 #[test]
 fn test_create_bond_sequential() {
     let e = Env::default();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);

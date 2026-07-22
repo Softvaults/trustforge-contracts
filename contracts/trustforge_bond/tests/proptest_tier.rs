@@ -15,7 +15,7 @@
 //!   WithdrawEarly, Settle) must never increase its tier rank (`tier_after <= tier_before`).
 
 
-use trustforge_bond::{CredenceBond, CredenceBondClient, BondTier};
+use trustforge_bond::{TrustForgeBond, TrustForgeBondClient, BondTier};
 use trustforge_bond::soroban_sdk::{Env, Address};
 use trustforge_bond::soroban_sdk::testutils::{Address as _, Ledger as _};
 use proptest::prelude::*;
@@ -145,8 +145,8 @@ fn run_sequence(actions: &[BondAction]) {
     e.mock_all_auths();
     e.ledger().with_mut(|li| li.timestamp = 1000);
 
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     let identity = Address::generate(&e);
 

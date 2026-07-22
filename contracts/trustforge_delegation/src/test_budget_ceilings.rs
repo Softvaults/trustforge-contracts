@@ -1,4 +1,4 @@
-//! Per-entrypoint resource-budget ceiling tests for `CredenceBond`.
+//! Per-entrypoint resource-budget ceiling tests for `TrustForgeBond`.
 //!
 //! Each test exercises one write-path entrypoint, resets the Soroban budget
 //! snapshot immediately before the call, then asserts that the recorded CPU

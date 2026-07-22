@@ -30,7 +30,7 @@ struct Setup<'a> {
     admin: Address,
     arb: Address,
     creator: Address,
-    client: CredenceArbitrationClient<'a>,
+    client: TrustForgeArbitrationClient<'a>,
 }
 
 fn setup() -> Setup<'static> {
@@ -39,8 +39,8 @@ fn setup() -> Setup<'static> {
     let admin = Address::generate(&env);
     let arb = Address::generate(&env);
     let creator = Address::generate(&env);
-    let contract_id = env.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&env, &contract_id);
     client.initialize(&admin);
     client.register_arbitrator(&arb, &10);
     Setup {

@@ -77,8 +77,8 @@ fn dump_pause_storage(e: &Env, contract_id: &Address, signers: &[Address]) -> St
 fn test_pause_proposal_lifecycle_snapshots() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceDelegation, ());
-    let client = CredenceDelegationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeDelegation, ());
+    let client = TrustForgeDelegationClient::new(&e, &contract_id);
     
     let admin = Address::generate(&e);
     let signer1 = Address::generate(&e);

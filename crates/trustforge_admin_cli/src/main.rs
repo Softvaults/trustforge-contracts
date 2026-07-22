@@ -14,24 +14,24 @@ use stellar_baselib::{
     xdr::{Limits, ScVal, WriteXdr},
 };
 
-/// Admin CLI for Credence protocol contracts.
+/// Admin CLI for TrustForge protocol contracts.
 ///
 /// Builds real `InvokeHostFunction` (invoke_contract) transactions for each
 /// admin operation. Without --submit the XDR envelope is printed as a
 /// structured JSON dry-run. With --submit the transaction is signed with the
-/// key from --signer (or the CREDENCE_SIGNER env-var) and sent to the RPC.
+/// key from --signer (or the TRUSTFORGE_SIGNER env-var) and sent to the RPC.
 #[derive(Parser)]
 #[command(
     name = "trustforge-admin",
     author,
     version,
-    about = "Admin CLI for Credence protocol"
+    about = "Admin CLI for TrustForge protocol"
 )]
 struct Cli {
     /// Soroban RPC endpoint.
     #[arg(
         long,
-        env = "CREDENCE_RPC_URL",
+        env = "TRUSTFORGE_RPC_URL",
         default_value = "https://soroban-testnet.stellar.org"
     )]
     rpc_url: String,
@@ -39,18 +39,18 @@ struct Cli {
     /// Network passphrase. Defaults to testnet.
     #[arg(
         long,
-        env = "CREDENCE_NETWORK",
+        env = "TRUSTFORGE_NETWORK",
         default_value = "Test SDF Network ; September 2015"
     )]
     network: String,
 
     /// Contract address (C…) to invoke.
-    #[arg(long, env = "CREDENCE_CONTRACT")]
+    #[arg(long, env = "TRUSTFORGE_CONTRACT")]
     contract: Option<String>,
 
     /// Signer secret key (S…). Required for --submit. Can also be set via
-    /// the CREDENCE_SIGNER environment variable.
-    #[arg(long, env = "CREDENCE_SIGNER")]
+    /// the TRUSTFORGE_SIGNER environment variable.
+    #[arg(long, env = "TRUSTFORGE_SIGNER")]
     signer: Option<String>,
 
     /// Submit the transaction to the network instead of a dry-run.
@@ -205,7 +205,7 @@ fn run(cli: &Cli, contract_id: &str, function: &str, args: Vec<ScVal>) -> Result
         let secret = cli
             .signer
             .as_deref()
-            .ok_or_else(|| anyhow!("--signer / CREDENCE_SIGNER is required with --submit"))?;
+            .ok_or_else(|| anyhow!("--signer / TRUSTFORGE_SIGNER is required with --submit"))?;
         Some(Keypair::from_secret(secret).map_err(|e| anyhow!("invalid signer key: {e}"))?)
     } else {
         None

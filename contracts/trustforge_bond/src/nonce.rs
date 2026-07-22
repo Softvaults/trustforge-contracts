@@ -1,4 +1,4 @@
-//! Nonce tracking for replay prevention in the credence bond contract.
+//! Nonce tracking for replay prevention in the TrustForge Bond contract.
 //!
 //! Safety buffer added on top of the nonce TTL.
 const MIN_NONCE_TTL: u32 = 518_400;

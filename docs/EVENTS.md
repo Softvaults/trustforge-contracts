@@ -1,7 +1,7 @@
-# Credence Contracts: Event Specification
+# TrustForge Contracts: Event Specification
 
 ## Overview
-This document specifies all events emitted by Credence smart contracts, including their topic names, indexed parameters, and data payload schemas. It serves as the single source of truth for off-chain indexers, client applications, and integrators.
+This document specifies all events emitted by TrustForge smart contracts, including their topic names, indexed parameters, and data payload schemas. It serves as the single source of truth for off-chain indexers, client applications, and integrators.
 
 ## Architecture
 Every event in Soroban consists of two components:
@@ -13,7 +13,7 @@ Where both a `v1` and `v2` variant exist, **both are emitted** on every call for
 ---
 
 ## Quick Navigation
-- [Credence Bond](#credence-bond)
+- [TrustForge Bond](#trustforge-bond)
   - [Bond Lifecycle](#bond-lifecycle)
   - [Slashing](#slashing)
   - [Attestations](#attestations)
@@ -30,7 +30,7 @@ Where both a `v1` and `v2` variant exist, **both are emitted** on every call for
   - [Upgrade Authorization](#upgrade-authorization)
   - [Admin Transfers](#admin-transfers)
   - [Bond Drift](#bond-drift)
-- [Credence Delegation](#credence-delegation)
+- [TrustForge Delegation](#trustforge-delegation)
   - [Delegation Lifecycle](#delegation-lifecycle)
   - [Nonce Management](#nonce-management)
   - [Verifier Registry](#verifier-registry-1)
@@ -40,7 +40,7 @@ Where both a `v1` and `v2` variant exist, **both are emitted** on every call for
 
 ---
 
-## Credence Bond
+## TrustForge Bond
 Identity bond contract that handles staking, slashing, attestations, and more.
 
 ### Replay Semantics
@@ -584,7 +584,7 @@ Emitted when inconsistent bond or attestation state is detected.
 
 ---
 
-## Credence Delegation
+## TrustForge Delegation
 Delegation contract that handles delegated actions and signature verification.
 
 ### Delegation Lifecycle
@@ -674,7 +674,7 @@ Emitted when a pause proposal is executed.
 
 ## Indexer Query Patterns
 
-### Credence Bond Queries
+### TrustForge Bond Queries
 - **All events for an identity**: Filter `topics[1] == identity` across all relevant event names.
 - **Large bonds created**: Filter `bond_created_v2` where `topics[2] >= threshold`.
 - **Recent activity**: Filter any `*_v2` event where the timestamp topic is within range.
@@ -682,7 +682,7 @@ Emitted when a pause proposal is executed.
 - **Governance audit trail**: Collect `slash_proposed` → `governance_vote` → `slash_proposal_executed` / `slash_proposal_rejected` grouped by `data[0]` (proposal ID).
 - **Verifier reputation changes**: Filter `verifier_reputation_updated` by `topics[1]` (verifier address) to track reputation history.
 
-### Credence Delegation Queries
+### TrustForge Delegation Queries
 - **All delegations for an owner**: Filter `delegation_created` and `delegation_revoked` events and replay to get current state.
 - **Nonce invalidation history**: Filter `nonce_invalidated` by `topics[1]` (identity) to track replay protection ranges.
 - **Pause operations audit**: Track `pause_signer_set`, `pause_threshold_set`, and `paused` events to monitor contract pause activity.
@@ -690,6 +690,6 @@ Emitted when a pause proposal is executed.
 ---
 
 ## Additional Resources
-- [Credence Bond Docs](./credence-bond.md)
-- [Credence Delegation Docs](./credence-delegation.md)
+- [TrustForge Bond Docs](./trustforge-bond.md)
+- [TrustForge Delegation Docs](./trustforge-delegation.md)
 - [README](../README.md)

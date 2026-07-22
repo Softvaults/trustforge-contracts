@@ -187,7 +187,7 @@ pub enum DataKey {
     SettlingFlag,
     // --- Liquidation namespace (appended for issue #366) ---
     /// Treasury recipient for residual funds swept by
-    /// [`liquidate`](CredenceBond::liquidate). Value: `Address`. Optional; when
+    /// [`liquidate`](TrustForgeBond::liquidate). Value: `Address`. Optional; when
     /// unset the bond is finalized on-chain but no on-token sweep occurs
     /// (off-chain replayers can act on the `bond_liquidated` event).
     LiquidationTreasury,
@@ -205,7 +205,7 @@ pub enum DataKey {
     /// computed as SHA256(actor_address || operation_name || salt_bytes).
     IdempotencyKey(Bytes),
     // --- Multi-sig pause namespace (matches the shared pausable module pattern
-    // used by credence_registry, credence_multisig, timelock, etc.) ---
+    // used by trustforge_registry, trustforge_multisig, timelock, etc.) ---
     /// Whether the contract is currently paused. Value: `bool`.
     Paused,
     /// Whether an address is an authorized pause signer. Value: `bool`.
@@ -275,7 +275,7 @@ fn bump_instance_ttl(e: &Env) {
         .extend_ttl(STORAGE_TTL_EXTEND_TO / 2, STORAGE_TTL_EXTEND_TO);
 }
 
-/// Reason symbols for [`CredenceBond::liquidate`].
+/// Reason symbols for [`TrustForgeBond::liquidate`].
 ///
 /// Tiny enum used as the topic value when emitting `bond_liquidated`. Both
 /// variants are encoded as `Symbol`s: `"fully_slashed"` or `"expired_unrenewed"`.
@@ -291,7 +291,7 @@ pub mod liquidation_reason {
 
 /// Read-only snapshot of all contract-level configuration.
 ///
-/// Returned by [`CredenceBond::describe_config`]. Every field maps 1-to-1 to a
+/// Returned by [`TrustForgeBond::describe_config`]. Every field maps 1-to-1 to a
 /// storage key so operators can reconstruct the full config from a single call.
 #[contracttype]
 #[derive(Clone, Debug)]
@@ -312,7 +312,7 @@ pub struct BondConfigView {
 
 /// Read-only snapshot of a single identity's bond state.
 ///
-/// Returned by [`CredenceBond::describe_bond`]. Fields mirror `IdentityBond`
+/// Returned by [`TrustForgeBond::describe_bond`]. Fields mirror `IdentityBond`
 /// plus a derived `tier` field so callers need not recompute it.
 #[contracttype]
 #[derive(Clone, Debug)]
@@ -342,10 +342,10 @@ pub struct BondStateView {
 }
 
 #[contract]
-pub struct CredenceBond;
+pub struct TrustForgeBond;
 
 #[contractimpl]
-impl CredenceBond {
+impl TrustForgeBond {
         /// Set the set of accepted token addresses.
         /// Only callable by admin.
         pub fn set_accepted_tokens(e: Env, admin: Address, accepted_tokens: Vec<Address>) {
@@ -366,7 +366,7 @@ impl CredenceBond {
     /// Errors:
     /// - `ContractError::AlreadyInitialized` if called more than once.
     ///
-    /// See also: [`docs/credence-bond.md`](../../../docs/credence-bond.md)
+    /// See also: [`docs/trustforge-bond.md`](../../../docs/trustforge-bond.md)
     pub fn initialize(e: Env, admin: Address, registry: Option<Address>) {
         // auth: tree shape identifies the admin; usually a single signature entry.
         admin.require_auth();
@@ -462,14 +462,14 @@ impl CredenceBond {
     /// # Example
     ///
     /// ```no_run
-    /// use trustforge_bond::{CredenceBond, CredenceBondClient};
+    /// use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
     /// use soroban_sdk::{Env, Address};
     /// use soroban_sdk::testutils::Address as _;
     ///
     /// let e = Env::default();
     /// e.mock_all_auths();
-    /// let contract_id = e.register(CredenceBond, ());
-    /// let client = CredenceBondClient::new(&e, &contract_id);
+    /// let contract_id = e.register(TrustForgeBond, ());
+    /// let client = TrustForgeBondClient::new(&e, &contract_id);
     /// let admin = Address::generate(&e);
     /// let treasury = Address::generate(&e);
     /// client.initialize(&admin, &None);
@@ -496,14 +496,14 @@ impl CredenceBond {
     /// # Example
     ///
     /// ```no_run
-    /// use trustforge_bond::{CredenceBond, CredenceBondClient};
+    /// use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
     /// use soroban_sdk::{Env, Address};
     /// use soroban_sdk::testutils::Address as _;
     ///
     /// let e = Env::default();
     /// e.mock_all_auths();
-    /// let contract_id = e.register(CredenceBond, ());
-    /// let client = CredenceBondClient::new(&e, &contract_id);
+    /// let contract_id = e.register(TrustForgeBond, ());
+    /// let client = TrustForgeBondClient::new(&e, &contract_id);
     /// let admin = Address::generate(&e);
     /// let attester = Address::generate(&e);
     /// client.initialize(&admin, &None);
@@ -532,14 +532,14 @@ impl CredenceBond {
     /// # Example
     ///
     /// ```no_run
-    /// use trustforge_bond::{CredenceBond, CredenceBondClient};
+    /// use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
     /// use soroban_sdk::{Env, Address};
     /// use soroban_sdk::testutils::Address as _;
     ///
     /// let e = Env::default();
     /// e.mock_all_auths();
-    /// let contract_id = e.register(CredenceBond, ());
-    /// let client = CredenceBondClient::new(&e, &contract_id);
+    /// let contract_id = e.register(TrustForgeBond, ());
+    /// let client = TrustForgeBondClient::new(&e, &contract_id);
     /// let admin = Address::generate(&e);
     /// let attester = Address::generate(&e);
     /// client.initialize(&admin, &None);
@@ -567,14 +567,14 @@ impl CredenceBond {
     /// # Example
     ///
     /// ```no_run
-    /// use trustforge_bond::{CredenceBond, CredenceBondClient};
+    /// use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
     /// use soroban_sdk::{Env, Address};
     /// use soroban_sdk::testutils::Address as _;
     ///
     /// let e = Env::default();
     /// e.mock_all_auths();
-    /// let contract_id = e.register(CredenceBond, ());
-    /// let client = CredenceBondClient::new(&e, &contract_id);
+    /// let contract_id = e.register(TrustForgeBond, ());
+    /// let client = TrustForgeBondClient::new(&e, &contract_id);
     /// let admin = Address::generate(&e);
     /// let stranger = Address::generate(&e);
     /// client.initialize(&admin, &None);
@@ -591,20 +591,20 @@ impl CredenceBond {
     ///
     /// Authority: `identity` must authorize the call.
     ///
-    /// See also: [`docs/credence-bond.md`](../../../docs/credence-bond.md),
+    /// See also: [`docs/trustforge-bond.md`](../../../docs/trustforge-bond.md),
     /// [`docs/rolling-bonds.md`](../../../docs/rolling-bonds.md)
     ///
     /// # Example
     ///
     /// ```no_run
-    /// use trustforge_bond::{CredenceBond, CredenceBondClient};
+    /// use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
     /// use soroban_sdk::{Env, Address};
     /// use soroban_sdk::testutils::Address as _;
     ///
     /// let e = Env::default();
     /// e.mock_all_auths();
-    /// let contract_id = e.register(CredenceBond, ());
-    /// let client = CredenceBondClient::new(&e, &contract_id);
+    /// let contract_id = e.register(TrustForgeBond, ());
+    /// let client = TrustForgeBondClient::new(&e, &contract_id);
     /// let admin = Address::generate(&e);
     /// let identity = Address::generate(&e);
     /// client.initialize(&admin, &None);
@@ -666,19 +666,19 @@ impl CredenceBond {
     /// Errors:
     /// - `ContractError::BondNotFound` when no bond has been created.
     ///
-    /// See also: [`docs/credence-bond.md`](../../../docs/credence-bond.md)
+    /// See also: [`docs/trustforge-bond.md`](../../../docs/trustforge-bond.md)
     ///
     /// # Example
     ///
     /// ```no_run
-    /// use trustforge_bond::{CredenceBond, CredenceBondClient};
+    /// use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
     /// use soroban_sdk::{Env, Address};
     /// use soroban_sdk::testutils::Address as _;
     ///
     /// let e = Env::default();
     /// e.mock_all_auths();
-    /// let contract_id = e.register(CredenceBond, ());
-    /// let client = CredenceBondClient::new(&e, &contract_id);
+    /// let contract_id = e.register(TrustForgeBond, ());
+    /// let client = TrustForgeBondClient::new(&e, &contract_id);
     /// let admin = Address::generate(&e);
     /// let identity = Address::generate(&e);
     /// client.initialize(&admin, &None);
@@ -713,14 +713,14 @@ impl CredenceBond {
     /// # Example
     ///
     /// ```no_run
-    /// use trustforge_bond::{CredenceBond, CredenceBondClient};
+    /// use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
     /// use soroban_sdk::{Env, Address, String};
     /// use soroban_sdk::testutils::Address as _;
     ///
     /// let e = Env::default();
     /// e.mock_all_auths();
-    /// let contract_id = e.register(CredenceBond, ());
-    /// let client = CredenceBondClient::new(&e, &contract_id);
+    /// let contract_id = e.register(TrustForgeBond, ());
+    /// let client = TrustForgeBondClient::new(&e, &contract_id);
     /// let admin = Address::generate(&e);
     /// let attester = Address::generate(&e);
     /// let subject = Address::generate(&e);
@@ -1065,14 +1065,14 @@ impl CredenceBond {
     ///
     /// # Example — page through all IDs
     /// ```no_run
-    /// use trustforge_bond::{CredenceBond, CredenceBondClient};
+    /// use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
     /// use soroban_sdk::{Env, Address};
     /// use soroban_sdk::testutils::Address as _;
     ///
     /// let e = Env::default();
     /// e.mock_all_auths();
-    /// let contract_id = e.register(CredenceBond, ());
-    /// let client = CredenceBondClient::new(&e, &contract_id);
+    /// let contract_id = e.register(TrustForgeBond, ());
+    /// let client = TrustForgeBondClient::new(&e, &contract_id);
     /// let admin = Address::generate(&e);
     /// let subject = Address::generate(&e);
     /// client.initialize(&admin, &None);
@@ -1134,14 +1134,14 @@ impl CredenceBond {
     ///
     /// # Example — page through all slash records
     /// ```no_run
-    /// use trustforge_bond::{CredenceBond, CredenceBondClient};
+    /// use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
     /// use soroban_sdk::{Env, Address};
     /// use soroban_sdk::testutils::Address as _;
     ///
     /// let e = Env::default();
     /// e.mock_all_auths();
-    /// let contract_id = e.register(CredenceBond, ());
-    /// let client = CredenceBondClient::new(&e, &contract_id);
+    /// let contract_id = e.register(TrustForgeBond, ());
+    /// let client = TrustForgeBondClient::new(&e, &contract_id);
     /// let admin = Address::generate(&e);
     /// let identity = Address::generate(&e);
     /// client.initialize(&admin, &None);
@@ -1576,7 +1576,7 @@ impl CredenceBond {
     /// - `ContractError::BondNotFound` when no bond exists.
     /// - `ContractError::Overflow` when the addition would overflow `i128`.
     ///
-    /// See also: [`docs/credence-bond.md`](../../../docs/credence-bond.md)
+    /// See also: [`docs/trustforge-bond.md`](../../../docs/trustforge-bond.md)
     pub fn top_up(e: Env, identity: Address, amount: i128) -> IdentityBond {
         // auth: bond owner must authorize top-ups.
         identity.require_auth();
@@ -1624,7 +1624,7 @@ impl CredenceBond {
     /// - `ContractError::BondNotFound` when no bond exists.
     /// - `ContractError::Overflow` when the new duration or end timestamp would overflow `u64`.
     ///
-    /// See also: [`docs/credence-bond.md`](../../../docs/credence-bond.md)
+    /// See also: [`docs/trustforge-bond.md`](../../../docs/trustforge-bond.md)
     pub fn extend_duration(e: Env, identity: Address, additional_duration: u64) -> IdentityBond {
         // auth: bond owner must authorize duration extensions.
         identity.require_auth();
@@ -1984,7 +1984,7 @@ impl CredenceBond {
     /// - `ContractError::ReentrancyDetected` on re-entrant invocation.
     ///
     /// See also: [`docs/liquidation.md`](../../../docs/liquidation.md),
-    /// [`docs/credence-bond.md`](../../../docs/credence-bond.md)
+    /// [`docs/trustforge-bond.md`](../../../docs/trustforge-bond.md)
     pub fn liquidate(e: Env, admin: Address) -> IdentityBond {
         // auth: tree shape [Admin] -> [Bond::liquidate]; usually direct admin call.
         admin.require_auth();
@@ -2093,14 +2093,14 @@ impl CredenceBond {
     /// # Example
     ///
     /// ```no_run
-    /// use trustforge_bond::{CredenceBond, CredenceBondClient};
+    /// use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
     /// use soroban_sdk::{Env, Address};
     /// use soroban_sdk::testutils::Address as _;
     ///
     /// let e = Env::default();
     /// e.mock_all_auths();
-    /// let contract_id = e.register(CredenceBond, ());
-    /// let client = CredenceBondClient::new(&e, &contract_id);
+    /// let contract_id = e.register(TrustForgeBond, ());
+    /// let client = TrustForgeBondClient::new(&e, &contract_id);
     /// let admin = Address::generate(&e);
     /// let callback = Address::generate(&e);
     /// client.initialize(&admin, &None);
@@ -2143,13 +2143,13 @@ impl CredenceBond {
     /// # Example
     ///
     /// ```no_run
-    /// use trustforge_bond::{CredenceBond, CredenceBondClient};
+    /// use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
     /// use soroban_sdk::{Env, Address};
     /// use soroban_sdk::testutils::Address as _;
     ///
     /// let e = Env::default();
-    /// let contract_id = e.register(CredenceBond, ());
-    /// let client = CredenceBondClient::new(&e, &contract_id);
+    /// let contract_id = e.register(TrustForgeBond, ());
+    /// let client = TrustForgeBondClient::new(&e, &contract_id);
     /// let user = Address::generate(&e);
     ///
     /// // Sweep up to 50 claims for the user
@@ -2398,7 +2398,7 @@ pub fn is_valid_bond(amount: i128) -> bool {
 /// Returns `Err` for invalid inputs: zero/negative amount, zero duration, or an invalid
 /// notice period on a rolling bond.
 ///
-/// See also: [`docs/credence-bond.md`](../../../docs/credence-bond.md)
+/// See also: [`docs/trustforge-bond.md`](../../../docs/trustforge-bond.md)
 pub fn create_bond(
     amount: i128,
     bond_start: u64,

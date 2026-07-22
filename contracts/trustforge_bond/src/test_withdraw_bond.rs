@@ -3,13 +3,13 @@
 //! insufficient balance, slashing interaction, and edge cases.
 
 use crate::test_helpers;
-use crate::CredenceBondClient;
+use crate::TrustForgeBondClient;
 use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::token::TokenClient;
 use soroban_sdk::{contract, contractimpl, Address, Env};
 use std::panic::{catch_unwind, AssertUnwindSafe};
 
-fn setup_with_token(e: &Env) -> (CredenceBondClient<'_>, Address, Address, Address, Address) {
+fn setup_with_token(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address, Address, Address) {
     test_helpers::setup_with_token(e)
 }
 

@@ -1,6 +1,6 @@
-# Credence Registry
+# TrustForge Registry
 
-The registry contract maps identity addresses to their bond contract addresses, enabling efficient forward and reverse lookups across the Credence trust protocol.
+The registry contract maps identity addresses to their bond contract addresses, enabling efficient forward and reverse lookups across the TrustForge trust protocol.
 
 ## Uniqueness Invariants
 
@@ -21,7 +21,7 @@ Creates a new identity → bond mapping. Requires admin auth.
 
 - Panics `#400` if `identity` already has an entry (active **or** deactivated).
 - Panics `#401` if `bond_contract` is already mapped to any identity.
-- Panics if `allow_non_interface = false` and the bond contract does not implement `supports_interface(IFACE_CREDENCE_BOND_V1)`.
+- Panics if `allow_non_interface = false` and the bond contract does not implement `supports_interface(IFACE_TRUSTFORGE_BOND_V1)`.
 
 ### `deactivate(identity)`
 
@@ -79,7 +79,7 @@ register(id2, bond_A)  → ok  (bond_A is also free again)
 | `#404` | `AlreadyDeactivated` | `deactivate` called on an already-inactive entry |
 | `#405` | `AlreadyActive` | `reactivate` called on an already-active entry |
 
-Part of the Credence protocol contracts.
+Part of the TrustForge protocol contracts.
 
 ## Known Simplifications
 

@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Tighten storage TTL bumps across all contracts to prevent silent archival of hot-path data (closes #570). Adds `bump_instance_ttl` to every public entrypoint in `trustforge_registry`, `admin`, `trustforge_treasury`, `arbitration`, `trustforge_multisig`, `timelock`, and `trustforge_delegation`; adds `extend_ttl` after every persistent write (and on reads) in `trustforge_bond` slash history, emergency audit trail, and claims modules.
+- Tighten storage TTL bumps across all contracts to prevent silent archival of hot-path data (closes #570). Adds `bump_instance_ttl` to every public entrypoint in `trustforge_registry`, `trustforge_admin`, `trustforge_treasury`, `trustforge_arbitration`, `trustforge_multisig`, `timelock`, and `trustforge_delegation`; adds `extend_ttl` after every persistent write (and on reads) in `trustforge_bond` slash history, emergency audit trail, and claims modules.
 
 ### Added
 

@@ -1,6 +1,6 @@
 # Storage TTL Policy
 
-This document describes the storage TTL strategy used across all Credence contracts. Every storage entry must have its TTL actively managed to prevent silent archival under Soroban's ledger expiration model.
+This document describes the storage TTL strategy used across all TrustForge contracts. Every storage entry must have its TTL actively managed to prevent silent archival under Soroban's ledger expiration model.
 
 ---
 
@@ -74,9 +74,9 @@ Applies to:
 | `trustforge_delegation` | persistent (delegations) | Expiry-aware / `bump_delegation_ttl` | `nonce.rs` |
 | `trustforge_delegation` | persistent (nonces) | Expiry-aware / `bump_nonce_ttl` | `nonce.rs` |
 | `trustforge_registry` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `lib.rs` |
-| `admin` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `lib.rs` |
+| `trustforge_admin` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `lib.rs` |
 | `trustforge_treasury` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `treasury.rs` |
-| `arbitration` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `lib.rs` |
+| `trustforge_arbitration` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `lib.rs` |
 | `trustforge_multisig` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `multisig.rs` |
 | `timelock` | instance | `STORAGE_TTL_EXTEND_TO` / `bump_instance_ttl` | `lib.rs` |
 | `trustforge_errors` | — | No storage | — |

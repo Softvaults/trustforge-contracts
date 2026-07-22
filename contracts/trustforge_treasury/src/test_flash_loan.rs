@@ -105,14 +105,14 @@ impl FlashLoanReceiver for DefaulterReceiver {
 fn setup_test(
     e: &Env,
 ) -> (
-    CredenceTreasuryClient<'_>,
+    TrustForgeTreasuryClient<'_>,
     token::StellarAssetClient<'_>,
     Address,
     Address,
 ) {
     let admin = Address::generate(e);
-    let treasury_id = e.register(CredenceTreasury, ());
-    let treasury = CredenceTreasuryClient::new(e, &treasury_id);
+    let treasury_id = e.register(TrustForgeTreasury, ());
+    let treasury = TrustForgeTreasuryClient::new(e, &treasury_id);
 
     let token_admin = Address::generate(e);
     let token_id = e.register_stellar_asset_contract(token_admin.clone());
@@ -213,7 +213,7 @@ fn test_flash_loan_reentrancy_blocked() {
                 .instance()
                 .get::<_, Address>(&Symbol::new(&e, "treasury"))
                 .unwrap();
-            let treasury = CredenceTreasuryClient::new(&e, &treasury_id);
+            let treasury = TrustForgeTreasuryClient::new(&e, &treasury_id);
             // Re-enter
             treasury.flash_loan(
                 &initiator,

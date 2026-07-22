@@ -2,7 +2,7 @@
 
 ## Introduction
 
-`CredenceBond::create_bond` accepts four parameters — `amount`, `duration`,
+`TrustForgeBond::create_bond` accepts four parameters — `amount`, `duration`,
 `is_rolling`, and `notice_period_duration` — but performs almost no input
 validation. The only guard currently in place is an overflow check on
 `bond_start + duration`. As a result:

@@ -1,10 +1,10 @@
-use crate::{CredenceTreasury, CredenceTreasuryClient, FundSource};
+use crate::{TrustForgeTreasury, TrustForgeTreasuryClient, FundSource};
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::{Address, Env};
 
-fn setup(e: &Env) -> (CredenceTreasuryClient<'_>, Address) {
-    let contract_id = e.register(CredenceTreasury, ());
-    let client = CredenceTreasuryClient::new(e, &contract_id);
+fn setup(e: &Env) -> (TrustForgeTreasuryClient<'_>, Address) {
+    let contract_id = e.register(TrustForgeTreasury, ());
+    let client = TrustForgeTreasuryClient::new(e, &contract_id);
     let admin = Address::generate(e);
 
     let token_admin = Address::generate(e);

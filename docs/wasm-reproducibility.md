@@ -1,6 +1,6 @@
 # WASM Reproducibility
 
-Credence treats Soroban WASM output as a supply-chain artifact. The goal is that a clean build of the bond and delegation contracts produces the same bytes every time when the source, lockfile, and toolchain are unchanged.
+TrustForge treats Soroban WASM output as a supply-chain artifact. The goal is that a clean build of the bond and delegation contracts produces the same bytes every time when the source, lockfile, and toolchain are unchanged.
 
 ## What CI checks
 

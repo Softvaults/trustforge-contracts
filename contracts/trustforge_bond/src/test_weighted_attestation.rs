@@ -9,14 +9,14 @@ use soroban_sdk::{Env, String};
 fn setup(
     e: &Env,
 ) -> (
-    CredenceBondClient<'_>,
+    TrustForgeBondClient<'_>,
     soroban_sdk::Address,
     soroban_sdk::Address,
     soroban_sdk::Address, // contract_id
 ) {
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = soroban_sdk::Address::generate(e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(e);
@@ -96,8 +96,8 @@ fn get_weight_config_returns_set_values() {
 fn get_attester_stake_default_zero() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(&e);
@@ -112,8 +112,8 @@ fn get_attester_stake_default_zero() {
 fn compute_weight_zero_stake_returns_default() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let _client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let _client = TrustForgeBondClient::new(&e, &contract_id);
     let attester = soroban_sdk::Address::generate(&e);
     let w = e.as_contract(&contract_id, || {
         weighted_attestation::compute_weight(&e, &attester)
@@ -126,8 +126,8 @@ fn compute_weight_zero_stake_returns_default() {
 fn set_attester_stake_negative_panics() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(&e);
@@ -212,8 +212,8 @@ fn set_weight_config_caps_max_at_protocol_limit() {
 fn compute_weight_formula_floor_division() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(&e);
@@ -233,8 +233,8 @@ fn compute_weight_formula_floor_division() {
 fn compute_weight_exact_boundary_no_remainder() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(&e);
@@ -255,8 +255,8 @@ fn compute_weight_exact_boundary_no_remainder() {
 fn weight_always_at_least_default() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(&e);
@@ -277,8 +277,8 @@ fn weight_always_at_least_default() {
 fn weight_never_exceeds_protocol_max() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(&e);
@@ -304,8 +304,8 @@ fn weight_never_exceeds_protocol_max() {
 fn compute_weight_is_deterministic() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(&e);
@@ -328,8 +328,8 @@ fn compute_weight_is_deterministic() {
 fn weight_monotone_with_stake() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(&e);
@@ -390,8 +390,8 @@ fn regression_vectors_compute_weight() {
 
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(&e);
@@ -466,8 +466,8 @@ fn regression_set_weight_config_clamps_silently() {
 fn regression_equal_stake_equal_weight() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
 
@@ -499,8 +499,8 @@ fn regression_equal_stake_equal_weight() {
 fn regression_multiplier_equals_denominator() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(&e);
@@ -520,8 +520,8 @@ fn regression_multiplier_equals_denominator() {
 fn regression_unit_stake_full_multiplier() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(&e);
@@ -541,8 +541,8 @@ fn regression_unit_stake_full_multiplier() {
 fn regression_config_max_zero_clamps_to_default() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(&e);
@@ -565,8 +565,8 @@ fn regression_config_max_zero_clamps_to_default() {
 fn regression_weight_independent_of_attester_address() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
 
@@ -609,8 +609,8 @@ fn regression_weight_independent_of_attester_address() {
 fn regression_floor_just_below_clean_multiple() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(&e);
@@ -631,8 +631,8 @@ fn regression_floor_just_below_clean_multiple() {
 fn regression_exact_clean_multiple() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(&e);
@@ -653,8 +653,8 @@ fn regression_exact_clean_multiple() {
 fn regression_protocol_cap_enforced_in_compute_weight() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(&e);
@@ -681,8 +681,8 @@ fn regression_protocol_cap_enforced_in_compute_weight() {
 fn regression_default_weight_config() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
 
@@ -710,8 +710,8 @@ fn regression_default_weight_config() {
 /// Helper: register an attester, set its stake/config, and compute its weight.
 fn weight_for(e: &Env, stake: i128, multiplier_bps: u32, config_max: u32) -> u32 {
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = soroban_sdk::Address::generate(e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(e);
@@ -796,8 +796,8 @@ fn clamp_upper_bound_host_cap_wins_over_config_max() {
 fn clamp_set_attester_stake_rejects_negative() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(&e);
@@ -809,8 +809,8 @@ fn clamp_set_attester_stake_rejects_negative() {
 fn regression_weight_config_overwrite_is_atomic() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);
 

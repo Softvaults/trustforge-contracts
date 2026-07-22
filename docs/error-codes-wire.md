@@ -1,6 +1,6 @@
 # Error Code Wire Stability
 
-Credence smart contract error codes are explicitly wire-stable. External systems, indexers, and off-chain clients depend on the numeric discriminants of `ContractError` variants, so those values must never change silently.
+TrustForge smart contract error codes are explicitly wire-stable. External systems, indexers, and off-chain clients depend on the numeric discriminants of `ContractError` variants, so those values must never change silently.
 
 ## Policy
 

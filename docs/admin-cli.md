@@ -1,7 +1,7 @@
 # Admin CLI (`trustforge-admin`)
 
 This document describes the `trustforge-admin` command-line tool — the
-operator's interface for administrative actions on Credence protocol contracts.
+operator's interface for administrative actions on TrustForge protocol contracts.
 
 > **What changed in this release?**  
 > All three handlers (`bond-set-early-exit-config`, `bond-set-weights`,
@@ -26,10 +26,10 @@ cargo build -p trustforge_admin_cli
 
 | Flag | Env var | Default | Description |
 |------|---------|---------|-------------|
-| `--rpc-url <URL>` | `CREDENCE_RPC_URL` | `https://soroban-testnet.stellar.org` | Soroban RPC endpoint |
-| `--network <PASSPHRASE>` | `CREDENCE_NETWORK` | `Test SDF Network ; September 2015` | Network passphrase used to hash the transaction |
-| `--contract <C_ADDR>` | `CREDENCE_CONTRACT` | *(required)* | Bech32m contract address (`C…`) to invoke |
-| `--signer <SECRET>` | `CREDENCE_SIGNER` | *(required for `--submit`)* | Stellar secret key (`S…`) of the transaction signer / admin |
+| `--rpc-url <URL>` | `TRUSTFORGE_RPC_URL` | `https://soroban-testnet.stellar.org` | Soroban RPC endpoint |
+| `--network <PASSPHRASE>` | `TRUSTFORGE_NETWORK` | `Test SDF Network ; September 2015` | Network passphrase used to hash the transaction |
+| `--contract <C_ADDR>` | `TRUSTFORGE_CONTRACT` | *(required)* | Bech32m contract address (`C…`) to invoke |
+| `--signer <SECRET>` | `TRUSTFORGE_SIGNER` | *(required for `--submit`)* | Stellar secret key (`S…`) of the transaction signer / admin |
 | `--submit` | — | `false` | Sign and submit the transaction; omit for a dry-run |
 
 ---
@@ -137,7 +137,7 @@ With `--submit` the CLI:
 2. Calls `simulateTransaction` to obtain the Soroban resource budget and
    footprint (via `server.prepare_transaction`).
 3. Signs the assembled transaction with the key from `--signer` /
-   `CREDENCE_SIGNER`.
+   `TRUSTFORGE_SIGNER`.
 4. Calls `sendTransaction` and prints the response:
 
 ```json
@@ -149,11 +149,11 @@ With `--submit` the CLI:
 
 ### Missing signer
 
-If `--submit` is used without `--signer` (and `CREDENCE_SIGNER` is unset),
+If `--submit` is used without `--signer` (and `TRUSTFORGE_SIGNER` is unset),
 the CLI exits with a non-zero code and prints:
 
 ```
-Error: --signer / CREDENCE_SIGNER is required with --submit
+Error: --signer / TRUSTFORGE_SIGNER is required with --submit
 ```
 
 ---
@@ -170,7 +170,7 @@ trustforge-admin \
   --bps 300
 
 # Submit on testnet (key from env)
-export CREDENCE_SIGNER=SABC…
+export TRUSTFORGE_SIGNER=SABC…
 trustforge-admin \
   --contract CABC123… \
   --submit \

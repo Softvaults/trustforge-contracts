@@ -18,7 +18,7 @@
 //! replay-contract doc. For non-rolling bonds those two fields are always `0`,
 //! so full-struct equality is exact.
 
-use trustforge_bond::{CredenceBond, CredenceBondClient, IdentityBond};
+use trustforge_bond::{TrustForgeBond, TrustForgeBondClient, IdentityBond};
 use soroban_sdk::{
     testutils::{Address as _, Events as _, Ledger as _},
     Address, Env, Symbol, TryFromVal, Val,
@@ -180,7 +180,7 @@ fn capture(env: &Env) -> Vec<BondEvent> {
 
 struct Fixture {
     env: Env,
-    client: CredenceBondClient<'static>,
+    client: TrustForgeBondClient<'static>,
     admin: Address,
     identity: Address,
 }
@@ -188,8 +188,8 @@ struct Fixture {
 fn setup() -> Fixture {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     let identity = Address::generate(&env);
     client.initialize(&admin);

@@ -15,7 +15,7 @@
 //! slash history (via events), and slash events.
 
 use crate::test_helpers;
-use crate::CredenceBondClient;
+use crate::TrustForgeBondClient;
 use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::{Address, Env};
 
@@ -23,7 +23,7 @@ use soroban_sdk::{Address, Env};
 // Test Setup Utilities
 // ============================================================================
 
-fn setup(e: &Env) -> (CredenceBondClient<'_>, Address, Address) {
+fn setup(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address) {
     let (client, admin, identity, _token_id, _bond_id) = test_helpers::setup_with_token(e);
     // Configure a slash treasury so that slash() can transfer slashed funds.
     let treasury = Address::generate(e);
@@ -35,7 +35,7 @@ fn setup_with_bond(
     e: &Env,
     amount: i128,
     duration: u64,
-) -> (CredenceBondClient<'_>, Address, Address) {
+) -> (TrustForgeBondClient<'_>, Address, Address) {
     let (client, admin, identity) = setup(e);
     client.create_bond_with_rolling(&identity, &amount, &duration, &false, &0_u64);
     test_helpers::advance_ledger_sequence(e);
@@ -47,7 +47,7 @@ fn setup_with_bond_max_mint(
     e: &Env,
     amount: i128,
     duration: u64,
-) -> (CredenceBondClient<'_>, Address, Address) {
+) -> (TrustForgeBondClient<'_>, Address, Address) {
     let (client, admin, identity, _token_id, _bond_id) = test_helpers::setup_with_max_mint(e);
     let treasury = Address::generate(e);
     client.set_slash_treasury(&admin, &treasury);

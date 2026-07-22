@@ -25,8 +25,8 @@ fn test_arbitration_flow() {
     let arb2 = Address::generate(&e);
     let creator = Address::generate(&e);
 
-    let contract_id = e.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&e, &contract_id);
 
     client.initialize(&admin);
     client.register_arbitrator(&arb1, &10);
@@ -65,8 +65,8 @@ fn test_tie_scenario() {
     let arb2 = Address::generate(&e);
     let creator = Address::generate(&e);
 
-    let contract_id = e.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&e, &contract_id);
 
     client.initialize(&admin);
     client.register_arbitrator(&arb1, &10);
@@ -93,8 +93,8 @@ fn test_double_voting_prevention() {
     let arb = Address::generate(&e);
     let creator = Address::generate(&e);
 
-    let contract_id = e.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&e, &contract_id);
 
     client.initialize(&admin);
     client.register_arbitrator(&arb, &10);
@@ -116,8 +116,8 @@ fn test_unauthorized_voter() {
     let non_arb = Address::generate(&e);
     let creator = Address::generate(&e);
 
-    let contract_id = e.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&e, &contract_id);
 
     client.initialize(&admin);
 
@@ -139,8 +139,8 @@ fn test_get_arbitrator_weight() {
     let admin = Address::generate(&e);
     let arb = Address::generate(&e);
 
-    let contract_id = e.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&e, &contract_id);
 
     client.initialize(&admin);
 
@@ -170,8 +170,8 @@ fn test_has_voted() {
     let arb = Address::generate(&e);
     let creator = Address::generate(&e);
 
-    let contract_id = e.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&e, &contract_id);
 
     client.initialize(&admin);
     client.register_arbitrator(&arb, &10);
@@ -194,8 +194,8 @@ fn test_arbitrator_registry_and_pagination() {
     e.mock_all_auths();
 
     let admin = Address::generate(&e);
-    let contract_id = e.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&e, &contract_id);
 
     client.initialize(&admin);
 
@@ -307,8 +307,8 @@ fn test_quorum_configuration_and_query() {
     let e = Env::default();
     e.mock_all_auths();
     let admin = Address::generate(&e);
-    let contract_id = e.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&e, &contract_id);
     client.initialize(&admin);
 
     // Default quorum
@@ -334,8 +334,8 @@ fn test_quorum_single_voter_under_min_voters() {
     let admin = Address::generate(&e);
     let arb = Address::generate(&e);
     let creator = Address::generate(&e);
-    let contract_id = e.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&e, &contract_id);
     client.initialize(&admin);
     client.register_arbitrator(&arb, &10);
     client.set_quorum(&admin, &0, &2);

@@ -1,4 +1,4 @@
-# Credence Bond — Event Catalog
+# TrustForge Bond — Event Catalog
 
 Complete reference for all events emitted by the `trustforge_bond` contract.
 Off-chain indexers and client applications should use this document to reconstruct state and build efficient queries.

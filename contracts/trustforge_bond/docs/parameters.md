@@ -2,7 +2,7 @@
 
 ## Overview
 
-The protocol parameters system provides governance-controlled configuration for the Credence Bond contract. All parameters have defined types, units, and enforced min/max bounds to ensure safe operation.
+The protocol parameters system provides governance-controlled configuration for the TrustForge Bond contract. All parameters have defined types, units, and enforced min/max bounds to ensure safe operation.
 
 ## Governance Control
 

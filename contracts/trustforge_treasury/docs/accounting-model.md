@@ -1,4 +1,4 @@
-# Credence Treasury — Multi-Source Withdrawal Accounting Model
+# TrustForge Treasury — Multi-Source Withdrawal Accounting Model
 
 > **Scope:** `contracts/trustforge_treasury/src/treasury.rs`  
 > **SDK:** Soroban SDK 22

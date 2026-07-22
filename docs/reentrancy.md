@@ -1,8 +1,8 @@
-# Reentrancy Protection in CredenceBond
+# Reentrancy Protection in TrustForgeBond
 
 ## Overview
 
-The CredenceBond contract implements a panic-safe reentrancy guard to protect against reentrancy attacks during external contract calls. This document describes the implementation, security guarantees, and usage patterns.
+The TrustForgeBond contract implements a panic-safe reentrancy guard to protect against reentrancy attacks during external contract calls. This document describes the implementation, security guarantees, and usage patterns.
 
 ## Background
 
@@ -16,7 +16,7 @@ Reentrancy attacks occur when a contract makes an external call to another contr
 
 ### Functions with External Calls
 
-The following CredenceBond functions invoke external callbacks and are protected by the reentrancy guard:
+The following TrustForgeBond functions invoke external callbacks and are protected by the reentrancy guard:
 
 1. **`withdraw_bond`**: Withdraws the full bonded amount and invokes an `on_withdraw` callback
 2. **`slash_bond`**: Slashes a portion of the bond and invokes an `on_slash` callback  
@@ -224,7 +224,7 @@ pub struct MaliciousCallback;
 impl MaliciousCallback {
     pub fn on_withdraw(env: Env, _amount: i128) {
         // Attempt reentrant call to withdraw_bond
-        let client = CredenceBondClient::new(&env, &bond_addr);
+        let client = TrustForgeBondClient::new(&env, &bond_addr);
         let _ = client.try_withdraw_bond(&owner);
     }
     

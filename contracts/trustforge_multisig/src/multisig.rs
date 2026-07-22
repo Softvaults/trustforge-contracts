@@ -1,4 +1,4 @@
-//! # Credence Multi-Signature Contract
+//! # TrustForge Multi-Signature Contract
 //!
 //! Generic multi-signature contract for governance and administrative actions.
 //! Supports configurable signer threshold, proposal submissions, signature counting,
@@ -119,10 +119,10 @@ fn bump_instance_ttl(e: &Env) {
 }
 
 #[contract]
-pub struct CredenceMultiSig;
+pub struct TrustForgeMultiSig;
 
 #[contractimpl]
-impl CredenceMultiSig {
+impl TrustForgeMultiSig {
     /// Initialize the multi-sig contract.
     ///
     /// @param e Contract environment

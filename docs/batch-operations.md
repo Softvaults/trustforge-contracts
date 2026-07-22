@@ -1,6 +1,6 @@
 # Batch Bond Operations
 
-Atomic batch operations for creating multiple bonds in a single transaction within the Credence protocol.
+Atomic batch operations for creating multiple bonds in a single transaction within the TrustForge protocol.
 
 ## Overview
 
@@ -359,4 +359,4 @@ Based on test execution:
 
 ## License
 
-Part of the Credence protocol contracts.
+Part of the TrustForge protocol contracts.

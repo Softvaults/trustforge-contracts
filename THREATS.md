@@ -1,10 +1,10 @@
-# Threat Model — Credence Bond & Delegation
+# Threat Model — TrustForge Bond & Delegation
 
 **Status:** Living artifact (canonical threat register)  
 **Last Updated:** 2026-06-01  
 **Scope:** Bond operations (`trustforge_bond`), delegation (`trustforge_delegation`), treasury guardrails
 
-This document enumerates security threats to the Credence bond and delegation system, mitigations applied, and test fixtures that validate each mitigation. Each threat row is referenced by test comments via `/// THREAT: T-XXX` to establish bidirectional traceability.
+This document enumerates security threats to the TrustForge bond and delegation system, mitigations applied, and test fixtures that validate each mitigation. Each threat row is referenced by test comments via `/// THREAT: T-XXX` to establish bidirectional traceability.
 
 ---
 

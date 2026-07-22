@@ -5,7 +5,7 @@
 use crate::early_exit_penalty;
 use crate::math;
 use crate::test_helpers;
-use crate::{CredenceBond, CredenceBondClient};
+use crate::{TrustForgeBond, TrustForgeBondClient};
 use soroban_sdk::testutils::{Address as _, Events, Ledger};
 use soroban_sdk::token::TokenClient;
 use soroban_sdk::{Address, Env, Symbol, TryFromVal};
@@ -14,7 +14,7 @@ fn setup<'a>(
     e: &'a Env,
     treasury: &Address,
     penalty_bps: u32,
-) -> (CredenceBondClient<'a>, Address, Address) {
+) -> (TrustForgeBondClient<'a>, Address, Address) {
     let (client, admin, identity, _token_id, _bond_id) = test_helpers::setup_with_token(e);
     client.set_early_exit_config(&admin, treasury, &penalty_bps);
     (client, admin, identity)
@@ -200,8 +200,8 @@ fn test_early_exit_penalty_and_payout_sum_to_gross_withdrawal() {
 fn test_set_early_exit_config_unauthorized() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
     let other = Address::generate(&e);
@@ -214,8 +214,8 @@ fn test_set_early_exit_config_unauthorized() {
 fn test_set_early_exit_config_invalid_bps() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
     let treasury = Address::generate(&e);

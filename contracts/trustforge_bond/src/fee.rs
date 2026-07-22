@@ -47,7 +47,7 @@ pub enum FeeKey {
 /// #[contracterror]
 /// #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 /// #[repr(u32)]
-/// pub enum CredenceError {
+/// pub enum TrustForgeError {
 ///     // … existing variants …
 ///     FeeBpsExceedsMaximum = 42,   // pick an unused discriminant
 /// }
@@ -92,7 +92,7 @@ pub fn set_protocol_fee_bps(env: &Env, admin: &Address, new_fee_bps: u32) {
     // ── Range check ──────────────────────────────────────────────────────
     if new_fee_bps > MAX_FEE_BPS {
         panic!(
-            "CredenceError::FeeBpsExceedsMaximum ({}): proposed {} bps > max {} bps",
+            "TrustForgeError::FeeBpsExceedsMaximum ({}): proposed {} bps > max {} bps",
             FEE_EXCEEDS_MAX_ERROR_CODE, new_fee_bps, MAX_FEE_BPS
         );
     }

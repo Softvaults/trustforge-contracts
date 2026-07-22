@@ -202,7 +202,7 @@ fn submit_without_signer_fails() {
     );
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(
-        stderr.contains("CREDENCE_SIGNER") || stderr.contains("signer"),
+        stderr.contains("TRUSTFORGE_SIGNER") || stderr.contains("signer"),
         "expected signer-related error message; got: {stderr}"
     );
 }

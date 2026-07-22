@@ -1,11 +1,11 @@
 //! Tests for Rolling Bond: auto-renewal, withdrawal request with notice period, renewal events.
 
 use crate::test_helpers;
-use crate::CredenceBondClient;
+use crate::TrustForgeBondClient;
 use soroban_sdk::testutils::Ledger;
 use soroban_sdk::{Address, Env};
 
-fn setup(e: &Env) -> (CredenceBondClient<'_>, Address, Address) {
+fn setup(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address) {
     let (client, admin, identity, _token_id, _bond_id) = test_helpers::setup_with_token(e);
     (client, admin, identity)
 }

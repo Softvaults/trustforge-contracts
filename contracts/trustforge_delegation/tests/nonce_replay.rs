@@ -18,7 +18,7 @@
 //! * The first post-invalidation nonce `new_nonce` is accepted.
 
 use trustforge_delegation::{
-    CredenceDelegation, CredenceDelegationClient, DelegatedActionPayload, DelegationType, DomainTag,
+    TrustForgeDelegation, TrustForgeDelegationClient, DelegatedActionPayload, DelegationType, DomainTag,
 };
 use soroban_sdk::{testutils::Address as _, Address, Env};
 
@@ -34,9 +34,9 @@ fn make_env() -> Env {
     e
 }
 
-fn setup_client(e: &Env) -> CredenceDelegationClient<'static> {
-    let contract_id = e.register(CredenceDelegation, ());
-    let client = CredenceDelegationClient::new(e, &contract_id);
+fn setup_client(e: &Env) -> TrustForgeDelegationClient<'static> {
+    let contract_id = e.register(TrustForgeDelegation, ());
+    let client = TrustForgeDelegationClient::new(e, &contract_id);
     let admin = Address::generate(e);
     client.initialize(&admin);
     client
@@ -63,7 +63,7 @@ fn make_delegate_payload(
 ///
 /// Panics if `target == 0` (no advance needed) or if the advance exceeds
 /// `MAX_NONCE_INVALIDATION_SPAN` in one step (splits automatically).
-fn advance_nonce_to(client: &CredenceDelegationClient, identity: &Address, target: u64) {
+fn advance_nonce_to(client: &TrustForgeDelegationClient, identity: &Address, target: u64) {
     const MAX_SPAN: u64 = 10_000;
     let mut current = client.get_nonce(identity);
     while current < target {

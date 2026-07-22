@@ -4,18 +4,18 @@
 /// resulting in the recipient receiving less than the transfer amount specified in the call.
 /// This test suite verifies that the bond contract properly detects and rejects such tokens
 /// to prevent accounting mismatches and value drift.
-use trustforge_bond::{CredenceBond, CredenceBondClient};
+use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
 use soroban_sdk::testutils::{Address as AddressTrait, Ledger};
 use soroban_sdk::{contract, contractimpl, token::TokenClient, Address, Env, String};
 
 /// Sets up a standard bond contract with a normal token for testing.
 fn setup_with_standard_token(
     env: &Env,
-) -> (CredenceBondClient<'_>, Address, Address, Address, Address) {
+) -> (TrustForgeBondClient<'_>, Address, Address, Address, Address) {
     env.mock_all_auths();
 
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(env, &contract_id);
 
     let admin = Address::generate(env);
     let user = Address::generate(env);
@@ -132,8 +132,8 @@ fn bond_rejects_fee_on_transfer_token_on_create() {
     let env = Env::default();
     env.mock_all_auths();
 
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
     let user = Address::generate(&env);

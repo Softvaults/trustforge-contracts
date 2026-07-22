@@ -3,8 +3,8 @@
 extern crate std;
 
 use crate::{
-    batch::MAX_BATCH_BOND_SIZE, test_helpers::setup_with_token, BatchBondParams, CredenceBond,
-    CredenceBondClient,
+    batch::MAX_BATCH_BOND_SIZE, test_helpers::setup_with_token, BatchBondParams, TrustForgeBond,
+    TrustForgeBondClient,
 };
 use soroban_sdk::{
     testutils::{Address as _, Ledger},
@@ -31,8 +31,8 @@ fn build_valid_batch(env: &Env, count: u32) -> Vec<BatchBondParams> {
 fn batch_create_cost(n: u32) -> (u64, u64) {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -50,8 +50,8 @@ fn batch_create_cost(n: u32) -> (u64, u64) {
 fn test_create_single_bond_in_batch() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -127,8 +127,8 @@ fn test_create_multiple_bonds_in_batch() {
 fn test_create_batch_bonds_at_max_batch_size() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -144,8 +144,8 @@ fn test_create_batch_bonds_at_max_batch_size() {
 fn test_create_batch_bonds_above_max_batch_size_fails() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -158,8 +158,8 @@ fn test_create_batch_bonds_above_max_batch_size_fails() {
 fn test_empty_batch_fails() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -172,8 +172,8 @@ fn test_empty_batch_fails() {
 fn test_negative_amount_fails() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -196,8 +196,8 @@ fn test_negative_amount_fails() {
 fn test_zero_amount_fails() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -220,8 +220,8 @@ fn test_zero_amount_fails() {
 fn test_duration_overflow_fails() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -249,8 +249,8 @@ fn test_duration_overflow_fails() {
 fn test_rolling_bond_without_notice_period_fails() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -272,8 +272,8 @@ fn test_rolling_bond_without_notice_period_fails() {
 fn test_validate_batch_bonds_success() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -297,8 +297,8 @@ fn test_validate_batch_bonds_success() {
 fn test_validate_batch_bonds_fails_on_invalid() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -320,8 +320,8 @@ fn test_validate_batch_bonds_fails_on_invalid() {
 fn test_get_batch_total_amount() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -382,8 +382,8 @@ fn test_get_batch_total_amount_above_max_batch_size_fails() {
 fn test_batch_total_overflow() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -437,8 +437,8 @@ fn test_duplicate_bond_in_batch_fails() {
 fn test_batch_with_rolling_bonds() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -468,8 +468,8 @@ fn test_batch_with_rolling_bonds() {
 fn test_atomic_failure_on_second_bond() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -514,8 +514,8 @@ fn test_atomic_failure_on_second_bond() {
 fn test_atomic_failure_validation_order() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -557,8 +557,8 @@ fn test_max_batch_size_gas_profile() {
 fn test_atomic_failure_with_mixed_valid_invalid_amounts() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -609,8 +609,8 @@ fn test_atomic_failure_with_mixed_valid_invalid_amounts() {
 fn test_atomic_failure_with_invalid_rolling_bond_in_batch() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -643,8 +643,8 @@ fn test_atomic_failure_with_invalid_rolling_bond_in_batch() {
 fn test_atomic_failure_with_duration_overflow_in_middle() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -681,8 +681,8 @@ fn test_atomic_failure_with_duration_overflow_in_middle() {
 fn test_batch_size_boundary_at_max_minus_one() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -696,8 +696,8 @@ fn test_batch_size_boundary_at_max_minus_one() {
 fn test_batch_size_boundary_at_one() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -712,8 +712,8 @@ fn test_batch_size_boundary_at_one() {
 fn test_batch_size_boundary_at_max_plus_one() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -726,8 +726,8 @@ fn test_batch_size_boundary_at_max_plus_one() {
 fn test_batch_size_boundary_way_above_max() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -739,8 +739,8 @@ fn test_batch_size_boundary_way_above_max() {
 fn test_validate_batch_enforces_max_size() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -754,8 +754,8 @@ fn test_validate_batch_enforces_max_size() {
 fn test_validate_batch_rejects_oversized() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -767,8 +767,8 @@ fn test_validate_batch_rejects_oversized() {
 fn test_all_bonds_validated_before_any_created() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -842,8 +842,8 @@ fn test_batch_total_amount_single_bond() {
 fn test_batch_with_large_amounts() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -868,8 +868,8 @@ fn test_batch_with_large_amounts() {
 fn test_batch_with_minimum_valid_amount() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -894,8 +894,8 @@ fn test_batch_with_minimum_valid_amount() {
 fn test_batch_with_minimum_valid_duration() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -920,8 +920,8 @@ fn test_batch_with_minimum_valid_duration() {
 fn test_batch_with_maximum_valid_duration() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -949,8 +949,8 @@ fn test_batch_with_maximum_valid_duration() {
 fn test_validation_order_size_before_content() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -979,8 +979,8 @@ fn test_validation_order_size_before_content() {
 fn test_empty_batch_fails_before_size_check() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -997,8 +997,8 @@ fn test_empty_batch_fails_before_size_check() {
 fn test_batch_result_structure() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 
@@ -1022,8 +1022,8 @@ fn test_batch_result_structure() {
 fn test_batch_bonds_event_emission() {
     let env = Env::default();
     env.mock_all_auths();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let admin = Address::generate(&env);
     client.initialize(&admin, &None);
 

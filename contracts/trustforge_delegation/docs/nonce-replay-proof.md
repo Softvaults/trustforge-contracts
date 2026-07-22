@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document proves that `nonce::invalidate_nonce_range` in the Credence
+This document proves that `nonce::invalidate_nonce_range` in the TrustForge
 delegation contract permanently invalidates all payloads whose nonce falls
 inside the specified half-open range, and demonstrates the threat model
 assumptions under which the proof holds.

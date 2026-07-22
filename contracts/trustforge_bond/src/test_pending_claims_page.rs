@@ -10,14 +10,14 @@ extern crate std;
 
 use crate::{
     claims::{self, ClaimType, MAX_PAGE_LIMIT},
-    CredenceBond,
+    TrustForgeBond,
 };
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::{Address, Env, Symbol, Vec};
 
 fn setup(e: &Env) -> Address {
     e.mock_all_auths();
-    e.register(CredenceBond, ())
+    e.register(TrustForgeBond, ())
 }
 
 /// Seed `n` claims for `user` inside the contract context and return their ids.

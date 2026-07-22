@@ -1,10 +1,10 @@
-# Credence Contracts
+# TrustForge Contracts
 
-Soroban smart contracts for the Credence economic trust protocol. This workspace holds the identity bond and delegation contracts.
+Soroban smart contracts for the TrustForge economic trust protocol. This workspace holds the identity bond and delegation contracts.
 
 ## About
 
-Part of [Credence](../README.md). Contracts run on the Stellar network via Soroban. The bond contract is the source of truth for staked amounts and is consumed by the backend reputation engine.
+Part of [TrustForge](../README.md). Contracts run on the Stellar network via Soroban. The bond contract is the source of truth for staked amounts and is consumed by the backend reputation engine.
 
 ## Prerequisites
 

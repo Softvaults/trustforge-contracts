@@ -1,7 +1,7 @@
 //! # Bond Invariants Test Library
 //!
 //! Reusable assertion helpers that encode the **protocol-level invariants** of the
-//! Credence bond contract. Any unit, integration, fuzz, or mutation test can call
+//! TrustForge bond contract. Any unit, integration, fuzz, or mutation test can call
 //! [`assert_all_invariants`] after every state-changing action to confirm that the
 //! contract never enters an inconsistent state.
 //!

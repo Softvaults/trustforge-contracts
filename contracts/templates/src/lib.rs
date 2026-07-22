@@ -12,7 +12,7 @@
     clippy::cargo,
     clippy::restriction
 )]
-//! # Credence Contract Template
+//! # TrustForge Contract Template
 //!
 //! Canonical starting point for new Soroban contracts in this workspace.
 //!

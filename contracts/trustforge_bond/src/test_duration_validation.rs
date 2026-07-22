@@ -5,13 +5,13 @@
 
 use crate::test_helpers;
 use crate::validation::{self, MAX_BOND_DURATION, MIN_BOND_DURATION};
-use crate::{CredenceBond, CredenceBondClient};
+use crate::{TrustForgeBond, TrustForgeBondClient};
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::{Address, Env};
 
-fn setup(e: &Env) -> CredenceBondClient<'_> {
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+fn setup(e: &Env) -> TrustForgeBondClient<'_> {
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = Address::generate(e);
     client.initialize(&admin, &None);
     client

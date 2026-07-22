@@ -1,8 +1,8 @@
-# Error Handling — Credence Contracts
+# Error Handling — TrustForge Contracts
 
 ## Overview
 
-All Credence smart contracts share a single error type: `ContractError`, defined in the `trustforge_errors` crate. Every public entry-point returns `Result<T, ContractError>` so callers always receive a typed, categorized, wire-stable error code instead of an opaque transaction failure.
+All TrustForge smart contracts share a single error type: `ContractError`, defined in the `trustforge_errors` crate. Every public entry-point returns `Result<T, ContractError>` so callers always receive a typed, categorized, wire-stable error code instead of an opaque transaction failure.
 
 ---
 

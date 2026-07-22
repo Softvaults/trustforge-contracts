@@ -54,7 +54,7 @@ pub enum ErrorCategory {
 }
 
 /// @title  ContractError
-/// @notice Canonical error enum shared by all Credence smart contracts.
+/// @notice Canonical error enum shared by all TrustForge smart contracts.
 /// @dev    Codes are wire-stable. Never renumber a variant after deployment.
 ///         Append new variants at the end of their category block only.
 ///         Use the ErrorExt trait to retrieve the category and description.

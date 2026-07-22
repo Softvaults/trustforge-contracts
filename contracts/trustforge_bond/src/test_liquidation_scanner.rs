@@ -1,14 +1,14 @@
 //! Tests for the bounded liquidation scanner (issue #180).
 
 use crate::liquidation_scanner::*;
-use crate::{CredenceBond, CredenceBondClient};
+use crate::{TrustForgeBond, TrustForgeBondClient};
 use soroban_sdk::testutils::{Address as _, Events as _};
 use soroban_sdk::{Address, Env};
 
-fn setup(e: &Env) -> (CredenceBondClient<'_>, Address) {
+fn setup(e: &Env) -> (TrustForgeBondClient<'_>, Address) {
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = Address::generate(e);
     client.initialize(&admin, &None);
     (client, admin)
@@ -92,8 +92,8 @@ fn test_zero_max_iter_uses_default() {
 fn test_scan_empty_registry_returns_done() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
     let keeper = Address::generate(&e);

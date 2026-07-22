@@ -15,15 +15,15 @@ fn test_create_bond() {
 }
 #[cfg(test)]
 mod test_admin_transfer {
-    use crate::CredenceBond;
+    use crate::TrustForgeBond;
     use soroban_sdk::{testutils::Address as _, Address, Env};
 
     #[test]
     fn test_propose_and_accept_admin() {
         let e = Env::default();
         e.mock_all_auths();
-        let contract_id = e.register_contract(None, CredenceBond);
-        let client = crate::CredenceBondClient::new(&e, &contract_id);
+        let contract_id = e.register_contract(None, TrustForgeBond);
+        let client = crate::TrustForgeBondClient::new(&e, &contract_id);
 
         let admin = Address::generate(&e);
         let new_admin = Address::generate(&e);
@@ -47,8 +47,8 @@ mod test_admin_transfer {
     fn test_only_admin_can_propose() {
         let e = Env::default();
         e.mock_all_auths();
-        let contract_id = e.register_contract(None, CredenceBond);
-        let client = crate::CredenceBondClient::new(&e, &contract_id);
+        let contract_id = e.register_contract(None, TrustForgeBond);
+        let client = crate::TrustForgeBondClient::new(&e, &contract_id);
 
         let admin = Address::generate(&e);
         let rogue = Address::generate(&e);
@@ -63,8 +63,8 @@ mod test_admin_transfer {
     fn test_only_pending_admin_can_accept() {
         let e = Env::default();
         e.mock_all_auths();
-        let contract_id = e.register_contract(None, CredenceBond);
-        let client = crate::CredenceBondClient::new(&e, &contract_id);
+        let contract_id = e.register_contract(None, TrustForgeBond);
+        let client = crate::TrustForgeBondClient::new(&e, &contract_id);
 
         let admin = Address::generate(&e);
         let new_admin = Address::generate(&e);
@@ -85,8 +85,8 @@ mod test_admin_transfer {
     fn test_cannot_accept_before_timelock() {
         let e = Env::default();
         e.mock_all_auths();
-        let contract_id = e.register_contract(None, CredenceBond);
-        let client = crate::CredenceBondClient::new(&e, &contract_id);
+        let contract_id = e.register_contract(None, TrustForgeBond);
+        let client = crate::TrustForgeBondClient::new(&e, &contract_id);
 
         let admin = Address::generate(&e);
         let new_admin = Address::generate(&e);
@@ -103,8 +103,8 @@ mod test_admin_transfer {
     fn test_cannot_propose_same_admin() {
         let e = Env::default();
         e.mock_all_auths();
-        let contract_id = e.register_contract(None, CredenceBond);
-        let client = crate::CredenceBondClient::new(&e, &contract_id);
+        let contract_id = e.register_contract(None, TrustForgeBond);
+        let client = crate::TrustForgeBondClient::new(&e, &contract_id);
 
         let admin = Address::generate(&e);
         client.initialize(&admin, &None);
@@ -115,8 +115,8 @@ mod test_admin_transfer {
     fn test_initialize_panics_when_already_initialized() {
         let e = Env::default();
         e.mock_all_auths();
-        let contract_id = e.register_contract(None, CredenceBond);
-        let client = crate::CredenceBondClient::new(&e, &contract_id);
+        let contract_id = e.register_contract(None, TrustForgeBond);
+        let client = crate::TrustForgeBondClient::new(&e, &contract_id);
 
         let admin = Address::generate(&e);
         client.initialize(&admin, &None);

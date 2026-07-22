@@ -16,10 +16,10 @@ use soroban_sdk::{Address, Env, String};
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
-fn setup(e: &Env) -> (CredenceBondClient<'_>, Address, Address, Address) {
+fn setup(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address, Address) {
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = Address::generate(e);
     client.initialize(&admin, &None);
     let attester = Address::generate(e);
@@ -28,7 +28,7 @@ fn setup(e: &Env) -> (CredenceBondClient<'_>, Address, Address, Address) {
 }
 
 fn attest(
-    client: &CredenceBondClient<'_>,
+    client: &TrustForgeBondClient<'_>,
     e: &Env,
     attester: &Address,
     contract_id: &Address,

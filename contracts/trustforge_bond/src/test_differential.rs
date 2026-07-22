@@ -9,7 +9,7 @@
 //!     amount) to prove the harness still detects behavioural divergence.
 //!
 //! # Design
-//! Scenarios drive the *canonical* `CredenceBond` contract through a scripted
+//! Scenarios drive the *canonical* `TrustForgeBond` contract through a scripted
 //! lifecycle.  At each checkpoint an `AssertBond` step compares the live bond
 //! state against a pinned expected struct.  Because only one contract runs,
 //! there is a single authoritative source of truth — no drift is possible.
@@ -24,7 +24,7 @@ use soroban_sdk::{
 };
 
 use crate::test_helpers::{self, advance_ledger_sequence};
-use crate::{CredenceBond, CredenceBondClient, IdentityBond};
+use crate::{TrustForgeBond, TrustForgeBondClient, IdentityBond};
 
 // ---------------------------------------------------------------------------
 // Pinned state struct
@@ -175,8 +175,8 @@ fn scenario_full_bond_lifecycle() {
 fn scenario_rolling_bond_with_renewal() {
     let env = Env::default();
     env.mock_all_auths();
-    let id = env.register(CredenceBond, ());
-    let c = CredenceBondClient::new(&env, &id);
+    let id = env.register(TrustForgeBond, ());
+    let c = TrustForgeBondClient::new(&env, &id);
 
     let admin = Address::generate(&env);
     let identity = Address::generate(&env);
@@ -241,8 +241,8 @@ fn scenario_rolling_bond_with_renewal() {
 fn scenario_early_exit_and_penalty() {
     let env = Env::default();
     env.mock_all_auths();
-    let id = env.register(CredenceBond, ());
-    let c = CredenceBondClient::new(&env, &id);
+    let id = env.register(TrustForgeBond, ());
+    let c = TrustForgeBondClient::new(&env, &id);
 
     let admin = Address::generate(&env);
     let identity = Address::generate(&env);
@@ -301,8 +301,8 @@ fn scenario_early_exit_and_penalty() {
 fn scenario_zero_amount_slash() {
     let env = Env::default();
     env.mock_all_auths();
-    let id = env.register(CredenceBond, ());
-    let c = CredenceBondClient::new(&env, &id);
+    let id = env.register(TrustForgeBond, ());
+    let c = TrustForgeBondClient::new(&env, &id);
 
     let admin = Address::generate(&env);
     let identity = Address::generate(&env);
@@ -329,8 +329,8 @@ fn scenario_zero_amount_slash() {
 fn scenario_extend_duration() {
     let env = Env::default();
     env.mock_all_auths();
-    let id = env.register(CredenceBond, ());
-    let c = CredenceBondClient::new(&env, &id);
+    let id = env.register(TrustForgeBond, ());
+    let c = TrustForgeBondClient::new(&env, &id);
 
     let admin = Address::generate(&env);
     let identity = Address::generate(&env);
@@ -357,8 +357,8 @@ fn scenario_extend_duration() {
 fn scenario_rolling_renew_at_exact_expiry() {
     let env = Env::default();
     env.mock_all_auths();
-    let id = env.register(CredenceBond, ());
-    let c = CredenceBondClient::new(&env, &id);
+    let id = env.register(TrustForgeBond, ());
+    let c = TrustForgeBondClient::new(&env, &id);
 
     let admin = Address::generate(&env);
     let identity = Address::generate(&env);
@@ -397,11 +397,11 @@ fn deliberate_divergence_is_caught() {
     let admin = Address::generate(&env);
     let identity = Address::generate(&env);
 
-    let canonical_id = env.register(CredenceBond, ());
-    let canonical = CredenceBondClient::new(&env, &canonical_id);
+    let canonical_id = env.register(TrustForgeBond, ());
+    let canonical = TrustForgeBondClient::new(&env, &canonical_id);
 
-    let divergent_id = env.register(crate::fork_divergent::CredenceBond, ());
-    let divergent = crate::fork_divergent::CredenceBondClient::new(&env, &divergent_id);
+    let divergent_id = env.register(crate::fork_divergent::TrustForgeBond, ());
+    let divergent = crate::fork_divergent::TrustForgeBondClient::new(&env, &divergent_id);
 
     canonical.initialize(&admin, &None);
     divergent.initialize(&admin);

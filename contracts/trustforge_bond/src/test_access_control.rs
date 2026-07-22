@@ -1,16 +1,16 @@
 #![cfg(test)]
 extern crate alloc;
 extern crate std;
-use crate::{CredenceBond, CredenceBondClient, DataKey};
+use crate::{TrustForgeBond, TrustForgeBondClient, DataKey};
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::{Address, Env, IntoVal, Val};
 use soroban_sdk::{Address, Env, IntoVal, Val, Vec};
 
-fn setup(env: &Env) -> (CredenceBondClient<'_>, Address, Address, Address) {
+fn setup(env: &Env) -> (TrustForgeBondClient<'_>, Address, Address, Address) {
     env.mock_all_auths();
 
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(env, &contract_id);
 
     let admin = Address::generate(env);
     let user = Address::generate(env);
@@ -23,10 +23,10 @@ fn setup(env: &Env) -> (CredenceBondClient<'_>, Address, Address, Address) {
 
 struct PrivilegedCase {
     name: &'static str,
-    invoke: fn(&Env, &CredenceBondClient<'_>, &Address),
+    invoke: fn(&Env, &TrustForgeBondClient<'_>, &Address),
 }
 
-fn invoke_transfer_admin(env: &Env, client: &CredenceBondClient<'_>, caller: &Address) {
+fn invoke_transfer_admin(env: &Env, client: &TrustForgeBondClient<'_>, caller: &Address) {
     let new_admin = Address::generate(env);
     let args: soroban_sdk::Vec<soroban_sdk::Val> =
         (caller.clone(), new_admin.clone()).into_val(env);
@@ -230,8 +230,8 @@ fn test_exhaustive_non_admin_rejected() {
 #[test]
 fn test_exhaustive_uninitialized_rejected() {
     let env = Env::default();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     let caller = Address::generate(&env);
 
     for case in get_privileged_cases() {
@@ -252,8 +252,8 @@ fn test_genuine_require_auth_enforcement() {
     let env = Env::default();
 
     // Register but DO NOT mock_all_auths
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
 
     let admin = Address::generate(&env);
 

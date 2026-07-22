@@ -73,10 +73,10 @@ fn bump_instance_ttl(e: &Env) {
 }
 
 #[contract]
-pub struct CredenceArbitration;
+pub struct TrustForgeArbitration;
 
 #[contractimpl]
-impl CredenceArbitration {
+impl TrustForgeArbitration {
     /// Initialize the contract with an admin address.
     pub fn initialize(e: Env, admin: Address) -> Result<(), ArbitrationError> {
         bump_instance_ttl(&e);

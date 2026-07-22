@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document captures the testing infrastructure, patterns, and conventions used in the Credence Arbitration contract tests, with emphasis on tie scenario testing and event validation.
+This document captures the testing infrastructure, patterns, and conventions used in the TrustForge Arbitration contract tests, with emphasis on tie scenario testing and event validation.
 
 ---
 
@@ -10,12 +10,12 @@ This document captures the testing infrastructure, patterns, and conventions use
 
 ### Module Organization
 
-- **[test.rs](contracts/arbitration/src/test.rs)** - Core functionality tests (happy path, basic scenarios)
-- **[test_lifecycle.rs](contracts/arbitration/src/test_lifecycle.rs)** - Status machine transitions & invalid transition regression tests
-- **[test_auth.rs](contracts/arbitration/src/test_auth.rs)** - Authentication boundary tests (who can call what)
-- **[test_pausable.rs](contracts/arbitration/src/test_pausable.rs)** - Pause/unpause functionality tests
-- **[tests/datakey_fingerprint.rs](contracts/arbitration/tests/datakey_fingerprint.rs)** - Storage key fingerprints (regression)
-- **[tests/test_weight_derivation.rs](contracts/arbitration/tests/test_weight_derivation.rs)** - Weight derivation rules (stubs)
+- **[test.rs](contracts/trustforge_arbitration/src/test.rs)** - Core functionality tests (happy path, basic scenarios)
+- **[test_lifecycle.rs](contracts/trustforge_arbitration/src/test_lifecycle.rs)** - Status machine transitions & invalid transition regression tests
+- **[test_auth.rs](contracts/trustforge_arbitration/src/test_auth.rs)** - Authentication boundary tests (who can call what)
+- **[test_pausable.rs](contracts/trustforge_arbitration/src/test_pausable.rs)** - Pause/unpause functionality tests
+- **[tests/datakey_fingerprint.rs](contracts/trustforge_arbitration/tests/datakey_fingerprint.rs)** - Storage key fingerprints (regression)
+- **[tests/test_weight_derivation.rs](contracts/trustforge_arbitration/tests/test_weight_derivation.rs)** - Weight derivation rules (stubs)
 
 ### Naming Pattern
 
@@ -47,7 +47,7 @@ struct Setup<'a> {
     admin: Address,
     arb: Address,
     creator: Address,
-    client: CredenceArbitrationClient<'a>,
+    client: TrustForgeArbitrationClient<'a>,
 }
 
 fn setup() -> Setup<'static> {
@@ -56,8 +56,8 @@ fn setup() -> Setup<'static> {
     let admin = Address::generate(&env);
     let arb = Address::generate(&env);
     let creator = Address::generate(&env);
-    let contract_id = env.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&env, &contract_id);
     client.initialize(&admin);
     client.register_arbitrator(&arb, &10);  // Default weight: 10
     Setup {
@@ -133,8 +133,8 @@ fn test_arbitration_flow() {
     let arb2 = Address::generate(&e);
     let creator = Address::generate(&e);
 
-    let contract_id = e.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&e, &contract_id);
 
     client.initialize(&admin);
     client.register_arbitrator(&arb1, &10);
@@ -208,8 +208,8 @@ fn test_tie_scenario() {
     let arb2 = Address::generate(&e);
     let creator = Address::generate(&e);
 
-    let contract_id = e.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&e, &contract_id);
 
     client.initialize(&admin);
     client.register_arbitrator(&arb1, &10);   // Equal weights
@@ -251,8 +251,8 @@ fn test_three_way_equal_vote() {
     let arb3 = Address::generate(&e);
     let creator = Address::generate(&e);
 
-    let contract_id = e.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&e, &contract_id);
 
     client.initialize(&admin);
     client.register_arbitrator(&arb1, &10);
@@ -484,7 +484,7 @@ fn test_tie_scenario_emits_correct_events() {
 #[test]
 fn register_arbitrator_succeeds_when_admin_authorizes() {
     let s = setup();
-    let client = CredenceArbitrationClient::new(&s.env, &s.contract_id);
+    let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
     let new_arb = Address::generate(&s.env);
     client.register_arbitrator(&new_arb, &5_i128);  // Admin (mocked auth) succeeds
     assert_eq!(client.get_arbitrator_weight(&new_arb), 5_u32);
@@ -494,7 +494,7 @@ fn register_arbitrator_succeeds_when_admin_authorizes() {
 #[test]
 fn register_arbitrator_rejected_when_weight_is_zero() {
     let s = setup();
-    let client = CredenceArbitrationClient::new(&s.env, &s.contract_id);
+    let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
     let new_arb = Address::generate(&s.env);
     let err = client
         .try_register_arbitrator(&new_arb, &0_i128)
@@ -507,7 +507,7 @@ fn register_arbitrator_rejected_when_weight_is_zero() {
 #[test]
 fn vote_rejected_when_caller_is_not_registered_arbitrator() {
     let s = setup();
-    let client = CredenceArbitrationClient::new(&s.env, &s.contract_id);
+    let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
     let id = open_dispute(&s.env, &s.contract_id, &s.creator);
     let stranger = Address::generate(&s.env);
     let err = client
@@ -577,8 +577,8 @@ fn test_double_voting_prevention() {
     let arb = Address::generate(&e);
     let creator = Address::generate(&e);
 
-    let contract_id = e.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&e, &contract_id);
 
     client.initialize(&admin);
     client.register_arbitrator(&arb, &10);
@@ -604,8 +604,8 @@ fn test_has_voted() {
     let arb = Address::generate(&e);
     let creator = Address::generate(&e);
 
-    let contract_id = e.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&e, &contract_id);
 
     client.initialize(&admin);
     client.register_arbitrator(&arb, &10);
@@ -636,8 +636,8 @@ fn test_tie_with_cancellation_reason_after_failed_resolve() {
     let arb2 = Address::generate(&e);
     let creator = Address::generate(&e);
 
-    let contract_id = e.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&e, &contract_id);
 
     // INITIALIZE
     client.initialize(&admin);
@@ -794,7 +794,7 @@ When adding tests for tie/disambiguation features:
 ## 14. File Structure Reference
 
 ```
-contracts/arbitration/
+contracts/trustforge_arbitration/
 ├── src/
 │   ├── lib.rs                 # Main contract (140+ functions)
 │   ├── status.rs              # DisputeStatus enum, error types

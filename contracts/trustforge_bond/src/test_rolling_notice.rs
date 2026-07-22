@@ -19,7 +19,7 @@ use soroban_sdk::testutils::{Address as _, Events, Ledger};
 use soroban_sdk::{Address, Env, FromVal, Symbol};
 
 /// Shared setup: rolling bond, duration = 86_400 s, notice = 3_600 s, amount = 1_000.
-fn setup_rolling(e: &Env) -> (crate::CredenceBondClient<'_>, soroban_sdk::Address) {
+fn setup_rolling(e: &Env) -> (crate::TrustForgeBondClient<'_>, soroban_sdk::Address) {
     let (client, _admin, identity, ..) = test_helpers::setup_with_token(e);
     client.create_bond_with_rolling(&identity, &1_000_i128, &86_400_u64, &true, &3_600_u64);
     (client, identity)

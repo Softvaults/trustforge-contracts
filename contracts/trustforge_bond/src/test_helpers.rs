@@ -1,4 +1,4 @@
-use crate::{CredenceBond, CredenceBondClient};
+use crate::{TrustForgeBond, TrustForgeBondClient};
 use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::token::{StellarAssetClient, TokenClient};
 use soroban_sdk::{contract, contractimpl, Address, Env, Vec};
@@ -61,7 +61,7 @@ const MAX_MINT: i128 = i128::MAX;
 /// Setup bond contract with Stellar Asset token.
 /// Mints `mint_amount` to identity and approves contract.
 /// Returns (client, admin, identity, token_address, bond_contract_id).
-pub fn setup_with_token(e: &Env) -> (CredenceBondClient<'_>, Address, Address, Address, Address) {
+pub fn setup_with_token(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address, Address, Address) {
     setup_with_token_mint(e, DEFAULT_MINT)
 }
 
@@ -69,7 +69,7 @@ pub fn setup_with_token(e: &Env) -> (CredenceBondClient<'_>, Address, Address, A
 #[allow(dead_code)]
 pub fn setup_with_max_mint(
     e: &Env,
-) -> (CredenceBondClient<'_>, Address, Address, Address, Address) {
+) -> (TrustForgeBondClient<'_>, Address, Address, Address, Address) {
     setup_with_token_mint(e, MAX_MINT)
 }
 
@@ -77,10 +77,10 @@ pub fn setup_with_max_mint(
 pub fn setup_with_token_mint(
     e: &Env,
     mint_amount: i128,
-) -> (CredenceBondClient<'_>, Address, Address, Address, Address) {
+) -> (TrustForgeBondClient<'_>, Address, Address, Address, Address) {
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = Address::generate(e);
     let identity = Address::generate(e);
 

@@ -1,10 +1,10 @@
 # Contract Template
 
-Canonical Soroban contract template for the Credence workspace. Copy this crate when starting a new contract to get the correct structure, patterns, and test harness out of the box.
+Canonical Soroban contract template for the TrustForge workspace. Copy this crate when starting a new contract to get the correct structure, patterns, and test harness out of the box.
 
 ## Overview
 
-`TemplateContract` is a minimal but complete Soroban contract that demonstrates every pattern required by Credence contracts:
+`TemplateContract` is a minimal but complete Soroban contract that demonstrates every pattern required by TrustForge contracts:
 
 - Admin-gated initialisation with a double-init guard
 - Typed `DataKey` enum for all storage slots

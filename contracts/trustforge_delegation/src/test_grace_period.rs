@@ -4,11 +4,11 @@ use super::*;
 use soroban_sdk::testutils::{Address as _, Ledger as _};
 use soroban_sdk::Env;
 
-fn setup() -> (Env, CredenceDelegationClient<'static>, Address) {
+fn setup() -> (Env, TrustForgeDelegationClient<'static>, Address) {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceDelegation, ());
-    let client = CredenceDelegationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeDelegation, ());
+    let client = TrustForgeDelegationClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin);
     (e, client, admin)

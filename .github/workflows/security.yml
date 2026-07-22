@@ -1,4 +1,4 @@
-# Credence-Contracts Security Scanning
+# TrustForge-Contracts Security Scanning
 # Automated security analysis for smart contracts
 # Runs on push and PR to main/develop branches
 
@@ -189,8 +189,8 @@ jobs:
           
           # Check each contract package
           for member in $MEMBERS; do
-            if [[ "$member" == credence_* ]]; then
-              UNSAFE_COUNT=$(cargo geiger -p "$member" --output-format Json 2>/dev/null | jq '[.packages[] | select(.name | startswith("credence_")) | .unsafety.used.functions + .unsafety.used.exprs + .unsafety.used.impls + .unsafety.used.traits + .unsafety.used.methods] | add // 0' || echo "0")
+            if [[ "$member" == trustforge_* ]]; then
+              UNSAFE_COUNT=$(cargo geiger -p "$member" --output-format Json 2>/dev/null | jq '[.packages[] | select(.name | startswith("trustforge_")) | .unsafety.used.functions + .unsafety.used.exprs + .unsafety.used.impls + .unsafety.used.traits + .unsafety.used.methods] | add // 0' || echo "0")
               echo "Unsafe code in $member: $UNSAFE_COUNT"
               TOTAL_UNSAFE=$((TOTAL_UNSAFE + UNSAFE_COUNT))
             fi

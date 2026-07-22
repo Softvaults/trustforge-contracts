@@ -1,7 +1,7 @@
-# Credence Contracts Threat Model
+# TrustForge Contracts Threat Model
 
 ## Overview
-This document provides a STRIDE-style threat model for Credence smart contracts, organized by entrypoint and contract.
+This document provides a STRIDE-style threat model for TrustForge smart contracts, organized by entrypoint and contract.
 
 Audience: **Contributors** (security-focused developers maintaining/auditing the contracts).
 
@@ -15,7 +15,7 @@ Audience: **Contributors** (security-focused developers maintaining/auditing the
 
 ---
 
-## Credence Bond Contract (`trustforge_bond`)
+## TrustForge Bond Contract (`trustforge_bond`)
 
 ### Identity Bond Entrypoints
 
@@ -54,7 +54,7 @@ Audience: **Contributors** (security-focused developers maintaining/auditing the
 
 ---
 
-## Credence Delegation Contract (`trustforge_delegation`)
+## TrustForge Delegation Contract (`trustforge_delegation`)
 
 ### Delegation Entrypoints
 
@@ -68,7 +68,7 @@ Audience: **Contributors** (security-focused developers maintaining/auditing the
 
 ## Cross-Contract Interactions
 
-### `CredenceDelegation` → `CredenceBond` Calls
+### `TrustForgeDelegation` → `TrustForgeBond` Calls
 See [auth-tree-threats.md](./auth-tree-threats.md) for detailed analysis of Soroban auth tree threats and mitigations!
 
 ---

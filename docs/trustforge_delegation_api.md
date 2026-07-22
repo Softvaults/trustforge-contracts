@@ -1,6 +1,6 @@
-# CredenceDelegation API Reference
+# TrustForgeDelegation API Reference
 
-The **CredenceDelegation** contract manages the relationships between account owners and their authorized delegates. It is designed to handle temporary permissions for identity management and the tracking of attestation statuses within the ecosystem.
+The **TrustForgeDelegation** contract manages the relationships between account owners and their authorized delegates. It is designed to handle temporary permissions for identity management and the tracking of attestation statuses within the ecosystem.
 
 
 

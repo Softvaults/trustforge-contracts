@@ -16,7 +16,7 @@ const VALID_AMOUNT: i128 = 1_000_000_000;
 const VALID_DURATION: u64 = 2_592_000;
 
 /// Configure all required risk params so `create_bond` succeeds.
-fn configure_all(client: &crate::CredenceBondClient<'_>, admin: &soroban_sdk::Address) {
+fn configure_all(client: &crate::TrustForgeBondClient<'_>, admin: &soroban_sdk::Address) {
     client.set_fee_config(admin, admin, &50);
     client.set_bronze_threshold(admin, &100_000_000_i128);
     client.set_silver_threshold(admin, &1_000_000_000_i128);
@@ -32,8 +32,8 @@ fn configure_all(client: &crate::CredenceBondClient<'_>, admin: &soroban_sdk::Ad
 fn test_activation_fails_without_token_config() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(crate::CredenceBond, ());
-    let client = crate::CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(crate::TrustForgeBond, ());
+    let client = crate::TrustForgeBondClient::new(&e, &contract_id);
     let admin = soroban_sdk::Address::generate(&e);
     let identity = soroban_sdk::Address::generate(&e);
     client.initialize(&admin, &None);

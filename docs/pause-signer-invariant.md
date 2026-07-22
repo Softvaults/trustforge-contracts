@@ -1,7 +1,7 @@
 # Pause Signer Invariant
 
 This document describes an important storage invariant for the pause
-multisig mechanism used across Credence contracts.
+multisig mechanism used across TrustForge contracts.
 
 Invariant
 ---------

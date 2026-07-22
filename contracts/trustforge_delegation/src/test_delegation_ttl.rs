@@ -20,11 +20,11 @@ use crate::nonce::{LEDGER_BUMP_BUFFER, MAX_TTL, MIN_NONCE_TTL};
 // Helpers
 // ---------------------------------------------------------------------------
 
-fn setup() -> (Env, CredenceDelegationClient<'static>) {
+fn setup() -> (Env, TrustForgeDelegationClient<'static>) {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceDelegation, ());
-    let client = CredenceDelegationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeDelegation, ());
+    let client = TrustForgeDelegationClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin);
     (e, client)

@@ -1,14 +1,14 @@
 extern crate std;
 
-use crate::{ActionType, CredenceMultiSig, CredenceMultiSigClient, ProposalStatus};
+use crate::{ActionType, TrustForgeMultiSig, TrustForgeMultiSigClient, ProposalStatus};
 use soroban_sdk::{
     testutils::{Address as _, Events, Ledger},
     Address, BytesN, Env, String, Vec,
 };
 
-fn setup(e: &Env) -> (CredenceMultiSigClient, Address, Vec<Address>) {
-    let contract_id = e.register(CredenceMultiSig, ());
-    let client = CredenceMultiSigClient::new(e, &contract_id);
+fn setup(e: &Env) -> (TrustForgeMultiSigClient, Address, Vec<Address>) {
+    let contract_id = e.register(TrustForgeMultiSig, ());
+    let client = TrustForgeMultiSigClient::new(e, &contract_id);
 
     let admin = Address::generate(e);
     let signer1 = Address::generate(e);
@@ -47,8 +47,8 @@ fn test_initialize() {
 fn test_initialize_empty_signers() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceMultiSig, ());
-    let client = CredenceMultiSigClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeMultiSig, ());
+    let client = TrustForgeMultiSigClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     let signers = Vec::new(&e);
@@ -838,8 +838,8 @@ fn test_execute_expired_proposal() {
 fn test_threshold_1_of_1() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceMultiSig, ());
-    let client = CredenceMultiSigClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeMultiSig, ());
+    let client = TrustForgeMultiSigClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     let signer = Address::generate(&e);
@@ -902,8 +902,8 @@ fn test_threshold_3_of_3() {
 fn test_threshold_2_of_5() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceMultiSig, ());
-    let client = CredenceMultiSigClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeMultiSig, ());
+    let client = TrustForgeMultiSigClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     let mut signers = Vec::new(&e);

@@ -1,6 +1,6 @@
 # Event Indexing & Consumer Guidance (v2)
 
-This document provides technical specifications for backend services indexing events from the Credence protocol.
+This document provides technical specifications for backend services indexing events from the TrustForge protocol.
 
 ## 1. Event Versioning Strategy
 

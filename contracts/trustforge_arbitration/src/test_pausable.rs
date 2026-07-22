@@ -4,12 +4,12 @@ use super::*;
 use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::{Address, Env, String};
 
-fn setup() -> (Env, Address, CredenceArbitrationClient<'static>) {
+fn setup() -> (Env, Address, TrustForgeArbitrationClient<'static>) {
     let env = Env::default();
     env.mock_all_auths();
     let admin = Address::generate(&env);
-    let contract_id = env.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&env, &contract_id);
     client.initialize(&admin);
     (env, admin, client)
 }

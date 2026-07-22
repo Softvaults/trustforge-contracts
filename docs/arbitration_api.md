@@ -1,10 +1,10 @@
-This documentation provides a comprehensive reference for the `CredenceArbitration` contract, which handles decentralized dispute resolution through weighted voting by registered arbitrators.
+This documentation provides a comprehensive reference for the `TrustForgeArbitration` contract, which handles decentralized dispute resolution through weighted voting by registered arbitrators.
 
 ---
 
-# ⚖️ CredenceArbitration API Reference
+# ⚖️ TrustForgeArbitration API Reference
 
-The **CredenceArbitration** contract enables a multi-party arbitration system. Administrators can register trusted arbitrators with specific voting weights, and users can submit disputes that are resolved based on the majority weight of arbitrator votes.
+The **TrustForgeArbitration** contract enables a multi-party arbitration system. Administrators can register trusted arbitrators with specific voting weights, and users can submit disputes that are resolved based on the majority weight of arbitrator votes.
 
 ## 🏗 Data Structures
 

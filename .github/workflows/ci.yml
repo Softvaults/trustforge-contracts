@@ -1,4 +1,4 @@
-# Credence-Contracts CI
+# TrustForge-Contracts CI
 # Single workflow to minimize merge conflicts; runs on every push and PR.
 name: CI
 

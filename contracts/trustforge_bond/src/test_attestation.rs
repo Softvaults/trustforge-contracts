@@ -14,10 +14,10 @@ use soroban_sdk::testutils::Address as _;
 use soroban_sdk::{Env, String};
 
 // Helper: register contract + admin + one attester, return (client, attester, contract_id).
-fn setup_with_contract(e: &Env) -> (CredenceBondClient<'_>, Address, Address) {
+fn setup_with_contract(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address) {
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = Address::generate(e);
     client.initialize(&admin, &None);
     let attester = Address::generate(e);
@@ -27,7 +27,7 @@ fn setup_with_contract(e: &Env) -> (CredenceBondClient<'_>, Address, Address) {
 
 // Convenience: add_attestation with a far-future deadline and the current nonce.
 fn add(
-    client: &CredenceBondClient<'_>,
+    client: &TrustForgeBondClient<'_>,
     e: &Env,
     contract_id: &Address,
     attester: &Address,
@@ -48,7 +48,7 @@ fn add(
 
 // Convenience: revoke_attestation with a far-future deadline and the current nonce.
 fn revoke(
-    client: &CredenceBondClient<'_>,
+    client: &TrustForgeBondClient<'_>,
     e: &Env,
     contract_id: &Address,
     attester: &Address,
@@ -67,8 +67,8 @@ fn revoke(
 fn test_register_attester() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
     let attester = Address::generate(&e);
@@ -80,8 +80,8 @@ fn test_register_attester() {
 fn test_register_multiple_attesters() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
     let att1 = Address::generate(&e);
@@ -99,8 +99,8 @@ fn test_register_multiple_attesters() {
 fn test_unregister_attester() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
     let attester = Address::generate(&e);
@@ -114,8 +114,8 @@ fn test_unregister_attester() {
 fn test_is_attester_false_for_unregistered() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
     let random = Address::generate(&e);
@@ -164,8 +164,8 @@ fn test_add_multiple_attestations() {
 fn test_add_attestation_different_attesters() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
     let att1 = Address::generate(&e);
@@ -210,8 +210,8 @@ fn test_add_attestation_empty_data() {
 fn test_unauthorized_attester_rejected() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
     let unauthorized = Address::generate(&e);
@@ -265,8 +265,8 @@ fn test_revoke_attestation() {
 fn test_revoke_wrong_attester() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
     let att1 = Address::generate(&e);
@@ -368,8 +368,8 @@ fn test_get_attestation() {
 fn test_get_nonexistent_attestation() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
     client.get_attestation(&999);
@@ -391,8 +391,8 @@ fn test_get_subject_attestations() {
 fn test_get_subject_attestations_empty() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
     let subject = Address::generate(&e);
@@ -404,8 +404,8 @@ fn test_get_subject_attestations_empty() {
 fn test_get_subject_attestations_different_subjects() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
     let att = Address::generate(&e);
@@ -460,8 +460,8 @@ fn test_revoke_preserves_data() {
 fn test_complex_scenario() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
     let att1 = Address::generate(&e);

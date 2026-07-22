@@ -1,14 +1,14 @@
-# Security Analysis: Credence Bond Contract
+# Security Analysis: TrustForge Bond Contract
 
 ## Overview
 
-This document describes security aspects of the Credence Bond contract, including access control, reentrancy protection, and other security mechanisms.
+This document describes security aspects of the TrustForge Bond contract, including access control, reentrancy protection, and other security mechanisms.
 
 For other security topics (including overflow-safe arithmetic for financial calculations), see `docs/security.md`.
 
 ## Access Control Role Matrix
 
-The Credence Bond contract implements role-based access control with the following roles and permissions:
+The TrustForge Bond contract implements role-based access control with the following roles and permissions:
 
 ### Roles
 
@@ -147,7 +147,7 @@ This is a fundamental architectural advantage over EVM, where reentrancy must be
 
 ## Defense-in-Depth: Application-Level Guards
 
-Despite Soroban's built-in protection, the Credence Bond contract implements an **application-level reentrancy guard** as a defense-in-depth measure. This protects against:
+Despite Soroban's built-in protection, the TrustForge Bond contract implements an **application-level reentrancy guard** as a defense-in-depth measure. This protects against:
 
 - Future changes to the Soroban runtime behavior
 - Logical reentrancy through indirect call chains

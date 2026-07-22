@@ -34,7 +34,7 @@ use crate::{
     claims::{self, ClaimType},
     parameters::MAX_QUERY_LIMIT,
     slash_history,
-    CredenceBond, CredenceBondClient,
+    TrustForgeBond, TrustForgeBondClient,
 };
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::{Address, Env, String, Symbol, Vec};
@@ -43,10 +43,10 @@ use soroban_sdk::{Address, Env, String, Symbol, Vec};
 // Shared helpers
 // ============================================================================
 
-fn setup(e: &Env) -> (CredenceBondClient<'_>, Address) {
+fn setup(e: &Env) -> (TrustForgeBondClient<'_>, Address) {
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = Address::generate(e);
     client.initialize(&admin, &None);
     (client, admin)
@@ -56,7 +56,7 @@ fn setup(e: &Env) -> (CredenceBondClient<'_>, Address) {
 /// Returns the list of IDs in insertion order.
 fn add_attestations(
     e: &Env,
-    client: &CredenceBondClient,
+    client: &TrustForgeBondClient,
     admin: &Address,
     subject: &Address,
     n: u32,

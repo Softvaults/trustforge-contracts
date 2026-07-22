@@ -15,12 +15,12 @@ use crate::pausable::PROPOSAL_EPOCH_SIZE;
 use soroban_sdk::testutils::{Address as _, Ledger as _};
 use soroban_sdk::{vec, Address, Env, Vec};
 
-fn setup() -> (Env, Address, CredenceDelegationClient<'static>) {
+fn setup() -> (Env, Address, TrustForgeDelegationClient<'static>) {
     let env = Env::default();
     env.mock_all_auths();
     let admin = Address::generate(&env);
-    let contract_id = env.register(CredenceDelegation, ());
-    let client = CredenceDelegationClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeDelegation, ());
+    let client = TrustForgeDelegationClient::new(&env, &contract_id);
     client.initialize(&admin);
     (env, admin, client)
 }
@@ -28,7 +28,7 @@ fn setup() -> (Env, Address, CredenceDelegationClient<'static>) {
 fn add_signers(
     env: &Env,
     admin: &Address,
-    client: &CredenceDelegationClient,
+    client: &TrustForgeDelegationClient,
     n: usize,
     threshold: u32,
 ) -> Vec<Address> {

@@ -4,14 +4,14 @@
 #![cfg(test)]
 
 use crate::test_helpers;
-use crate::CredenceBondClient;
+use crate::TrustForgeBondClient;
 use soroban_sdk::testutils::Ledger;
 use soroban_sdk::Env;
 
 fn setup(
     e: &Env,
 ) -> (
-    CredenceBondClient<'_>,
+    TrustForgeBondClient<'_>,
     soroban_sdk::Address,
     soroban_sdk::Address,
 ) {

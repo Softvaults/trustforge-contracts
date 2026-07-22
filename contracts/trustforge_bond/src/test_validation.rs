@@ -8,12 +8,12 @@
 
 use super::parameters::DEFAULT_MAX_LEVERAGE;
 use super::validation::{validate_bond_amount, MAX_BOND_AMOUNT, MIN_BOND_AMOUNT};
-use super::CredenceBondClient;
+use super::TrustForgeBondClient;
 use crate::test_helpers;
 
 use soroban_sdk::{Address, Env};
 
-fn setup_with_token(e: &Env) -> (CredenceBondClient<'_>, Address, Address) {
+fn setup_with_token(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address) {
     let (client, admin, identity, ..) = test_helpers::setup_with_token(e);
     (client, admin, identity)
 }

@@ -1,4 +1,4 @@
-﻿//! Security tests for reentrancy protection in the Credence Bond contract.
+﻿//! Security tests for reentrancy protection in the TrustForge Bond contract.
 //!
 //! These tests verify that:
 //! - Reentrancy in `withdraw_bond_full` is blocked
@@ -44,7 +44,7 @@ mod withdraw_attacker {
                 .instance()
                 .get(&Symbol::new(&e, "identity"))
                 .unwrap();
-            let client = CredenceBondClient::new(&e, &bond_addr);
+            let client = TrustForgeBondClient::new(&e, &bond_addr);
             client.withdraw_bond_full(&victim_identity);
         }
 
@@ -79,7 +79,7 @@ mod slash_attacker {
                 .instance()
                 .get(&Symbol::new(&e, "admin"))
                 .unwrap();
-            let client = CredenceBondClient::new(&e, &bond_addr);
+            let client = TrustForgeBondClient::new(&e, &bond_addr);
             client.slash_bond(&admin, &100_i128, &soroban_sdk::Bytes::new(&e));
         }
 
@@ -114,7 +114,7 @@ mod fee_attacker {
                 .instance()
                 .get(&Symbol::new(&e, "admin"))
                 .unwrap();
-            let client = CredenceBondClient::new(&e, &bond_addr);
+            let client = TrustForgeBondClient::new(&e, &bond_addr);
             client.collect_fees(&admin, &soroban_sdk::Bytes::new(&e));
         }
 
@@ -164,7 +164,7 @@ mod cross_attacker {
                 .instance()
                 .get(&Symbol::new(&e, "admin"))
                 .unwrap();
-            let client = CredenceBondClient::new(&e, &bond_addr);
+            let client = TrustForgeBondClient::new(&e, &bond_addr);
             client.slash_bond(&admin, &100_i128);
         }
 
@@ -195,7 +195,7 @@ mod partial_withdraw_attacker {
                 .instance()
                 .get(&Symbol::new(&e, "target"))
                 .unwrap();
-            let client = CredenceBondClient::new(&e, &bond_addr);
+            let client = TrustForgeBondClient::new(&e, &bond_addr);
             client.withdraw_bond(&amount);
         }
 
@@ -223,7 +223,7 @@ mod early_withdraw_attacker {
                 .instance()
                 .get(&Symbol::new(&e, "target"))
                 .unwrap();
-            let client = CredenceBondClient::new(&e, &bond_addr);
+            let client = TrustForgeBondClient::new(&e, &bond_addr);
             client.withdraw_early(&identity, &amount);
         }
 
@@ -256,7 +256,7 @@ mod cooldown_reentrant_attacker {
                 .instance()
                 .get(&Symbol::new(&e, "requester"))
                 .unwrap();
-            let client = CredenceBondClient::new(&e, &bond_addr);
+            let client = TrustForgeBondClient::new(&e, &bond_addr);
             client.execute_cooldown_withdrawal(&requester);
         }
 
@@ -288,7 +288,7 @@ mod state_snapshot_callback {
                 .instance()
                 .get(&Symbol::new(&e, "target"))
                 .unwrap();
-            let client = CredenceBondClient::new(&e, &bond_addr);
+            let client = TrustForgeBondClient::new(&e, &bond_addr);
             let state = client.get_identity_state();
             // Record snapshot values for the outer test to verify.
             e.storage()
@@ -350,7 +350,7 @@ fn test_withdraw_reentrancy_blocked() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, admin, identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     let attacker_id = e.register(WithdrawAttacker, ());
     let attacker_client = WithdrawAttackerClient::new(&e, &attacker_id);
@@ -371,7 +371,7 @@ fn test_slash_reentrancy_blocked() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, admin, _identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     let attacker_id = e.register(SlashAttacker, ());
     let attacker_client = SlashAttackerClient::new(&e, &attacker_id);
@@ -392,7 +392,7 @@ fn test_fee_collection_reentrancy_blocked() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, admin, _identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     client.deposit_fees(&500_i128);
 
@@ -412,7 +412,7 @@ fn test_lock_not_held_initially() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, _admin, _identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     assert!(!client.is_locked());
 }
@@ -425,7 +425,7 @@ fn test_lock_released_after_withdraw() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, admin, identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     let benign_id = e.register(BenignCallback, ());
     client.set_callback(&admin, &benign_id);
@@ -442,7 +442,7 @@ fn test_lock_released_after_slash() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, admin, _identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     let benign_id = e.register(BenignCallback, ());
     client.set_callback(&admin, &benign_id);
@@ -459,7 +459,7 @@ fn test_lock_released_after_fee_collection() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, admin, _identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     client.deposit_fees(&200_i128);
 
@@ -479,7 +479,7 @@ fn test_normal_withdraw_succeeds() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, _admin, identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     let amount = client.withdraw_bond_full(&identity);
     assert_eq!(amount, 10_000_i128);
@@ -497,7 +497,7 @@ fn test_normal_slash_succeeds() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, admin, _identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     let slashed = client.slash_bond(&admin, &3_000_i128);
     assert_eq!(slashed, 3_000_i128);
@@ -515,7 +515,7 @@ fn test_normal_fee_collection_succeeds() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, admin, _identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     client.deposit_fees(&750_i128);
     let collected = client.collect_fees(&admin);
@@ -530,7 +530,7 @@ fn test_sequential_operations_succeed() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, admin, identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     client.slash_bond(&admin, &1_000_i128);
     assert!(!client.is_locked());
@@ -554,7 +554,7 @@ fn test_slash_exceeds_bond_rejected() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, admin, _identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     client.slash_bond(&admin, &20_000_i128);
 }
@@ -568,7 +568,7 @@ fn test_withdraw_non_owner_rejected() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, _admin, _identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     let stranger = Address::generate(&e);
     client.withdraw_bond_full(&stranger);
@@ -583,7 +583,7 @@ fn test_double_withdraw_rejected() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, _admin, identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     client.withdraw_bond_full(&identity);
     client.withdraw_bond_full(&identity);
@@ -598,7 +598,7 @@ fn test_cross_function_reentrancy_blocked() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, admin, identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     let attacker_id = e.register(CrossAttacker, ());
     let attacker_client = CrossAttackerClient::new(&e, &attacker_id);
@@ -617,7 +617,7 @@ fn test_partial_withdraw_reentrancy_blocked() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, admin, _identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     // Advance past lock-up period so withdraw_bond is permitted.
     e.ledger().with_mut(|li| li.timestamp = 86_401);
@@ -640,7 +640,7 @@ fn test_withdraw_early_reentrancy_blocked() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, admin, _identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     // Stay inside the lock-up window to force the early-exit path.
     e.ledger().with_mut(|li| li.timestamp = 43_200);
@@ -662,7 +662,7 @@ fn test_cooldown_withdrawal_reentrancy_blocked() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, admin, identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     client.set_cooldown_period(&admin, &3_600_u64);
     client.request_cooldown_withdrawal(&identity, &1_000_i128);
@@ -685,7 +685,7 @@ fn test_set_callback_non_admin_rejected() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, _admin, _identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     let impostor = Address::generate(&e);
     let dummy_cb = Address::generate(&e);
@@ -700,7 +700,7 @@ fn test_state_committed_before_callback_withdraw_bond() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, admin, _identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     // Advance past lock-up.
     e.ledger().with_mut(|li| li.timestamp = 86_401);
@@ -725,7 +725,7 @@ fn test_state_committed_before_callback_slash() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, admin, _identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     let benign_id = e.register(BenignCallback, ());
     client.set_callback(&admin, &benign_id);
@@ -747,7 +747,7 @@ fn test_lock_released_after_partial_withdraw() {
     let e = Env::default();
     e.mock_all_auths();
     let (bond_id, _admin, _identity) = setup_bond(&e);
-    let client = CredenceBondClient::new(&e, &bond_id);
+    let client = TrustForgeBondClient::new(&e, &bond_id);
 
     // Advance past lock-up period.
     e.ledger().with_mut(|li| li.timestamp = 86_401);

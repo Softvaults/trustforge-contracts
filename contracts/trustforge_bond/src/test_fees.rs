@@ -2,11 +2,11 @@
 //! Covers fee calculation, treasury config, fee waiver, events, and edge cases.
 
 use crate::test_helpers;
-use crate::CredenceBondClient;
+use crate::TrustForgeBondClient;
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::{Address, Env};
 
-fn setup(e: &Env) -> (CredenceBondClient<'_>, Address, Address) {
+fn setup(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address) {
     // Shared helper configures token + approvals so create_bond works with fees.
     let (client, admin, identity, ..) = test_helpers::setup_with_token(e);
     (client, admin, identity)

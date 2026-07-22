@@ -1,6 +1,6 @@
 #![cfg(test)]
 
-//! Authentication boundary tests for CredenceDelegation.
+//! Authentication boundary tests for TrustForgeDelegation.
 //!
 //! Verifies that every non-view #[contractimpl] function requires an
 //! authenticated address argument and rejects unauthorised callers.
@@ -13,12 +13,12 @@ use soroban_sdk::{Address, Env};
 // Helpers
 // ---------------------------------------------------------------------------
 
-fn setup() -> (Env, Address, Address, CredenceDelegationClient<'static>) {
+fn setup() -> (Env, Address, Address, TrustForgeDelegationClient<'static>) {
     let env = Env::default();
     env.mock_all_auths();
     let admin = Address::generate(&env);
-    let contract_id = env.register(CredenceDelegation, ());
-    let client = CredenceDelegationClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeDelegation, ());
+    let client = TrustForgeDelegationClient::new(&env, &contract_id);
     client.initialize(&admin);
     let owner = Address::generate(&env);
     (env, admin, owner, client)

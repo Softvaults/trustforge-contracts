@@ -1,9 +1,9 @@
 #![no_std]
 
-//! # Credence Registry Contract
+//! # TrustForge Registry Contract
 //!
 //! Maps identity addresses to their bond contract addresses, enabling efficient
-//! lookup and reverse lookup operations for the Credence trust protocol.
+//! lookup and reverse lookup operations for the TrustForge trust protocol.
 //!
 //! ## Features
 //! - Register identity-to-bond mappings (admin-only)
@@ -34,8 +34,8 @@ fn bump_instance_ttl(e: &Env) {
         .extend_ttl(STORAGE_TTL_EXTEND_TO / 2, STORAGE_TTL_EXTEND_TO);
 }
 
-/// Interface identifier expected from Credence bond contracts.
-pub const IFACE_CREDENCE_BOND_V1: u32 = 0x4342_5631;
+/// Interface identifier expected from TrustForge bond contracts.
+pub const IFACE_TRUSTFORGE_BOND_V1: u32 = 0x4342_5631;
 
 /// Represents a registry entry mapping an identity to their bond contract
 #[contracttype]
@@ -79,10 +79,10 @@ const MAX_IDENTITIES_PAGE_SIZE: u32 = 200;
 pub mod pausable;
 
 #[contract]
-pub struct CredenceRegistry;
+pub struct TrustForgeRegistry;
 
 #[contractimpl]
-impl CredenceRegistry {
+impl TrustForgeRegistry {
     /// Return the contract version.
     pub fn version(e: Env) -> String {
         String::from_str(&e, trustforge_errors::VERSION)
@@ -166,7 +166,7 @@ impl CredenceRegistry {
                 .try_invoke_contract::<bool, soroban_sdk::Error>(
                     &bond_contract,
                     &Symbol::new(&e, "supports_interface"),
-                    soroban_sdk::vec![&e, IFACE_CREDENCE_BOND_V1.into()],
+                    soroban_sdk::vec![&e, IFACE_TRUSTFORGE_BOND_V1.into()],
                 )
                 .unwrap_or(Ok(false))
                 .unwrap_or(false);

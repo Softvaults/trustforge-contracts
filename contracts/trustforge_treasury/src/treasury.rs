@@ -1,4 +1,4 @@
-//! # Credence Treasury Contract
+//! # TrustForge Treasury Contract
 //!
 //! Manages protocol fees and slashed funds with multi-signature withdrawal support.
 //! Tracks fund sources (protocol fees vs slashed funds) and emits treasury events.
@@ -99,7 +99,7 @@ pub enum DataKey {
 }
 
 #[contract]
-pub struct CredenceTreasury;
+pub struct TrustForgeTreasury;
 
 fn zero_cumulative_amount() -> CumulativeAmount {
     CumulativeAmount {
@@ -197,7 +197,7 @@ fn bump_instance_ttl(e: &Env) {
 }
 
 #[contractimpl]
-impl CredenceTreasury {
+impl TrustForgeTreasury {
     /// Return the contract version.
     pub fn version(e: Env) -> String {
         String::from_str(&e, trustforge_errors::VERSION)

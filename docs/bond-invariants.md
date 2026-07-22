@@ -1,6 +1,6 @@
 # Bond Invariants Catalogue
 
-The Credence bond contract must preserve a small set of **invariants** — properties
+The TrustForge bond contract must preserve a small set of **invariants** — properties
 that must hold *after every state-changing operation*, regardless of the path taken.
 
 Historically these checks were scattered across individual tests as ad-hoc
@@ -36,7 +36,7 @@ logic against ever producing a negative signed total.
 
 ### I2 — Slashed never exceeds bonded
 A bond can never be slashed for more than its principal. Enforced on chain in
-`slashing::slash_bond` / `CredenceBond::slash_bond` with `ContractError::SlashExceedsBond`.
+`slashing::slash_bond` / `TrustForgeBond::slash_bond` with `ContractError::SlashExceedsBond`.
 This is the canonical example used to validate the library (see below).
 **Owner:** `IdentityBond`, `slashing`.
 

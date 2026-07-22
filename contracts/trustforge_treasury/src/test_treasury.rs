@@ -1,17 +1,17 @@
-//! Comprehensive tests for the Credence Treasury contract.
+//! Comprehensive tests for the TrustForge Treasury contract.
 //! Covers: initialization, fees, depositors, multi-sig (signers, threshold,
 //! propose/approve/execute), fund source tracking, events, and security.
 //! Also tests emergency rescue functionality for stuck native tokens.
 
-use crate::{CredenceTreasury, CredenceTreasuryClient, CumulativeAmount, FundSource};
+use crate::{TrustForgeTreasury, TrustForgeTreasuryClient, CumulativeAmount, FundSource};
 use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::{Address, Env};
 
 const CUMULATIVE_SEGMENT: u128 = (i128::MAX as u128) + 1;
 
-fn setup(e: &Env) -> (CredenceTreasuryClient<'_>, Address, Address) {
-    let contract_id = e.register(CredenceTreasury, ());
-    let client = CredenceTreasuryClient::new(e, &contract_id);
+fn setup(e: &Env) -> (TrustForgeTreasuryClient<'_>, Address, Address) {
+    let contract_id = e.register(TrustForgeTreasury, ());
+    let client = TrustForgeTreasuryClient::new(e, &contract_id);
     let admin = Address::generate(e);
 
     let token_admin = Address::generate(e);
@@ -53,7 +53,7 @@ fn counter_to_u128(counter: &CumulativeAmount) -> u128 {
 
 fn withdraw_all(
     e: &Env,
-    client: &CredenceTreasuryClient<'_>,
+    client: &TrustForgeTreasuryClient<'_>,
     _token_id: &Address,
     amount: i128,
 ) -> (Address, Address, u64) {
@@ -550,8 +550,8 @@ fn test_add_signer_idempotent() {
 #[should_panic(expected = "Error(Contract, #1)")]
 fn test_get_admin_uninitialized() {
     let e = Env::default();
-    let contract_id = e.register(CredenceTreasury, ());
-    let client = CredenceTreasuryClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeTreasury, ());
+    let client = TrustForgeTreasuryClient::new(&e, &contract_id);
     let _ = client.get_admin();
 }
 
@@ -565,10 +565,10 @@ fn test_get_approval_count_nonexistent_proposal() {
 // ── Slippage bound tests (issue #124) ────────────────────────────────────────
 
 /// Helper: set up a funded treasury with one signer and a ready-to-execute proposal.
-fn setup_ready_proposal(amount: i128) -> (Env, CredenceTreasuryClient<'static>, u64) {
+fn setup_ready_proposal(amount: i128) -> (Env, TrustForgeTreasuryClient<'static>, u64) {
     let e = Env::default();
-    let contract_id = e.register(CredenceTreasury, ());
-    let client = CredenceTreasuryClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeTreasury, ());
+    let client = TrustForgeTreasuryClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
 
     let token_admin = Address::generate(&e);

@@ -1,6 +1,6 @@
 #![cfg(test)]
 
-use crate::{test_helpers, CredenceBond, CredenceBondClient};
+use crate::{test_helpers, TrustForgeBond, TrustForgeBondClient};
 use soroban_sdk::token::{StellarAssetClient, TokenClient};
 use soroban_sdk::{
     testutils::{Address as _, Events, Ledger},
@@ -9,12 +9,12 @@ use soroban_sdk::{
 use proptest::prelude::*;
 use crate::batch::BatchBondParams;
 
-fn setup() -> (Env, CredenceBondClient<'static>, Address, Address, Address) {
+fn setup() -> (Env, TrustForgeBondClient<'static>, Address, Address, Address) {
     let e = Env::default();
     e.mock_all_auths();
 
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     let identity = Address::generate(&e);
@@ -179,8 +179,8 @@ fn sad_path_no_events_on_panic() {
     let e = Env::default();
     e.mock_all_auths();
 
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
@@ -259,8 +259,8 @@ proptest! {
 fn sad_path_no_events_on_batch_panic() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
 

@@ -7,15 +7,15 @@ use soroban_sdk::{Address, Env, IntoVal, Symbol, TryFromVal, Vec};
 fn setup<'a>(
     e: &'a Env,
 ) -> (
-    CredenceBondClient<'a>,
+    TrustForgeBondClient<'a>,
     Address,
     Address,
     soroban_sdk::token::Client<'a>,
 ) {
     e.mock_all_auths();
 
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
 
     let admin = Address::generate(e);
     let identity = Address::generate(e);
@@ -59,8 +59,8 @@ fn test_increase_bond_fails_without_token_configuration() {
     let e = Env::default();
     e.mock_all_auths();
 
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);

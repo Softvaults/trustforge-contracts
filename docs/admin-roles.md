@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Admin Role Management system provides comprehensive role-based access control for the Credence trust protocol. It implements a hierarchical role structure with secure assignment, revocation, and management capabilities.
+The Admin Role Management system provides comprehensive role-based access control for the TrustForge trust protocol. It implements a hierarchical role structure with secure assignment, revocation, and management capabilities.
 
 ## Role Hierarchy
 
@@ -273,7 +273,7 @@ The contract emits the following events for audit and monitoring:
 
 ## Integration
 
-The admin contract can be integrated with other Credence contracts to provide centralized role management:
+The admin contract can be integrated with other TrustForge contracts to provide centralized role management:
 
 ```rust
 // Check admin permissions in other contracts
@@ -294,7 +294,7 @@ The contract includes comprehensive tests covering:
 
 Run tests with:
 ```bash
-cargo test -p admin
+cargo test -p trustforge_admin
 ```
 
 ## Deployment
@@ -305,8 +305,8 @@ cargo test -p admin
 - Admin addresses prepared
 
 ### Deployment Steps
-1. Build the contract: `cargo build --target wasm32-unknown-unknown --release -p admin`
-2. Deploy to network: `soroban contract deploy --wasm target/wasm32-unknown-unknown/release/admin.wasm`
+1. Build the contract: `cargo build --target wasm32-unknown-unknown --release -p trustforge_admin`
+2. Deploy to network: `soroban contract deploy --wasm target/wasm32-unknown-unknown/release/trustforge_admin.wasm`
 3. Initialize with super admin: Call `initialize` function
 4. Add additional admins as needed
 

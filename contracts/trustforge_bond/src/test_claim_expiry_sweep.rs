@@ -5,16 +5,16 @@ extern crate std;
 
 use crate::{
     claims::{self, ClaimType, PendingClaim},
-    CredenceBond, CredenceBondClient,
+    TrustForgeBond, TrustForgeBondClient,
 };
 use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::{Address, Env, Symbol};
 use core::fmt::Write;
 
-fn setup_with_contract(e: &Env) -> (CredenceBondClient<'_>, Address, Address) {
+fn setup_with_contract(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address) {
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = Address::generate(e);
     client.initialize(&admin, &None);
     (client, admin, contract_id)

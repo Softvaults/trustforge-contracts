@@ -1,4 +1,4 @@
-﻿//! Authentication boundary tests for CredenceBond.
+﻿//! Authentication boundary tests for TrustForgeBond.
 //!
 //! Reflects over every non-view #[contractimpl] method and asserts that:
 //!   1. The happy path succeeds when the expected address authorises the call.
@@ -13,12 +13,12 @@ use soroban_sdk::{Address, Env};
 // Helpers
 // ---------------------------------------------------------------------------
 
-fn setup() -> (Env, Address, CredenceBondClient<'static>) {
+fn setup() -> (Env, Address, TrustForgeBondClient<'static>) {
     let env = Env::default();
     env.mock_all_auths();
     let admin = Address::generate(&env);
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     client.initialize(&admin, &None);
     (env, admin, client)
 }
@@ -33,8 +33,8 @@ fn initialize_succeeds_when_admin_authorizes() {
     let env = Env::default();
     env.mock_all_auths();
     let admin = Address::generate(&env);
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     client.initialize(&admin, &None);
     let cfg = client.describe_config().unwrap();
     assert_eq!(cfg.admin, admin);
@@ -96,8 +96,8 @@ fn register_attester_requires_admin_auth() {
     // No mock_all_auths — admin.require_auth() inside register_attester
     // will fire against the host with no auth context and panic.
     let env = Env::default();
-    let contract_id = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract_id);
     // initialize also calls admin.require_auth(); this will panic first,
     // confirming the admin-auth guard is present on init/attester paths.
     let admin = Address::generate(&env);

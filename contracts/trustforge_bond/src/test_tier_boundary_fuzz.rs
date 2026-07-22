@@ -30,7 +30,7 @@ use crate::tiered_bond::{
     get_tier_for_amount, tier_rank, TIER_BRONZE_MAX, TIER_GOLD_MAX, TIER_SILVER_MAX,
 };
 use crate::BondTier;
-use crate::{test_helpers, CredenceBondClient};
+use crate::{test_helpers, TrustForgeBondClient};
 use soroban_sdk::testutils::{Address as _, Events, Ledger};
 use soroban_sdk::{Address, Env, FromVal, Symbol};
 use std::panic::{catch_unwind, AssertUnwindSafe};
@@ -94,7 +94,7 @@ fn fuzz_actions_per_iter() -> usize {
 /// been registered in the same test environment.
 struct BondFixture {
     env: Env,
-    client: CredenceBondClient<'static>,
+    client: TrustForgeBondClient<'static>,
     admin: Address,
     identity: Address,
     contract_id: Address,
@@ -120,7 +120,7 @@ impl BondFixture {
         test_helpers::advance_ledger_sequence(&env);
         // SAFETY: `client` borrows from `env`; we move both into `Self` so
         // the lifetime relationship is preserved.
-        let client: CredenceBondClient<'static> = unsafe { core::mem::transmute(client) };
+        let client: TrustForgeBondClient<'static> = unsafe { core::mem::transmute(client) };
         Self {
             env,
             client,

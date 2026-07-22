@@ -1,6 +1,6 @@
 # Testnet Deployment Runbook
 
-This runbook covers the full lifecycle for deploying the Credence contract suite to Soroban testnet: build → size check → deploy → initialize → cross-contract wiring → verification. Follow the steps in order; each section depends on the previous one completing successfully.
+This runbook covers the full lifecycle for deploying the TrustForge contract suite to Soroban testnet: build → size check → deploy → initialize → cross-contract wiring → verification. Follow the steps in order; each section depends on the previous one completing successfully.
 
 Related docs (read these, not duplicated here):
 - [Reproducible WASM builds and hash verification](wasm-reproducibility.md)
@@ -32,9 +32,9 @@ cargo build \
   -p trustforge_bond \
   -p trustforge_delegation \
   -p trustforge_treasury \
-  -p admin \
+  -p trustforge_admin \
   -p trustforge_multisig \
-  -p arbitration \
+  -p trustforge_arbitration \
   -p timelock
 ```
 
@@ -59,7 +59,7 @@ Artifacts are located at:
 target/wasm32-unknown-unknown/release/trustforge_bond.wasm
 target/wasm32-unknown-unknown/release/trustforge_delegation.wasm
 target/wasm32-unknown-unknown/release/trustforge_treasury.wasm
-target/wasm32-unknown-unknown/release/admin.wasm
+target/wasm32-unknown-unknown/release/trustforge_admin.wasm
 target/wasm32-unknown-unknown/release/trustforge_multisig.wasm
 target/wasm32-unknown-unknown/release/trustforge_arbitration.wasm
 target/wasm32-unknown-unknown/release/timelock.wasm
@@ -79,7 +79,7 @@ Some contracts guard against being initialized twice; others do not. **Never re-
 
 | Contract | Guard | Behaviour if `initialize` is called again |
 |---|---|---|
-| `admin` | `DataKey::Initialized` flag | Panics — `AlreadyInitialized` |
+| `trustforge_admin` | `DataKey::Initialized` flag | Panics — `AlreadyInitialized` |
 | `trustforge_arbitration` | `has(&DataKey::Admin)` | Returns `AlreadyInitialized` error |
 | `timelock` | `has(&DataKey::Admin)` | Panics |
 | `trustforge_bond` | implicit | Panics — `AlreadyInitialized` |
@@ -89,11 +89,11 @@ Some contracts guard against being initialized twice; others do not. **Never re-
 
 ---
 
-### 3a — admin
+### 3a — trustforge_admin
 
 ```bash
 ADMIN_CONTRACT_ID=$(soroban contract deploy \
-  --wasm target/wasm32-unknown-unknown/release/admin.wasm \
+  --wasm target/wasm32-unknown-unknown/release/trustforge_admin.wasm \
   --source "$ADMIN_KEY" \
   --network "$NETWORK")
 

@@ -11,15 +11,15 @@
 
 use crate::{
     claims::{self, ClaimType},
-    slash_history, CredenceBond,
+    slash_history, TrustForgeBond,
 };
 use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::{Address, Env};
 
 fn setup(e: &Env) -> Address {
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = crate::CredenceBondClient::new(e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = crate::TrustForgeBondClient::new(e, &contract_id);
     let admin = Address::generate(e);
     client.initialize(&admin, &None);
     contract_id

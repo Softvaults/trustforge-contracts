@@ -3,7 +3,7 @@
 //! Comprehensive tests for decimal normalization across different token configurations.
 //! Tests verify that the bond contract correctly handles tokens with 6, 8, 18, and 24 decimals.
 
-use crate::{BondTier, CredenceBond, CredenceBondClient};
+use crate::{BondTier, TrustForgeBond, TrustForgeBondClient};
 use soroban_sdk::testutils::{Address as _, Ledger as _};
 use soroban_sdk::{contract, contractimpl, Address, Env, Symbol};
 
@@ -41,10 +41,10 @@ impl MockDecimalToken {
 fn setup_token_with_decimals(
     e: &Env,
     decimals: u32,
-) -> (CredenceBondClient<'_>, Address, Address, Address) {
+) -> (TrustForgeBondClient<'_>, Address, Address, Address) {
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = Address::generate(&e);
     let identity = Address::generate(e);
 

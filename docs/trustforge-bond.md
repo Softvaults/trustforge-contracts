@@ -1,10 +1,10 @@
-# Crate: Credence Bond
+# Crate: TrustForge Bond
 
-**Path:** `contracts/credence-bond`
+**Path:** `contracts/trustforge_bond`
 
 ## Overview
 
-The Credence Bond contract is the foundational security layer for the protocol. It manages the lifecycle of USDC-collateralized bonds, tiered identity statuses, and the enforcement of slashing via governance.
+The TrustForge Bond contract is the foundational security layer for the protocol. It manages the lifecycle of USDC-collateralized bonds, tiered identity statuses, and the enforcement of slashing via governance.
 
 ## Architecture & Flow
 

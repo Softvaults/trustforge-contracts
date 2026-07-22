@@ -18,7 +18,7 @@
 
 #[cfg(test)]
 mod tests {
-    use crate::{CredenceTreasury, CredenceTreasuryClient, FundSource};
+    use crate::{TrustForgeTreasury, TrustForgeTreasuryClient, FundSource};
     use proptest::prelude::*;
     use soroban_sdk::testutils::Address as _;
     use soroban_sdk::{Address, Env};
@@ -55,14 +55,14 @@ mod tests {
     /// (env, client, admin, token_id, signer).
     fn make_env() -> (
         Env,
-        CredenceTreasuryClient<'static>,
+        TrustForgeTreasuryClient<'static>,
         Address,
         Address,
         Address,
     ) {
         let e = Env::default();
-        let contract_id = e.register(CredenceTreasury, ());
-        let client = CredenceTreasuryClient::new(&e, &contract_id);
+        let contract_id = e.register(TrustForgeTreasury, ());
+        let client = TrustForgeTreasuryClient::new(&e, &contract_id);
         let admin = Address::generate(&e);
         let token_admin = Address::generate(&e);
         let token_id = e.register_stellar_asset_contract(token_admin.clone());
@@ -84,7 +84,7 @@ mod tests {
 
     /// Assert the core invariant: sum of per-source balances equals TotalBalance,
     /// and no per-source balance is negative.
-    fn assert_invariant(client: &CredenceTreasuryClient<'_>, label: &str) {
+    fn assert_invariant(client: &TrustForgeTreasuryClient<'_>, label: &str) {
         let total = client.get_balance();
         let protocol = client.get_balance_by_source(&FundSource::ProtocolFee);
         let slashed = client.get_balance_by_source(&FundSource::SlashedFunds);

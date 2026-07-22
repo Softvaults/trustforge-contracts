@@ -11,7 +11,7 @@
 //! 8. State persistence and retrieval
 
 use crate::parameters::*;
-use crate::{CredenceBond, CredenceBondClient};
+use crate::{TrustForgeBond, TrustForgeBondClient};
 use soroban_sdk::testutils::{Address as _, Events as _, Ledger};
 use soroban_sdk::{symbol_short, Address, Env, IntoVal, Symbol, TryFromVal, TryIntoVal};
 
@@ -19,10 +19,10 @@ use soroban_sdk::{symbol_short, Address, Env, IntoVal, Symbol, TryFromVal, TryIn
 // Test Setup Utilities
 // ============================================================================
 
-fn setup(e: &Env) -> (CredenceBondClient<'_>, Address) {
+fn setup(e: &Env) -> (TrustForgeBondClient<'_>, Address) {
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = Address::generate(e);
     client.initialize(&admin, &None);
     (client, admin)

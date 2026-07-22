@@ -1,6 +1,6 @@
 #![cfg(test)]
 
-//! Authentication boundary tests for CredenceArbitration.
+//! Authentication boundary tests for TrustForgeArbitration.
 //!
 //! Verifies that every non-view #[contractimpl] function requires an
 //! authenticated address and rejects unauthorised callers.  Each function
@@ -30,8 +30,8 @@ fn setup() -> Setup {
     let admin = Address::generate(&env);
     let arb = Address::generate(&env);
     let creator = Address::generate(&env);
-    let contract_id = env.register(CredenceArbitration, ());
-    let client = CredenceArbitrationClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeArbitration, ());
+    let client = TrustForgeArbitrationClient::new(&env, &contract_id);
     client.initialize(&admin);
     client.register_arbitrator(&arb, &10_i128);
     Setup {
@@ -44,7 +44,7 @@ fn setup() -> Setup {
 }
 
 fn open_dispute(env: &Env, contract_id: &Address, creator: &Address) -> u64 {
-    let client = CredenceArbitrationClient::new(env, contract_id);
+    let client = TrustForgeArbitrationClient::new(env, contract_id);
     let desc = String::from_str(env, "test dispute");
     client.create_dispute(creator, &desc, &3600_u64)
 }
@@ -58,7 +58,7 @@ fn open_dispute(env: &Env, contract_id: &Address, creator: &Address) -> u64 {
 #[test]
 fn register_arbitrator_succeeds_when_admin_authorizes() {
     let s = setup();
-    let client = CredenceArbitrationClient::new(&s.env, &s.contract_id);
+    let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
     let new_arb = Address::generate(&s.env);
     client.register_arbitrator(&new_arb, &5_i128);
     assert_eq!(client.get_arbitrator_weight(&new_arb), 5_u32);
@@ -69,7 +69,7 @@ fn register_arbitrator_succeeds_when_admin_authorizes() {
 #[test]
 fn register_arbitrator_rejected_when_weight_is_zero() {
     let s = setup();
-    let client = CredenceArbitrationClient::new(&s.env, &s.contract_id);
+    let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
     let new_arb = Address::generate(&s.env);
     let err = client
         .try_register_arbitrator(&new_arb, &0_i128)
@@ -82,7 +82,7 @@ fn register_arbitrator_rejected_when_weight_is_zero() {
 #[test]
 fn register_arbitrator_rejected_when_weight_is_negative() {
     let s = setup();
-    let client = CredenceArbitrationClient::new(&s.env, &s.contract_id);
+    let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
     let new_arb = Address::generate(&s.env);
     let err = client
         .try_register_arbitrator(&new_arb, &-1_i128)
@@ -99,7 +99,7 @@ fn register_arbitrator_rejected_when_weight_is_negative() {
 #[test]
 fn unregister_arbitrator_succeeds_when_admin_authorizes() {
     let s = setup();
-    let client = CredenceArbitrationClient::new(&s.env, &s.contract_id);
+    let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
     client.unregister_arbitrator(&s.arb);
     // After removal the weight query should fail with NotArbitrator.
     let err = client
@@ -117,7 +117,7 @@ fn unregister_arbitrator_succeeds_when_admin_authorizes() {
 #[test]
 fn create_dispute_succeeds_when_creator_authorizes() {
     let s = setup();
-    let client = CredenceArbitrationClient::new(&s.env, &s.contract_id);
+    let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
     let desc = String::from_str(&s.env, "valid dispute");
     let id = client.create_dispute(&s.creator, &desc, &3600_u64);
     let d = client.get_dispute(&id);
@@ -133,7 +133,7 @@ fn create_dispute_succeeds_when_creator_authorizes() {
 #[test]
 fn cancel_dispute_by_creator_succeeds() {
     let s = setup();
-    let client = CredenceArbitrationClient::new(&s.env, &s.contract_id);
+    let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
     let id = open_dispute(&s.env, &s.contract_id, &s.creator);
     client.cancel_dispute(&s.creator, &id, &None);
     assert_eq!(
@@ -146,7 +146,7 @@ fn cancel_dispute_by_creator_succeeds() {
 #[test]
 fn cancel_dispute_by_admin_succeeds() {
     let s = setup();
-    let client = CredenceArbitrationClient::new(&s.env, &s.contract_id);
+    let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
     let id = open_dispute(&s.env, &s.contract_id, &s.creator);
     client.cancel_dispute(&s.admin, &id, &None);
     assert_eq!(
@@ -159,7 +159,7 @@ fn cancel_dispute_by_admin_succeeds() {
 #[test]
 fn cancel_dispute_rejected_when_stranger_calls() {
     let s = setup();
-    let client = CredenceArbitrationClient::new(&s.env, &s.contract_id);
+    let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
     let id = open_dispute(&s.env, &s.contract_id, &s.creator);
     let stranger = Address::generate(&s.env);
     let err = client
@@ -177,7 +177,7 @@ fn cancel_dispute_rejected_when_stranger_calls() {
 #[test]
 fn vote_succeeds_when_registered_arbitrator_authorizes() {
     let s = setup();
-    let client = CredenceArbitrationClient::new(&s.env, &s.contract_id);
+    let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
     let id = open_dispute(&s.env, &s.contract_id, &s.creator);
     client.vote(&s.arb, &id, &1_u32);
     assert_eq!(client.get_tally(&id, &1_u32), 10_i128);
@@ -187,7 +187,7 @@ fn vote_succeeds_when_registered_arbitrator_authorizes() {
 #[test]
 fn vote_rejected_when_caller_is_not_registered_arbitrator() {
     let s = setup();
-    let client = CredenceArbitrationClient::new(&s.env, &s.contract_id);
+    let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
     let id = open_dispute(&s.env, &s.contract_id, &s.creator);
     let stranger = Address::generate(&s.env);
     let err = client
@@ -201,7 +201,7 @@ fn vote_rejected_when_caller_is_not_registered_arbitrator() {
 #[test]
 fn vote_rejected_when_outcome_is_zero() {
     let s = setup();
-    let client = CredenceArbitrationClient::new(&s.env, &s.contract_id);
+    let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
     let id = open_dispute(&s.env, &s.contract_id, &s.creator);
     let err = client.try_vote(&s.arb, &id, &0_u32).unwrap_err().unwrap();
     assert_eq!(err, ArbitrationError::InvalidOutcome);
@@ -215,7 +215,7 @@ fn vote_rejected_when_outcome_is_zero() {
 #[test]
 fn set_quorum_succeeds_when_admin_authorizes() {
     let s = setup();
-    let client = CredenceArbitrationClient::new(&s.env, &s.contract_id);
+    let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
     client.set_quorum(&s.admin, &50_i128, &2_u32);
     let (min_weight, min_voters) = client.get_quorum();
     assert_eq!(min_weight, 50_i128);
@@ -226,7 +226,7 @@ fn set_quorum_succeeds_when_admin_authorizes() {
 #[test]
 fn set_quorum_rejected_when_non_admin_calls() {
     let s = setup();
-    let client = CredenceArbitrationClient::new(&s.env, &s.contract_id);
+    let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
     let stranger = Address::generate(&s.env);
     let err = client
         .try_set_quorum(&stranger, &50_i128, &2_u32)

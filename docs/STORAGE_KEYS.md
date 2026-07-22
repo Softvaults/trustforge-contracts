@@ -1,6 +1,6 @@
 # Storage Key Naming Convention
 
-This document describes the canonical naming scheme for storage keys in Credence Soroban contracts. Following this convention ensures consistency across the codebase and helps reviewers verify behavior against documented intent.
+This document describes the canonical naming scheme for storage keys in TrustForge Soroban contracts. Following this convention ensures consistency across the codebase and helps reviewers verify behavior against documented intent.
 
 ## Convention
 

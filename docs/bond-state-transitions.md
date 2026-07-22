@@ -1,4 +1,4 @@
-# Credence Bond State Transitions
+# TrustForge Bond State Transitions
 
 Audience: contributors changing `contracts/trustforge_bond`.
 

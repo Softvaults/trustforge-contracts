@@ -6,7 +6,7 @@
 
 use crate::chaos_token::{ChaosToken, ChaosTokenClient};
 use crate::test_helpers;
-use crate::CredenceBondClient;
+use crate::TrustForgeBondClient;
 use soroban_sdk::testutils::Ledger;
 use soroban_sdk::{Address, Env, Symbol, Vec};
 
@@ -16,7 +16,7 @@ const REENTER_AMOUNT: i128 = 100;
 const DURATION: u64 = 86_400;
 
 struct HostileSetup<'a> {
-    client: CredenceBondClient<'a>,
+    client: TrustForgeBondClient<'a>,
     admin: Address,
     identity: Address,
     contract_id: Address,

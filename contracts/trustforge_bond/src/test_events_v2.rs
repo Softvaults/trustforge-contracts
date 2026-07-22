@@ -2,7 +2,7 @@
 
 use std::vec::Vec;
 
-use crate::{test_helpers, CredenceBond, CredenceBondClient};
+use crate::{test_helpers, TrustForgeBond, TrustForgeBondClient};
 use soroban_sdk::token::{StellarAssetClient, TokenClient};
 use soroban_sdk::{
     testutils::{Address as _, Events, Ledger},
@@ -14,8 +14,8 @@ fn test_v2_event_indexing_improvements() {
     let e = Env::default();
     e.mock_all_auths();
 
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     let identity = Address::generate(&e);
@@ -33,7 +33,7 @@ fn test_v2_event_indexing_improvements() {
     let token_client = TokenClient::new(&e, &token_addr);
     token_client.approve(&identity, &contract_id, &100_000_i128, &99999_u32);
 
-    // 3. Tell the CredenceBond contract which token to use
+    // 3. Tell the TrustForgeBond contract which token to use
     client.set_token(&admin, &token_addr);
 
     // --- Test bond_created_v2 event with improved indexing ---
@@ -222,8 +222,8 @@ fn test_event_indexing_query_efficiency() {
     let e = Env::default();
     e.mock_all_auths();
 
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     let identity1 = Address::generate(&e);
@@ -315,8 +315,8 @@ fn test_event_schema_compatibility() {
     let e = Env::default();
     e.mock_all_auths();
 
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
 
     let admin = Address::generate(&e);
     let identity = Address::generate(&e);

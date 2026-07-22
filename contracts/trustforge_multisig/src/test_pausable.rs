@@ -1,6 +1,6 @@
 #![cfg(test)]
 
-use crate::{CredenceMultiSig, CredenceMultiSigClient};
+use crate::{TrustForgeMultiSig, TrustForgeMultiSigClient};
 use soroban_sdk::{testutils::Address as _, Address, Env, Vec};
 
 #[test]
@@ -13,8 +13,8 @@ fn test_pause_unpause() {
     let mut signers = Vec::new(&e);
     signers.push_back(signer.clone());
 
-    let contract_id = e.register_contract(None, CredenceMultiSig);
-    let client = CredenceMultiSigClient::new(&e, &contract_id);
+    let contract_id = e.register_contract(None, TrustForgeMultiSig);
+    let client = TrustForgeMultiSigClient::new(&e, &contract_id);
 
     client.initialize(&admin, &signers, &1);
 

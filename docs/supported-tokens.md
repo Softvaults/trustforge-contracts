@@ -6,7 +6,7 @@
 
 ## Overview
 
-The Credence Protocol contracts explicitly reject tokens where the transfer amount does not equal the balance change. This document specifies which tokens are supported and why this restriction exists.
+The TrustForge Protocol contracts explicitly reject tokens where the transfer amount does not equal the balance change. This document specifies which tokens are supported and why this restriction exists.
 
 ## Supported Tokens
 
@@ -19,7 +19,7 @@ The Credence Protocol contracts explicitly reject tokens where the transfer amou
 
 ### Token Requirements
 
-For a token to be supported by Credence contracts, it must satisfy these conditions:
+For a token to be supported by TrustForge contracts, it must satisfy these conditions:
 
 ```rust
 // For every transfer call:
@@ -54,7 +54,7 @@ In other words:
 
 ### The Problem
 
-The Credence Protocol contracts assume transfer integrity: when the contract transfers X tokens, it expects those X tokens to be received. With fee-on-transfer tokens:
+The TrustForge Protocol contracts assume transfer integrity: when the contract transfers X tokens, it expects those X tokens to be received. With fee-on-transfer tokens:
 
 ```
 User Scenario:
@@ -295,8 +295,8 @@ A: Because:
 3. It's explicit - rejecting is better than silently losing value
 4. It's clear to users - they get an immediate error
 
-**Q: Is this a limitation of Soroban or Credence?**  
-A: It's a design choice by Credence for safety. Soroban's token interface is standard and adequate; the limitation is in our contracts' assumptions about tokens.
+**Q: Is this a limitation of Soroban or TrustForge?**  
+A: It's a design choice by TrustForge for safety. Soroban's token interface is standard and adequate; the limitation is in our contracts' assumptions about tokens.
 
 **Q: Can I disable these checks?**  
 A: No. These checks are core safety mechanisms, not configuration options. They prevent funds from being lost or locked.

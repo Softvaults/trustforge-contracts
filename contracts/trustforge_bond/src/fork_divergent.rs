@@ -17,10 +17,10 @@ pub struct Attestation {
 }
 
 #[contract]
-pub struct CredenceBond;
+pub struct TrustForgeBond;
 
 #[contractimpl]
-impl CredenceBond {
+impl TrustForgeBond {
     pub fn initialize(e: Env, admin: Address) {
         e.storage().instance().set(&DataKey::Admin, &admin);
     }

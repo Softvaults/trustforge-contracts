@@ -8,17 +8,17 @@ extern crate std;
 
 use crate::types::attestation::{DEFAULT_ATTESTATION_WEIGHT, MAX_ATTESTATION_WEIGHT};
 use crate::weighted_attestation::{self, MAX_WEIGHT_MULTIPLIER_BPS};
-use crate::{CredenceBond, CredenceBondClient};
+use crate::{TrustForgeBond, TrustForgeBondClient};
 use proptest::prelude::*;
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::{Address, Env};
 
 const BPS_DENOMINATOR: u128 = 10_000;
 
-fn setup(e: &Env) -> (CredenceBondClient<'_>, Address, Address, Address) {
+fn setup(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address, Address) {
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = Address::generate(e);
     client.initialize(&admin, &None);
     let attester = Address::generate(e);

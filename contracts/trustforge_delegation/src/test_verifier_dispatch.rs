@@ -13,7 +13,7 @@ use soroban_sdk::{
 use crate::{
     domain::{DelegatedActionPayload, DomainTag},
     verifier::SchemeTag,
-    CredenceDelegation, CredenceDelegationClient, DelegationType,
+    TrustForgeDelegation, TrustForgeDelegationClient, DelegationType,
 };
 
 // ---------------------------------------------------------------------------
@@ -56,11 +56,11 @@ use valid_verifier::AlwaysValidVerifier;
 // Helpers
 // ---------------------------------------------------------------------------
 
-fn setup() -> (Env, CredenceDelegationClient<'static>, Address) {
+fn setup() -> (Env, TrustForgeDelegationClient<'static>, Address) {
     let e = Env::default();
     e.mock_all_auths();
-    let cid = e.register(CredenceDelegation, ());
-    let client = CredenceDelegationClient::new(&e, &cid);
+    let cid = e.register(TrustForgeDelegation, ());
+    let client = TrustForgeDelegationClient::new(&e, &cid);
     let admin = Address::generate(&e);
     client.initialize(&admin);
     (e, client, admin)

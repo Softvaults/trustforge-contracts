@@ -29,7 +29,7 @@
 //!   - treasury round-trip: `get` returns the most recently set address
 
 use crate::test_helpers::{self, advance_ledger_sequence};
-use crate::{CredenceBond, CredenceBondClient};
+use crate::{TrustForgeBond, TrustForgeBondClient};
 use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::{Address, Env};
 
@@ -39,7 +39,7 @@ use soroban_sdk::{Address, Env};
 
 /// Register the bond contract and configure the liquidation treasury.
 /// Returns (client, admin, identity, treasury_address).
-fn setup_with_treasury(e: &Env) -> (CredenceBondClient<'_>, Address, Address, Address) {
+fn setup_with_treasury(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address, Address) {
     let (client, admin, identity) = setup(e);
     let treasury = Address::generate(e);
     client.set_liquidation_treasury(&admin, &treasury);
@@ -49,7 +49,7 @@ fn setup_with_treasury(e: &Env) -> (CredenceBondClient<'_>, Address, Address, Ad
 }
 
 /// Register the bond contract without configuring a liquidation treasury.
-fn setup(e: &Env) -> (CredenceBondClient<'_>, Address, Address) {
+fn setup(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address) {
     let (client, admin, identity, _token, _bond_id) = test_helpers::setup_with_token(e);
     let slash_treasury = Address::generate(e);
     client.set_slash_treasury(&admin, &slash_treasury);
@@ -60,7 +60,7 @@ fn setup(e: &Env) -> (CredenceBondClient<'_>, Address, Address) {
 /// `bond_start + bond_duration` precisely and then advance past that threshold.
 fn make_bond(
     e: &Env,
-    client: &CredenceBondClient,
+    client: &TrustForgeBondClient,
     identity: &Address,
     amount: i128,
     duration: u64,
@@ -105,8 +105,8 @@ fn get_liquidation_treasury_unset_returns_none() {
 fn set_liquidation_treasury_unauthorized_rejected() {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin, &None);
 

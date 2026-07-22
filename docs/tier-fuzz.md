@@ -1,6 +1,6 @@
 # Tier Transition Fuzzing Documentation
 
-This document describes the property-based fuzz testing suite for the Credence Bond tier system, implemented to address Issue #368. The fuzz tests verify that all tier transitions, rolling renewals, withdrawals, and slashing sequences preserve the protocol's core security invariants.
+This document describes the property-based fuzz testing suite for the TrustForge Bond tier system, implemented to address Issue #368. The fuzz tests verify that all tier transitions, rolling renewals, withdrawals, and slashing sequences preserve the protocol's core security invariants.
 
 ---
 

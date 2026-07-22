@@ -4,17 +4,17 @@ use super::*;
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::{Address, Env};
 
-fn setup() -> (Env, Address, CredenceDelegationClient<'static>) {
+fn setup() -> (Env, Address, TrustForgeDelegationClient<'static>) {
     let env = Env::default();
     env.mock_all_auths();
     let admin = Address::generate(&env);
-    let contract_id = env.register(CredenceDelegation, ());
-    let client = CredenceDelegationClient::new(&env, &contract_id);
+    let contract_id = env.register(TrustForgeDelegation, ());
+    let client = TrustForgeDelegationClient::new(&env, &contract_id);
     client.initialize(&admin);
     (env, admin, client)
 }
 
-fn assert_pause_invariant(env: &Env, client: &CredenceDelegationClient<'_>, addrs: &[Address]) {
+fn assert_pause_invariant(env: &Env, client: &TrustForgeDelegationClient<'_>, addrs: &[Address]) {
     env.as_contract(&client.address, || {
         let mut counted: u32 = 0;
         for a in addrs.iter() {

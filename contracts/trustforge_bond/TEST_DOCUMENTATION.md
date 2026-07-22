@@ -1,7 +1,7 @@
 # Bond Creation Test Documentation
 
 ## Overview
-Comprehensive unit tests for the `create_bond()` function in the Credence Bond smart contract.
+Comprehensive unit tests for the `create_bond()` function in the TrustForge Bond smart contract.
 
 ## Test Coverage
 

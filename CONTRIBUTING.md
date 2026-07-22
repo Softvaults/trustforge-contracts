@@ -1,6 +1,6 @@
-# Contributing to Credence Contracts
+# Contributing to TrustForge Contracts
 
-Welcome! This document is the single source of truth for contributing to the Credence Contracts workspace. It covers the development workflow, every CI gate you must pass, and the conventions that keep reviews fast.
+Welcome! This document is the single source of truth for contributing to the TrustForge Contracts workspace. It covers the development workflow, every CI gate you must pass, and the conventions that keep reviews fast.
 
 - [Quick Start](#quick-start)
 - [Development Workflow](#development-workflow)
@@ -29,7 +29,7 @@ Welcome! This document is the single source of truth for contributing to the Cre
 ### Setup
 
 ```bash
-# Clone the repo
+# Clone the repo (repository name is Credence-Contracts pending the GitHub-level rename)
 git clone https://github.com/Ugasutun/Credence-Contracts.git
 cd Credence-Contracts
 
@@ -160,7 +160,7 @@ cargo clippy --all-targets -- \
   -D warnings
 ```
 
-> **Why separate from standard clippy?** The security lint set catches patterns that are flagged as warnings (not hard errors) in the Rust ecosystem but are treated as blocking failures in the Credence security pipeline. If you use `unwrap()`, `expect()`, `panic!`, integer arithmetic without overflow checks, or index-based slicing, the security lint job will fail.
+> **Why separate from standard clippy?** The security lint set catches patterns that are flagged as warnings (not hard errors) in the Rust ecosystem but are treated as blocking failures in the TrustForge security pipeline. If you use `unwrap()`, `expect()`, `panic!`, integer arithmetic without overflow checks, or index-based slicing, the security lint job will fail.
 
 ### 4. Workspace Tests (`contracts-tests.yml`, `ci.yml`)
 
@@ -311,7 +311,7 @@ See [`docs/storage-ttl.md`](docs/storage-ttl.md) for the full policy, constants,
 
 ### Doctest Style
 
-Every `pub fn` on contract types (e.g. `CredenceBond`) must have at least one `/// # Example` block. Pure Rust helpers should have fully runnable doctests; contract methods that require a Soroban `Env` should use `no_run`.
+Every `pub fn` on contract types (e.g. `TrustForgeBond`) must have at least one `/// # Example` block. Pure Rust helpers should have fully runnable doctests; contract methods that require a Soroban `Env` should use `no_run`.
 
 See [`docs/doctest-style.md`](docs/doctest-style.md) for the full guide.
 

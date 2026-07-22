@@ -1,6 +1,6 @@
 # Cross-Contract Call Graph & Authorization Flow
 
-This document details the cross-contract call pathways, interface checks, callback architectures, and authorization checkpoints for the Credence protocol contracts.
+This document details the cross-contract call pathways, interface checks, callback architectures, and authorization checkpoints for the TrustForge protocol contracts.
 
 ---
 
@@ -76,7 +76,7 @@ sequenceDiagram
     Note over Registry: Admin-driven Pairing
     Admin->>Registry: register_identity(identity, bond_contract, allow_non_interface)
     Note over Registry: Admin auth checked via require_auth()
-    Registry->>Bond: supports_interface(IFACE_CREDENCE_BOND_V1)
+    Registry->>Bond: supports_interface(IFACE_TRUSTFORGE_BOND_V1)
     Bond-->>Registry: returns true/false
     Note over Registry: State updated & mapped
 
@@ -88,7 +88,7 @@ sequenceDiagram
     Note over Registry: Verified against pinned reference hash
 ```
 
-- **`supports_interface` Check:** `register_identity` performs an ERC165-equivalent interface verification on the target `bond_contract` using the identifier `IFACE_CREDENCE_BOND_V1`.
+- **`supports_interface` Check:** `register_identity` performs an ERC165-equivalent interface verification on the target `bond_contract` using the identifier `IFACE_TRUSTFORGE_BOND_V1`.
 - **`register_trustless` Hash Introspection:** To bypass the admin trust assumption, a bond contract can register itself with the registry. The registry calls `get_contract_code_hash` back on the caller and performs a constant-time memory comparison (`constant_time_eq`) against the admin-pinned reference WASM hash to ensure authenticity.
 
 ### 2. `trustforge_delegation` $\rightarrow$ `Verifier Contract`

@@ -1,6 +1,6 @@
 # Token Integration (USDC)
 
-This document describes how the Credence bond contract integrates with Stellar token contracts for USDC-denominated bonds.
+This document describes how the TrustForge bond contract integrates with Stellar token contracts for USDC-denominated bonds.
 
 ## Overview
 

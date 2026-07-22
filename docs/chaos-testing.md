@@ -1,4 +1,4 @@
-# Chaos Testing — Credence Bond
+# Chaos Testing — TrustForge Bond
 
 > **Status:** Implemented in `contracts/trustforge_bond/src/test_chaos.rs`
 >

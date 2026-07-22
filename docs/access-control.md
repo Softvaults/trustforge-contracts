@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Credence access control module provides reusable, composable role-based access control modifiers for smart contracts. It implements three primary roles (Admin, Verifier, Identity Owner) with support for role composition and comprehensive security event logging.
+The TrustForge access control module provides reusable, composable role-based access control modifiers for smart contracts. It implements three primary roles (Admin, Verifier, Identity Owner) with support for role composition and comprehensive security event logging.
 
 ## Architecture
 
@@ -350,10 +350,10 @@ cargo test --package trustforge_bond test_access_control
 use crate::access_control::{require_admin, require_verifier, require_identity_owner};
 
 #[contract]
-pub struct CredenceIdentity;
+pub struct TrustForgeIdentity;
 
 #[contractimpl]
-impl CredenceIdentity {
+impl TrustForgeIdentity {
     pub fn initialize(e: Env, admin: Address) {
         e.storage().instance().set(&Symbol::new(&e, "admin"), &admin);
     }

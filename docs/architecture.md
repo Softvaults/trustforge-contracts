@@ -1,6 +1,6 @@
 # Contracts Architecture Overview
 
-This document maps every crate in the workspace to its responsibility, state layout, events, and backend consumption points. It is the canonical reference for anyone integrating with or extending the Credence contracts.
+This document maps every crate in the workspace to its responsibility, state layout, events, and backend consumption points. It is the canonical reference for anyone integrating with or extending the TrustForge contracts.
 
 See also: [fund-flow.md](fund-flow.md) for a complete token custody trace.
 
@@ -16,7 +16,7 @@ See also: [fund-flow.md](fund-flow.md) for a complete token custody trace.
 | `contracts/trustforge_delegation` | `trustforge_delegation` | Delegated attestation and management rights |
 | `contracts/trustforge_arbitration` | `trustforge_arbitration` | Weighted-vote dispute resolution |
 | `contracts/dispute_resolution` | `dispute_resolution` | Stake-backed slash dispute with arbitrator voting |
-| `contracts/admin` | `admin` | Hierarchical role management (SuperAdmin/Admin/Operator) |
+| `contracts/trustforge_admin` | `trustforge_admin` | Hierarchical role management (SuperAdmin/Admin/Operator) |
 | `contracts/trustforge_multisig` | `trustforge_multisig` | Generic M-of-N multi-signature proposals |
 | `contracts/timelock` | `timelock` | Time-delayed operation execution |
 | `contracts/fixed_duration_bond` | `fixed_duration_bond` | Simple fixed-term bond with optional early-exit penalty |
@@ -260,7 +260,7 @@ See also: [fund-flow.md](fund-flow.md) for a complete token custody trace.
 
 ---
 
-### `admin`
+### `trustforge_admin`
 
 **Responsibility:** Hierarchical role management. Defines `SuperAdmin > Admin > Operator` roles, enforces minimum admin count, and supports two-step ownership transfer.
 
@@ -449,7 +449,7 @@ This pattern is implemented in `trustforge_bond/src/token_integration.rs`, `disp
 | Active delegations | `trustforge_delegation`: index `delegation_created`, `delegation_revoked` |
 | Dispute outcomes | `trustforge_arbitration`: index `dispute_resolved`; `dispute_resolution`: index `DisputeResolved` |
 | Protocol fee revenue | `trustforge_treasury`: index fee-receipt events; `fixed_duration_bond`: index `fees_collected` |
-| Admin / role changes | `admin`: index `admin_added`, `admin_removed`, `admin_role_updated` |
+| Admin / role changes | `trustforge_admin`: index `admin_added`, `admin_removed`, `admin_role_updated` |
 | Pending governance actions | `trustforge_multisig`: index proposal events; `timelock`: index queued operations |
 | Supply utilization | `trustforge_bond`: poll `get_total_supply()`, `get_supply_cap()` |
 

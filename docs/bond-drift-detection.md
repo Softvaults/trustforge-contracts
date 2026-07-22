@@ -15,7 +15,7 @@ Implementation: [`contracts/trustforge_bond/src/invariants.rs`](../contracts/tru
 
 `invariants::assert_self_consistent(&env)` is invoked at the end of bond write entrypoints, including:
 
-- `CredenceBond::create_bond`, `top_up`, `extend_duration`, `withdraw`, `withdraw_early`, `request_withdrawal`, `renew_if_rolling`, `withdraw_bond`, `slash_bond`
+- `TrustForgeBond::create_bond`, `top_up`, `extend_duration`, `withdraw`, `withdraw_early`, `request_withdrawal`, `renew_if_rolling`, `withdraw_bond`, `slash_bond`
 - `slashing::slash_bond`, `slashing::unslash_bond`
 - `batch::create_batch_bonds`
 - Attestation paths use `assert_self_consistent_for_subject` after `add_attestation` / `revoke_attestation`

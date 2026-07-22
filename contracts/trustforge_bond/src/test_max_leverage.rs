@@ -13,7 +13,7 @@
 use crate::parameters::{DEFAULT_MAX_LEVERAGE, MAX_MAX_LEVERAGE, MIN_MAX_LEVERAGE};
 use crate::test_helpers::setup_with_token_mint;
 use crate::validation::MIN_BOND_AMOUNT;
-use crate::{CredenceBond, CredenceBondClient};
+use crate::{TrustForgeBond, TrustForgeBondClient};
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::{Address, Env};
 
@@ -21,10 +21,10 @@ use soroban_sdk::{Address, Env};
 // Helpers
 // ---------------------------------------------------------------------------
 
-fn setup_no_token(e: &Env) -> (CredenceBondClient<'_>, Address) {
+fn setup_no_token(e: &Env) -> (TrustForgeBondClient<'_>, Address) {
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = Address::generate(e);
     client.initialize(&admin, &None);
     (client, admin)

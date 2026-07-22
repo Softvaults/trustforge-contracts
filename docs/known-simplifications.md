@@ -53,7 +53,7 @@ Slashed funds are now transferred to the configured slash treasury on every `sla
 
 ## 9. Arbitration Voting Weights Are Not Stake-Backed
 
-**Where:** `contracts/arbitration/src/lib.rs`
+**Where:** `contracts/trustforge_arbitration/src/lib.rs`
 
 **What:** Arbitrator voting weights are set by the admin via `register_arbitrator(arbitrator, weight)` as arbitrary integers. They are not derived from or backed by any on-chain stake or bond balance.
 

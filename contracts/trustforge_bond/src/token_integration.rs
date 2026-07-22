@@ -1,4 +1,4 @@
-//! USDC token integration helpers for Credence Bond.
+//! USDC token integration helpers for TrustForge Bond.
 //! Centralizes token configuration, allowance checks, and transfer operations.
 //! Rejects fee-on-transfer tokens where balance verification fails.
 

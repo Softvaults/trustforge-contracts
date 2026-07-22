@@ -1,6 +1,6 @@
 # Security
 
-Security mechanisms for the Credence bond and attestation system.
+Security mechanisms for the TrustForge bond and attestation system.
 
 ## Overflow-safe arithmetic
 
@@ -31,7 +31,7 @@ Security mechanisms for the Credence bond and attestation system.
 
 ## Same-ledger sequencing guardrails
 
-- Credence enforces a same-ledger guard for sensitive bond operations to prevent unfair sandwich-style ordering attacks.
+- TrustForge enforces a same-ledger guard for sensitive bond operations to prevent unfair sandwich-style ordering attacks.
 - The `same_ledger_liquidation_guard` records the current ledger sequence after every collateral-increasing action, including bond creation, top-up, and batch creation.
 - `slash_bond` rejects any slash if the last collateral increase occurred in the current ledger, preventing a slash from executing in the same ledger as an increase.
 - This is a targeted anti-sandwich protection and does not block unrelated operations such as attestations, withdrawals, or governance actions.

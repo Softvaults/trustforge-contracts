@@ -3,7 +3,7 @@
 ## Canonical source of truth
 
 `contracts/trustforge_bond/src/lib.rs` is the single authoritative implementation.
-It defines the `CredenceBond` Soroban contract compiled to WASM and deployed
+It defines the `TrustForgeBond` Soroban contract compiled to WASM and deployed
 on-chain.  Every other file in `src/` is either a helper module pulled in by
 `lib.rs` or a `#[cfg(test)]`-only module.
 
@@ -56,7 +56,7 @@ missed in a fork produced silent divergence that the harness would fail to catch
 
 ### Current design
 
-`src/test_differential.rs` drives the **single canonical** `CredenceBond`
+`src/test_differential.rs` drives the **single canonical** `TrustForgeBond`
 through scripted lifecycle scenarios.  After each mutating step the live bond
 state is compared against a **pinned** `Pinned` struct with hardcoded expected
 field values.  There is one authoritative path; drift is structurally impossible.

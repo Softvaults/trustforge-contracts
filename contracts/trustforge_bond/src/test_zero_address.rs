@@ -8,9 +8,9 @@ mod zero_address_tests {
     use super::*;
     use soroban_sdk::testutils::Address as _;
 
-    fn setup_contract(env: &Env) -> (CredenceBondClient<'_>, Address, Address) {
-        let contract_address = env.register(CredenceBond, ());
-        let client = CredenceBondClient::new(env, &contract_address);
+    fn setup_contract(env: &Env) -> (TrustForgeBondClient<'_>, Address, Address) {
+        let contract_address = env.register(TrustForgeBond, ());
+        let client = TrustForgeBondClient::new(env, &contract_address);
         let admin = Address::generate(env);
 
         env.mock_all_auths();
@@ -162,8 +162,8 @@ mod zero_address_tests {
         client.set_token(&admin, &token);
 
         // Re-register new contract or reset since set_token can only be called once
-        let contract_address2 = env.register(CredenceBond, ());
-        let client2 = CredenceBondClient::new(&env, &contract_address2);
+        let contract_address2 = env.register(TrustForgeBond, ());
+        let client2 = TrustForgeBondClient::new(&env, &contract_address2);
         let admin2 = Address::generate(&env);
         client2.initialize(&admin2, &None);
 

@@ -17,11 +17,11 @@ use soroban_sdk::Env;
 // Test helpers
 // ---------------------------------------------------------------------------
 
-fn setup() -> (Env, CredenceDelegationClient<'static>, Address) {
+fn setup() -> (Env, TrustForgeDelegationClient<'static>, Address) {
     let e = Env::default();
     e.mock_all_auths();
-    let contract_id = e.register(CredenceDelegation, ());
-    let client = CredenceDelegationClient::new(&e, &contract_id);
+    let contract_id = e.register(TrustForgeDelegation, ());
+    let client = TrustForgeDelegationClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     client.initialize(&admin);
     (e, client, contract_id)
@@ -738,7 +738,7 @@ fn test_mixed_execution_interleaving() {
 }
 
 // ---------------------------------------------------------------------------
-// Cross-contract namespace replay: Credence Bond ↔ Credence Delegation
+// Cross-contract namespace replay: TrustForge Bond ↔ TrustForge Delegation
 // ---------------------------------------------------------------------------
 
 /// Replay attempt: a payload that is otherwise valid for the bond namespace

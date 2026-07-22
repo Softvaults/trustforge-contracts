@@ -41,7 +41,7 @@ mod withdraw_bond_attacker {
                 .instance()
                 .get(&Symbol::new(&e, "target"))
                 .unwrap();
-            let client = CredenceBondClient::new(&e, &bond_addr);
+            let client = TrustForgeBondClient::new(&e, &bond_addr);
 
             // Attempt reentrancy - this should panic with "reentrancy detected" on fixed code
             // On unfixed code, this succeeds and drains more funds than available
@@ -75,7 +75,7 @@ mod withdraw_early_attacker {
                 .instance()
                 .get(&Symbol::new(&e, "target"))
                 .unwrap();
-            let client = CredenceBondClient::new(&e, &bond_addr);
+            let client = TrustForgeBondClient::new(&e, &bond_addr);
 
             // Attempt reentrancy - this should panic with "reentrancy detected" on fixed code
             // On unfixed code, this succeeds and drains more funds than available
@@ -109,7 +109,7 @@ mod cooldown_attacker {
                 .instance()
                 .get(&Symbol::new(&e, "target"))
                 .unwrap();
-            let client = CredenceBondClient::new(&e, &bond_addr);
+            let client = TrustForgeBondClient::new(&e, &bond_addr);
 
             // Attempt reentrancy - this should panic with "reentrancy detected" on fixed code
             // On unfixed code, this may succeed depending on state update order

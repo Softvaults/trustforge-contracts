@@ -73,17 +73,17 @@ pub(crate) use panicking_cb::PanickingCallback;
 mod tests {
     use super::{NoOpCallback, PanickingCallback};
     use crate::chaos_token::{ChaosToken, ChaosTokenClient};
-    use crate::{CredenceBond, CredenceBondClient, DataKey};
+    use crate::{TrustForgeBond, TrustForgeBondClient, DataKey};
     use soroban_sdk::testutils::{Address as _, Ledger};
     use soroban_sdk::{Address, Env, Symbol};
 
     // ─── Setup helper ────────────────────────────────────────────────────────
 
     /// Create a bond contract + one active non-rolling bond (1 000 units, 24 h).
-    fn setup_with_bond(e: &Env) -> (CredenceBondClient<'_>, Address, Address) {
+    fn setup_with_bond(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address) {
         e.mock_all_auths();
-        let contract_id = e.register(CredenceBond, ());
-        let client = CredenceBondClient::new(e, &contract_id);
+        let contract_id = e.register(TrustForgeBond, ());
+        let client = TrustForgeBondClient::new(e, &contract_id);
         let admin = Address::generate(e);
         let identity = Address::generate(e);
         client.initialize(&admin, &None);
@@ -171,8 +171,8 @@ mod tests {
     fn chaos_injection_3_collect_fees_callback_panic_reverts_fees() {
         let e = Env::default();
         e.mock_all_auths();
-        let contract_id = e.register(CredenceBond, ());
-        let client = CredenceBondClient::new(&e, &contract_id);
+        let contract_id = e.register(TrustForgeBond, ());
+        let client = TrustForgeBondClient::new(&e, &contract_id);
         let admin = Address::generate(&e);
         client.initialize(&admin, &None);
         client.deposit_fees(&500_i128);
@@ -326,8 +326,8 @@ mod tests {
         e.mock_all_auths();
         e.ledger().with_mut(|li| li.timestamp = 1000);
 
-        let contract_id = e.register(CredenceBond, ());
-        let client = CredenceBondClient::new(&e, &contract_id);
+        let contract_id = e.register(TrustForgeBond, ());
+        let client = TrustForgeBondClient::new(&e, &contract_id);
         let admin = Address::generate(&e);
         let identity = Address::generate(&e);
 

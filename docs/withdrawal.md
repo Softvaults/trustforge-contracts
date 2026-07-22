@@ -1,6 +1,6 @@
 # Withdrawal
 
-This document describes how to withdraw USDC from identity bonds in the Credence bond contract.
+This document describes how to withdraw USDC from identity bonds in the TrustForge bond contract.
 
 ## Overview
 

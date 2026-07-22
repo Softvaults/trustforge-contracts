@@ -54,7 +54,7 @@ pub struct BudgetCeiling {
     pub mem_max: u64,
 }
 
-/// Pre-defined ceilings for each write-path entrypoint on `CredenceBond`.
+/// Pre-defined ceilings for each write-path entrypoint on `TrustForgeBond`.
 ///
 /// See `docs/budget-ceilings.md` for the full ceiling table and methodology.
 pub mod budget_ceilings {

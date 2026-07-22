@@ -30,7 +30,7 @@ extern crate std;
 
 use crate::tiered_bond::{get_tier_for_amount, TIER_BRONZE_MAX, TIER_GOLD_MAX, TIER_SILVER_MAX};
 use crate::BondTier;
-use crate::{test_helpers, CredenceBondClient};
+use crate::{test_helpers, TrustForgeBondClient};
 use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::{Address, Env};
 use std::panic::{catch_unwind, AssertUnwindSafe};
@@ -77,7 +77,7 @@ fn panic_msg(e: &(dyn std::any::Any + Send)) -> String {
 }
 
 /// Set up a bond contract with a live bond of `amount` already created.
-fn setup_with_bond(amount: i128) -> (Env, CredenceBondClient<'static>, Address) {
+fn setup_with_bond(amount: i128) -> (Env, TrustForgeBondClient<'static>, Address) {
     let e = Env::default();
     e.ledger().with_mut(|li| li.timestamp = 1_000);
     let (client, admin, identity, _token_id, _bond_id) = test_helpers::setup_with_token(&e);
@@ -90,7 +90,7 @@ fn setup_with_bond(amount: i128) -> (Env, CredenceBondClient<'static>, Address) 
     );
     test_helpers::advance_ledger_sequence(&e);
     // SAFETY: client lifetime is tied to `e` which we return; caller keeps both alive.
-    let client: CredenceBondClient<'static> = unsafe { core::mem::transmute(client) };
+    let client: TrustForgeBondClient<'static> = unsafe { core::mem::transmute(client) };
     (e, client, admin)
 }
 

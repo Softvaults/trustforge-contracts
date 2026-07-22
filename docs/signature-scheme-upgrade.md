@@ -329,7 +329,7 @@ The `scheme` field is part of the signed payload, so changing schemes for the sa
 
 ## References
 
-- [Delegated Action Payloads](credence-delegation.md)
+- [Delegated Action Payloads](trustforge-delegation.md)
 - [Domain Separation](delegation.md#domain-separation)
 - [Error Codes](errors.md)
 - [Admin Roles](admin-roles.md)

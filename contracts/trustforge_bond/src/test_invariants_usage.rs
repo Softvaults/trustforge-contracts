@@ -11,14 +11,14 @@ use crate::test_invariants::{
     assert_all_invariants, assert_bond_invariants, assert_notice_period_bounded,
     assert_slashed_within_bonded, assert_withdrawal_request_requires_rolling, load_bond,
 };
-use crate::{CredenceBond, CredenceBondClient, IdentityBond};
+use crate::{TrustForgeBond, TrustForgeBondClient, IdentityBond};
 use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::{Address, Env, String};
 use proptest::prelude::*;
 
 struct Ctx<'a> {
     env: Env,
-    client: CredenceBondClient<'a>,
+    client: TrustForgeBondClient<'a>,
     contract: Address,
     admin: Address,
     identity: Address,
@@ -27,8 +27,8 @@ struct Ctx<'a> {
 fn setup() -> Ctx<'static> {
     let env = Env::default();
     env.mock_all_auths();
-    let contract = env.register(CredenceBond, ());
-    let client = CredenceBondClient::new(&env, &contract);
+    let contract = env.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&env, &contract);
     let admin = Address::generate(&env);
     let identity = Address::generate(&env);
     client.initialize(&admin, &None);

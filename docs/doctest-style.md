@@ -45,22 +45,22 @@ These run in the standard Rust doctest harness without any special setup.
 
 ### 2. Contract methods — `no_run`
 
-Methods on `CredenceBond` require a Soroban `Env` and the generated
-`CredenceBondClient`. Use `no_run` so the example is compiled (catching API
+Methods on `TrustForgeBond` require a Soroban `Env` and the generated
+`TrustForgeBondClient`. Use `no_run` so the example is compiled (catching API
 drift) but not executed (avoiding harness limitations):
 
 ```rust
 /// # Example
 ///
 /// ```no_run
-/// use trustforge_bond::{CredenceBond, CredenceBondClient};
+/// use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
 /// use soroban_sdk::{Env, Address};
 /// use soroban_sdk::testutils::Address as _;
 ///
 /// let e = Env::default();
 /// e.mock_all_auths();
-/// let contract_id = e.register(CredenceBond, ());
-/// let client = CredenceBondClient::new(&e, &contract_id);
+/// let contract_id = e.register(TrustForgeBond, ());
+/// let client = TrustForgeBondClient::new(&e, &contract_id);
 /// let admin = Address::generate(&e);
 /// client.initialize(&admin);
 /// ```
@@ -76,14 +76,14 @@ Every contract method doctest should start with this setup block:
 
 ```rust
 /// ```no_run
-/// use trustforge_bond::{CredenceBond, CredenceBondClient};
+/// use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
 /// use soroban_sdk::{Env, Address};
 /// use soroban_sdk::testutils::Address as _;
 ///
 /// let e = Env::default();
 /// e.mock_all_auths();
-/// let contract_id = e.register(CredenceBond, ());
-/// let client = CredenceBondClient::new(&e, &contract_id);
+/// let contract_id = e.register(TrustForgeBond, ());
+/// let client = TrustForgeBondClient::new(&e, &contract_id);
 /// let admin = Address::generate(&e);
 /// client.initialize(&admin);
 /// ```
@@ -106,14 +106,14 @@ Use `should_panic` for examples that demonstrate a panic path:
 /// # Example — panics when bond not found
 ///
 /// ```should_panic
-/// use trustforge_bond::{CredenceBond, CredenceBondClient};
+/// use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
 /// use soroban_sdk::{Env, Address};
 /// use soroban_sdk::testutils::Address as _;
 ///
 /// let e = Env::default();
 /// e.mock_all_auths();
-/// let contract_id = e.register(CredenceBond, ());
-/// let client = CredenceBondClient::new(&e, &contract_id);
+/// let contract_id = e.register(TrustForgeBond, ());
+/// let client = TrustForgeBondClient::new(&e, &contract_id);
 /// let admin = Address::generate(&e);
 /// client.initialize(&admin);
 /// // No bond created — panics with BondNotFound
@@ -145,7 +145,7 @@ Use relative paths from the crate root (`contracts/trustforge_bond/`).
 
 ## Checklist before opening a PR
 
-- [ ] Every `pub fn` on `CredenceBond` has at least one `/// # Example` block.
+- [ ] Every `pub fn` on `TrustForgeBond` has at least one `/// # Example` block.
 - [ ] Every pure Rust `pub fn` has a fully runnable (no annotation) doctest.
 - [ ] `cargo test --doc -p trustforge_bond` passes locally.
 - [ ] Error paths are covered with `should_panic` or `Err(...)` assertions.

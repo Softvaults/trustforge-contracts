@@ -1,6 +1,6 @@
-# CredenceBond Smart Contract API
+# TrustForgeBond Smart Contract API
 
-The **CredenceBond** contract is a Soroban-based identity staking protocol. It allows users to "bond" (stake) tokens to establish an on-chain identity tier, which authorized verifiers can then vouch for via attestations. It includes governance-managed slashing, rolling renewals, and reentrancy protection.
+The **TrustForgeBond** contract is a Soroban-based identity staking protocol. It allows users to "bond" (stake) tokens to establish an on-chain identity tier, which authorized verifiers can then vouch for via attestations. It includes governance-managed slashing, rolling renewals, and reentrancy protection.
 
 ## Table of Contents
 

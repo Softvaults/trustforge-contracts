@@ -5,12 +5,12 @@
 
 #![cfg(test)]
 
-use crate::{CredenceBond, CredenceBondClient, EvidenceType};
+use crate::{TrustForgeBond, TrustForgeBondClient, EvidenceType};
 use soroban_sdk::{testutils::Address as _, Address, Env, String};
 
-fn setup(e: &Env) -> (CredenceBondClient<'_>, Address) {
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+fn setup(e: &Env) -> (TrustForgeBondClient<'_>, Address) {
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = Address::generate(e);
     e.mock_all_auths();
     client.initialize(&admin, &None);

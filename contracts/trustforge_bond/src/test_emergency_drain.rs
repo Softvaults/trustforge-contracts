@@ -13,7 +13,7 @@
 //! - Schedule without pause fails immediately.
 
 use crate::test_helpers;
-use crate::CredenceBondClient;
+use crate::TrustForgeBondClient;
 use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::{Address, Env};
 
@@ -21,7 +21,7 @@ use soroban_sdk::{Address, Env};
 /// Returns (client, admin, treasury, governance, identity).
 fn setup_with_emergency(
     e: &Env,
-) -> (CredenceBondClient<'_>, Address, Address, Address, Address) {
+) -> (TrustForgeBondClient<'_>, Address, Address, Address, Address) {
     let (client, admin, identity, ..) = test_helpers::setup_with_token(e);
     let governance = Address::generate(e);
     let treasury = Address::generate(e);

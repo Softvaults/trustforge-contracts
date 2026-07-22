@@ -3,13 +3,13 @@
 //! Asserts that pausing halts each stage of propose/approve/execute and
 //! unpause resumes cleanly with no partial state mutation.
 
-use crate::{CredenceTreasury, CredenceTreasuryClient, FundSource};
+use crate::{TrustForgeTreasury, TrustForgeTreasuryClient, FundSource};
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::{Address, Env};
 
-fn setup(e: &Env) -> (CredenceTreasuryClient<'_>, Address, Address) {
-    let contract_id = e.register(CredenceTreasury, ());
-    let client = CredenceTreasuryClient::new(e, &contract_id);
+fn setup(e: &Env) -> (TrustForgeTreasuryClient<'_>, Address, Address) {
+    let contract_id = e.register(TrustForgeTreasury, ());
+    let client = TrustForgeTreasuryClient::new(e, &contract_id);
     let admin = Address::generate(e);
 
     let token_admin = Address::generate(e);
@@ -28,7 +28,7 @@ fn setup(e: &Env) -> (CredenceTreasuryClient<'_>, Address, Address) {
 fn setup_funded_with_signers(
     e: &Env,
 ) -> (
-    CredenceTreasuryClient<'_>,
+    TrustForgeTreasuryClient<'_>,
     Address,
     Address,
     Address,
@@ -268,7 +268,7 @@ fn test_unpause_restores_exact_pre_pause_state() {
 fn setup_multisig_pause(
     e: &Env,
 ) -> (
-    CredenceTreasuryClient<'_>,
+    TrustForgeTreasuryClient<'_>,
     Address,
     Address,
     Address,
@@ -283,7 +283,7 @@ fn setup_multisig_pause(
     (client, s1, s2, recipient, admin)
 }
 
-fn pause_via_multisig(client: &CredenceTreasuryClient<'_>, s1: &Address, s2: &Address) {
+fn pause_via_multisig(client: &TrustForgeTreasuryClient<'_>, s1: &Address, s2: &Address) {
     let pid = client.pause(s1).unwrap();
     assert!(!client.is_paused());
     client.approve_pause_proposal(s2, &pid);
@@ -291,7 +291,7 @@ fn pause_via_multisig(client: &CredenceTreasuryClient<'_>, s1: &Address, s2: &Ad
     assert!(client.is_paused());
 }
 
-fn unpause_via_multisig(client: &CredenceTreasuryClient<'_>, s1: &Address, s2: &Address) {
+fn unpause_via_multisig(client: &TrustForgeTreasuryClient<'_>, s1: &Address, s2: &Address) {
     let pid = client.unpause(s1).unwrap();
     client.approve_pause_proposal(s2, &pid);
     client.execute_pause_proposal(&pid);

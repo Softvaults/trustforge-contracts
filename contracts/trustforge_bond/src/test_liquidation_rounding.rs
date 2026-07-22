@@ -29,8 +29,8 @@ fn scan_with_bond(
     let e = Env::default();
     e.mock_all_auths();
 
-    let contract_id = e.register(crate::CredenceBond, ());
-    let client = crate::CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(crate::TrustForgeBond, ());
+    let client = crate::TrustForgeBondClient::new(&e, &contract_id);
     let admin = Address::generate(&e);
     let identity = Address::generate(&e);
 

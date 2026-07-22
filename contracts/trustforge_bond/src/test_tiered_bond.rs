@@ -2,11 +2,11 @@
 
 use crate::test_helpers;
 use crate::tiered_bond::{get_tier_for_amount, TIER_BRONZE_MAX, TIER_GOLD_MAX, TIER_SILVER_MAX};
-use crate::{BondTier, CredenceBondClient};
+use crate::{BondTier, TrustForgeBondClient};
 use soroban_sdk::testutils::Ledger;
 use soroban_sdk::{Address, Env};
 
-fn setup(e: &Env) -> (CredenceBondClient<'_>, Address, Address, Address, Address) {
+fn setup(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address, Address, Address) {
     test_helpers::setup_with_token(e)
 }
 

@@ -1,6 +1,6 @@
 # Arbitration Voting System
 
-The `CredenceArbitration` contract provides a weighted voting mechanism for dispute resolution, allowing authorized arbitrators to decide on outcomes.
+The `TrustForgeArbitration` contract provides a weighted voting mechanism for dispute resolution, allowing authorized arbitrators to decide on outcomes.
 
 ## Overview
 

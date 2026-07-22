@@ -2,7 +2,7 @@
 
 ## Internal Accounting
 
-The Credence protocol uses a **Fixed 18-Decimal Precision** for all internal accounting. This ensures that yield calculations, slashing penalties, and tier thresholds remain consistent regardless of the underlying collateral token.
+The TrustForge protocol uses a **Fixed 18-Decimal Precision** for all internal accounting. This ensures that yield calculations, slashing penalties, and tier thresholds remain consistent regardless of the underlying collateral token.
 
 ## Normalization Process
 

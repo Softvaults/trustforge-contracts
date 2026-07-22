@@ -79,5 +79,5 @@ Both default to `0`, preserving legacy behaviour (no quorum gate).
 
 Quorum tests are in:
 
-- `contracts/arbitration/src/test.rs` — basic config + single-voter edge case
-- `contracts/arbitration/src/test_lifecycle.rs` — lifecycle integration tests for all quorum branches
+- `contracts/trustforge_arbitration/src/test.rs` — basic config + single-voter edge case
+- `contracts/trustforge_arbitration/src/test_lifecycle.rs` — lifecycle integration tests for all quorum branches

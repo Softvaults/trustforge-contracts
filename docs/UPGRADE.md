@@ -1,6 +1,6 @@
 # Contract Upgrade Procedure
 
-This document provides end-to-end instructions for Operators to execute a contract upgrade on the Credence protocol via the Universal Upgradeable Proxy Standard (UUPS) and Timelock mechanism.
+This document provides end-to-end instructions for Operators to execute a contract upgrade on the TrustForge protocol via the Universal Upgradeable Proxy Standard (UUPS) and Timelock mechanism.
 
 ## Network Passphrases
 

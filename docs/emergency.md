@@ -2,7 +2,7 @@
 
 ## Overview
 
-All Credence contracts include a comprehensive emergency pause mechanism that allows authorized parties to temporarily halt all state-changing operations while preserving read access. This mechanism provides a critical safety layer for emergency situations.
+All TrustForge contracts include a comprehensive emergency pause mechanism that allows authorized parties to temporarily halt all state-changing operations while preserving read access. This mechanism provides a critical safety layer for emergency situations.
 
 ## Architecture
 
@@ -20,7 +20,7 @@ All Credence contracts include a comprehensive emergency pause mechanism that al
 - `trustforge_delegation` - Attestation delegation management
 - `trustforge_treasury` - Fee collection and withdrawal management
 - `trustforge_bond` - Identity bond creation, withdrawal, slashing, fee, and attestation management
-- `admin` - Admin role management system
+- `trustforge_admin` - Admin role management system
 
 ## Pause Mechanism API
 
@@ -70,7 +70,7 @@ Execute a pause/unpause proposal once sufficient approvals are collected.
 - **Exemptions**: The following functions are not blocked when the contract is paused:
   - Pause management: `pause()`, `unpause()`, `set_pause_signer()`, `set_pause_threshold()`, `approve_pause_proposal()`, `execute_pause_proposal()`
 
-### CredenceBond Pause Coverage
+### TrustForgeBond Pause Coverage
 
 The bond contract stores its emergency pause flag at `DataKey::Paused`. Admins can call `pause(admin)` and `unpause(admin)` directly, and both functions emit audit events.
 

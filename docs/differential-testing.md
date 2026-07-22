@@ -43,8 +43,8 @@ All four contracts are registered in **one** `soroban_sdk::Env` instance:
 
 ```rust
 let env = Env::default();
-let canonical_id = env.register_contract(None, trustforge_bond::CredenceBond);
-let ours_id      = env.register_contract(None, trustforge_bond::fork_ours::CredenceBond);
+let canonical_id = env.register_contract(None, trustforge_bond::TrustForgeBond);
+let ours_id      = env.register_contract(None, trustforge_bond::fork_ours::TrustForgeBond);
 // ...
 ```
 

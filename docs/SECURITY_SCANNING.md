@@ -1,6 +1,6 @@
 # Security Scanning
 
-Automated security analysis pipeline for Credence smart contracts. This document covers the security scanning tools, how to run them locally, interpret results, and manage findings.
+Automated security analysis pipeline for TrustForge smart contracts. This document covers the security scanning tools, how to run them locally, interpret results, and manage findings.
 
 ## Overview
 
@@ -196,7 +196,7 @@ Functions  Expressions  Impls  Traits  Methods  Dependency
 **Interpretation:**
 - First number: unsafe code actually used
 - Second number: total unsafe code available
-- Focus on your contract crates (credence_*)
+- Focus on your contract crates (trustforge_*)
 - Dependencies may have unsafe code (expected for low-level libs)
 
 **Action items:**

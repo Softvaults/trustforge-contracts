@@ -13,7 +13,7 @@ what is left, and emit an event so off-chain indexers can move on" operation.
 For background on the bond lifecycle and the slashed-funds accounting that
 motivates this entrypoint, see:
 
-  - [`docs/credence-bond.md`](./credence-bond.md) — bond lifecycle overview
+  - [`docs/trustforge-bond.md`](./trustforge-bond.md) — bond lifecycle overview
   - [`docs/slashing.md`](./slashing.md) — how `slash` and `bond_slashed_v2`
     events relate to liquidation
   - [`docs/liquidation_scanner.md`](./liquidation_scanner.md) — paginated

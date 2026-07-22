@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Credence Multi-Signature (MultiSig) contract provides a secure, flexible framework for governance and administrative actions requiring multi-party approval. It implements a threshold signature scheme where proposals must receive a configurable number of signatures before execution.
+The TrustForge Multi-Signature (MultiSig) contract provides a secure, flexible framework for governance and administrative actions requiring multi-party approval. It implements a threshold signature scheme where proposals must receive a configurable number of signatures before execution.
 
 ## Key Features
 
@@ -536,4 +536,4 @@ let proposal_id = multisig.submit_proposal(
 
 ## Conclusion
 
-The Credence Multi-Signature contract provides a robust, flexible foundation for decentralized governance and administrative actions. Its configurable threshold system, comprehensive proposal lifecycle management, and security features make it suitable for a wide range of use cases from simple treasury management to complex governance workflows.
+The TrustForge Multi-Signature contract provides a robust, flexible foundation for decentralized governance and administrative actions. Its configurable threshold system, comprehensive proposal lifecycle management, and security features make it suitable for a wide range of use cases from simple treasury management to complex governance workflows.

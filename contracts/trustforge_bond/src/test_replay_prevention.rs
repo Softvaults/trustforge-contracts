@@ -9,13 +9,13 @@ use std::panic::AssertUnwindSafe;
 fn setup(
     e: &Env,
 ) -> (
-    CredenceBondClient<'_>,
+    TrustForgeBondClient<'_>,
     soroban_sdk::Address,
     soroban_sdk::Address,
 ) {
     e.mock_all_auths();
-    let contract_id = e.register(CredenceBond, ());
-    let client = CredenceBondClient::new(e, &contract_id);
+    let contract_id = e.register(TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(e, &contract_id);
     let admin = soroban_sdk::Address::generate(e);
     client.initialize(&admin, &None);
     let attester = soroban_sdk::Address::generate(e);

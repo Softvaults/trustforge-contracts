@@ -1,7 +1,7 @@
 #![cfg(test)]
 
-use trustforge_bond::{CredenceBond, CredenceBondClient};
-use trustforge_delegation::{CredenceDelegation, CredenceDelegationClient};
+use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
+use trustforge_delegation::{TrustForgeDelegation, TrustForgeDelegationClient};
 use soroban_sdk::{
     testutils::{Address as _, MockAuth, MockAuthInvoke},
     vec, Address, Env, IntoVal, String,
@@ -21,7 +21,7 @@ impl AuthProxy {
         nonce: u64,
     ) {
         owner.require_auth();
-        let bond_client = CredenceBondClient::new(&e, &bond_id);
+        let bond_client = TrustForgeBondClient::new(&e, &bond_id);
         bond_client.add_attestation(&owner, &subject, &String::from_str(&e, "fuzz_data"), &nonce);
     }
 }
@@ -34,12 +34,12 @@ fn setup(e: &Env) -> (Address, Address, Address, Address) {
 
     let admin = Address::generate(e);
 
-    let delegation_id = e.register(CredenceDelegation, ());
-    let delegation_client = CredenceDelegationClient::new(e, &delegation_id);
+    let delegation_id = e.register(TrustForgeDelegation, ());
+    let delegation_client = TrustForgeDelegationClient::new(e, &delegation_id);
     delegation_client.initialize(&admin);
 
-    let bond_id = e.register(CredenceBond, ());
-    let bond_client = CredenceBondClient::new(e, &bond_id);
+    let bond_id = e.register(TrustForgeBond, ());
+    let bond_client = TrustForgeBondClient::new(e, &bond_id);
     bond_client.initialize(&admin, &None);
 
     let owner = Address::generate(e);
@@ -57,7 +57,7 @@ fn test_auth_tree_valid() {
     let e = Env::default();
     let (bond_id, proxy_id, owner, subject) = setup(&e);
 
-    // Leaf invoke: CredenceBond::add_attestation, authorized by `owner`.
+    // Leaf invoke: TrustForgeBond::add_attestation, authorized by `owner`.
     let leaf_invoke = MockAuthInvoke {
         contract: &bond_id,
         fn_name: "add_attestation",

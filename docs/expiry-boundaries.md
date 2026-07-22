@@ -293,7 +293,7 @@ These boundaries work in conjunction with [Issue #372 (Delegation TTL Bounds)](.
 
 ## Related Documentation
 
-- **Delegation Overview**: [credence-delegation.md](credence-delegation.md)
+- **Delegation Overview**: [trustforge-delegation.md](trustforge-delegation.md)
 - **Event Indexing**: [event-indexing.md](event-indexing.md)
 - **TTL Policy**: [bond-invariants.md](bond-invariants.md#issue-372-delegation-storage-ttl)
 - **Domain Separation**: Test file `test_domain_separation.rs`

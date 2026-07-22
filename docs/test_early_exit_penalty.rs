@@ -3,7 +3,7 @@
 extern crate std;
 
 use crate::test_helpers::setup_with_token;
-use crate::CredenceBondClient;
+use crate::TrustForgeBondClient;
 use soroban_sdk::testutils::{Address as _, Ledger as _};
 use soroban_sdk::{Env, IntoVal};
 

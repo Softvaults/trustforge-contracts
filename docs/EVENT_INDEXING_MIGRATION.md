@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the migration from v1 to v2 position lifecycle events in the Credence Contracts, which improves indexing capabilities for off-chain analytics and query efficiency.
+This document outlines the migration from v1 to v2 position lifecycle events in the TrustForge Contracts, which improves indexing capabilities for off-chain analytics and query efficiency.
 
 **Latest Update (2026):** Added comprehensive lifecycle events for `create_bond`, `withdraw`, `top_up`, and `extend_duration` operations to enable full bond state reconstruction from events alone.
 

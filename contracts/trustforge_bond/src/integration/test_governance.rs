@@ -6,14 +6,14 @@
 
 use crate::governance_approval::ProposalStatus;
 use crate::test_helpers;
-use crate::CredenceBondClient;
+use crate::TrustForgeBondClient;
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::{Address, Env, Vec};
 
 fn setup(
     e: &Env,
 ) -> (
-    CredenceBondClient<'_>,
+    TrustForgeBondClient<'_>,
     Address,
     Address,
     Address,

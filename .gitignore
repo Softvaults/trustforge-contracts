@@ -11,5 +11,14 @@ node_modules/
 .env.*
 .cargo_home/
 
+# Local build/debug artifacts and ad-hoc analysis dumps that should never be
+# committed - see repo-hygiene cleanup in the TrustForge rebrand.
+*.exe
+*.pdb
+*.info
+check_all.json
+check_err.json
+gas-report.txt
+
 CLAUDE.md
 plan.md

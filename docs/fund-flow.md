@@ -24,9 +24,9 @@ The table below outlines the core fund flow lifecycle, from bond creation to tre
 ```mermaid
 sequenceDiagram
     participant Caller as Identity (Caller)
-    participant Bond as Credence Bond
+    participant Bond as TrustForge Bond
     participant External as External / Unspecified Caller
-    participant Treasury as Credence Treasury
+    participant Treasury as TrustForge Treasury
 
     Note over Caller, Bond: Accounting Only (Simplified)
     Caller-->>Bond: create_bond() / top_up()

@@ -7,7 +7,7 @@
 //!
 //! Runs as part of `cargo test` and on every CI matrix entry.
 
-use trustforge_bond::CredenceBondClient;
+use trustforge_bond::TrustForgeBondClient;
 use std::collections::BTreeMap;
 use std::path::PathBuf;
 use soroban_sdk::{
@@ -70,7 +70,7 @@ fn measure_all() -> BTreeMap<String, EntryCost> {
     // create_bond — the bare happy path: one identity bonds.
     {
         let env = fresh_env();
-        let client = CredenceBondClient::new(&env, &env.register(trustforge_bond::CredenceBond, ()));
+        let client = TrustForgeBondClient::new(&env, &env.register(trustforge_bond::TrustForgeBond, ()));
         let identity = Address::generate(&env);
         client.create_bond(&identity, &bond_amount, &duration, &false, &0_u64);
         out.insert("create_bond".into(), measure(&env));
@@ -79,7 +79,7 @@ fn measure_all() -> BTreeMap<String, EntryCost> {
     // top_up — adds to an existing bond.
     {
         let env = fresh_env();
-        let client = CredenceBondClient::new(&env, &env.register(trustforge_bond::CredenceBond, ()));
+        let client = TrustForgeBondClient::new(&env, &env.register(trustforge_bond::TrustForgeBond, ()));
         let identity = Address::generate(&env);
         client.create_bond(&identity, &bond_amount, &duration, &false, &0_u64);
         client.top_up(&(bond_amount / 2));
@@ -89,7 +89,7 @@ fn measure_all() -> BTreeMap<String, EntryCost> {
     // withdraw — non-rolling bond, after the lock-up has elapsed.
     {
         let env = fresh_env();
-        let client = CredenceBondClient::new(&env, &env.register(trustforge_bond::CredenceBond, ()));
+        let client = TrustForgeBondClient::new(&env, &env.register(trustforge_bond::TrustForgeBond, ()));
         let identity = Address::generate(&env);
         env.ledger().set_timestamp(0);
         client.create_bond(&identity, &bond_amount, &duration, &false, &0_u64);
@@ -101,7 +101,7 @@ fn measure_all() -> BTreeMap<String, EntryCost> {
     // withdraw_early — bond exited before lock-up end, charging the penalty.
     {
         let env = fresh_env();
-        let client = CredenceBondClient::new(&env, &env.register(trustforge_bond::CredenceBond, ()));
+        let client = TrustForgeBondClient::new(&env, &env.register(trustforge_bond::TrustForgeBond, ()));
         let admin = Address::generate(&env);
         let treasury = Address::generate(&env);
         let identity = Address::generate(&env);
@@ -117,7 +117,7 @@ fn measure_all() -> BTreeMap<String, EntryCost> {
     // slash_bond — admin slashes part of an active bond.
     {
         let env = fresh_env();
-        let client = CredenceBondClient::new(&env, &env.register(trustforge_bond::CredenceBond, ()));
+        let client = TrustForgeBondClient::new(&env, &env.register(trustforge_bond::TrustForgeBond, ()));
         let admin = Address::generate(&env);
         let identity = Address::generate(&env);
         client.initialize(&admin, &None);
@@ -129,7 +129,7 @@ fn measure_all() -> BTreeMap<String, EntryCost> {
     // add_attestation — a registered attester attests to a subject.
     {
         let env = fresh_env();
-        let client = CredenceBondClient::new(&env, &env.register(trustforge_bond::CredenceBond, ()));
+        let client = TrustForgeBondClient::new(&env, &env.register(trustforge_bond::TrustForgeBond, ()));
         let admin = Address::generate(&env);
         let attester = Address::generate(&env);
         let subject = Address::generate(&env);

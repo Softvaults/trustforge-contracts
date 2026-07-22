@@ -2,13 +2,13 @@
 
 use soroban_sdk::{testutils::Address as _, Address, Env, Vec};
 use trustforge_errors::ContractError;
-use crate::CredenceBondClient;
+use crate::TrustForgeBondClient;
 
 #[test]
 fn test_set_token_with_unauthorized_token_rejects() {
     let e = Env::default();
-    let contract_id = e.register(crate::CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(crate::TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     
     let admin = Address::generate(&e);
     let accepted_token = Address::generate(&e);
@@ -35,8 +35,8 @@ fn test_set_token_with_unauthorized_token_rejects() {
 #[test]
 fn test_set_token_with_accepted_token_succeeds() {
     let e = Env::default();
-    let contract_id = e.register(crate::CredenceBond, ());
-    let client = CredenceBondClient::new(&e, &contract_id);
+    let contract_id = e.register(crate::TrustForgeBond, ());
+    let client = TrustForgeBondClient::new(&e, &contract_id);
     
     let admin = Address::generate(&e);
     let accepted_token = Address::generate(&e);

@@ -193,7 +193,7 @@ fn bump_instance_ttl(e: &Env) {
 }
 
 #[contract]
-pub struct CredenceDelegation;
+pub struct TrustForgeDelegation;
 
 /// Maximum number of nonces that a single `invalidate_nonce_range` call may
 /// skip.  Bounding the span prevents gas-exhaustion and ensures the nonce
@@ -222,7 +222,7 @@ const MAX_NONCE_INVALIDATION_SPAN: u64 = 10_000;
 pub const MAX_DELEGATION_DURATION: u64 = 365 * 24 * 60 * 60;
 
 #[contractimpl]
-impl CredenceDelegation {
+impl TrustForgeDelegation {
     /// Return the contract version.
     pub fn version(e: Env) -> String {
         String::from_str(&e, trustforge_errors::VERSION)
