@@ -113,3 +113,11 @@ soroban contract deploy \
 See [Stellar Soroban docs](https://developers.stellar.org/docs/smart-contracts) for auth and network setup.
 
 For the full testnet deploy and cross-contract wiring runbook, see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+## License
+
+Licensed under the [Apache License, Version 2.0](LICENSE).
+
+## Security
+
+See [SECURITY.md](SECURITY.md) for the vulnerability disclosure process.

@@ -29,9 +29,9 @@ Welcome! This document is the single source of truth for contributing to the Tru
 ### Setup
 
 ```bash
-# Clone the repo (repository name is Credence-Contracts pending the GitHub-level rename)
-git clone https://github.com/Ugasutun/Credence-Contracts.git
-cd Credence-Contracts
+# Clone the repo
+git clone https://github.com/Softvaults/trustforge-contracts.git
+cd trustforge-contracts
 
 # Build the workspace (all crates)
 cargo build

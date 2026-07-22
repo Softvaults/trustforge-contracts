@@ -2,6 +2,7 @@
 name = "trustforge_registry"
 version = "0.1.0"
 edition = "2021"
+license = "Apache-2.0"
 description = "TrustForge registry contract — maps identities to bond contracts"
 
 [lib]

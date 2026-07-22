@@ -8,6 +8,8 @@ See also: [fund-flow.md](fund-flow.md) for a complete token custody trace.
 
 ## Workspace Crates
 
+This table is generated from the `members` list in the root [`Cargo.toml`](../Cargo.toml) and must match it exactly — if a crate is not a workspace member, it does not belong here.
+
 | Crate | Package name | Purpose |
 |---|---|---|
 | `contracts/trustforge_bond` | `trustforge_bond` | Core identity bond, attestations, slashing, governance |
@@ -15,13 +17,14 @@ See also: [fund-flow.md](fund-flow.md) for a complete token custody trace.
 | `contracts/trustforge_treasury` | `trustforge_treasury` | Fee accounting and multi-sig withdrawal |
 | `contracts/trustforge_delegation` | `trustforge_delegation` | Delegated attestation and management rights |
 | `contracts/trustforge_arbitration` | `trustforge_arbitration` | Weighted-vote dispute resolution |
-| `contracts/dispute_resolution` | `dispute_resolution` | Stake-backed slash dispute with arbitrator voting |
 | `contracts/trustforge_admin` | `trustforge_admin` | Hierarchical role management (SuperAdmin/Admin/Operator) |
 | `contracts/trustforge_multisig` | `trustforge_multisig` | Generic M-of-N multi-signature proposals |
 | `contracts/timelock` | `timelock` | Time-delayed operation execution |
-| `contracts/fixed_duration_bond` | `fixed_duration_bond` | Simple fixed-term bond with optional early-exit penalty |
 | `contracts/trustforge_errors` | `trustforge_errors` | Shared `ContractError` enum used across crates |
 | `contracts/trustforge_math` | `trustforge_math` | Overflow-safe arithmetic helpers (`add_i128`, `split_bps`, …) |
+| `contracts/templates` | `templates` | Canonical Soroban contract template for new contracts |
+| `crates/trustforge_admin_cli` | `trustforge_admin_cli` | Operator CLI for admin-role and contract management calls |
+| `crates/testutils` | `testutils` | Shared test address/fixture helpers used across contract test suites |
 
 ---
 
@@ -230,36 +233,6 @@ See also: [fund-flow.md](fund-flow.md) for a complete token custody trace.
 
 ---
 
-### `dispute_resolution`
-
-**Responsibility:** Stake-backed slash dispute system. A disputer locks tokens as stake, arbitrators vote, and the outcome determines whether the stake is returned or forfeited.
-
-**State:**
-
-| Key | Storage tier | Description |
-|---|---|---|
-| `Admin` | `instance()` | Contract administrator |
-| `DisputeCounter` | `instance()` | Global dispute ID counter |
-| `Dispute(u64)` | `persistent()` | Full dispute record |
-| `Vote(u64, addr)` | `persistent()` | Per-(dispute, arbitrator) vote |
-
-**Events emitted (typed `#[contractevent]`):**
-
-| Type | Fields | Trigger |
-|---|---|---|
-| `DisputeCreated` | `dispute_id, disputer, slash_request_id, stake, deadline` | Dispute opened |
-| `VoteCast` | `dispute_id, arbitrator, favor_disputer` | Vote recorded |
-| `DisputeResolved` | `dispute_id, outcome, votes_for_disputer, votes_for_slasher` | Resolved |
-| `DisputeExpired` | `dispute_id, expired_at` | Deadline passed without resolution |
-
-**Backend consumption points:**
-
-- Index `DisputeCreated` to track open disputes against slash requests.
-- Index `DisputeResolved` to update slash status in the reputation engine.
-- Index `DisputeExpired` to clean up stale dispute records.
-
----
-
 ### `trustforge_admin`
 
 **Responsibility:** Hierarchical role management. Defines `SuperAdmin > Admin > Operator` roles, enforces minimum admin count, and supports two-step ownership transfer.
@@ -323,46 +296,9 @@ See also: [fund-flow.md](fund-flow.md) for a complete token custody trace.
 
 ---
 
-### `fixed_duration_bond`
-
-**Responsibility:** Simplified fixed-term bond for any address. One active bond per owner. Supports optional creation fee and early-exit penalty. Rejects fee-on-transfer tokens via balance-delta verification.
-
-**State (persistent storage per owner):**
-
-| Key | Type | Description |
-|---|---|---|
-| `Bond(addr)` | `FixedBond` | Bond record per owner |
-
-**State (instance storage):**
-
-| Key | Type | Description |
-|---|---|---|
-| `Admin` | `Address` | Contract administrator |
-| `Token` | `Address` | Configured token |
-| `FeeConfig` | `FeeConfig` | Treasury address and fee bps |
-| `PenaltyBps` | `u32` | Default early-exit penalty |
-| `AccruedFees` | `i128` | Accumulated uncollected fees |
-
-**Events emitted:**
-
-| Symbol | Data | Trigger |
-|---|---|---|
-| `bond_created` | `(net_amount, expiry)` | Bond created |
-| `bond_withdrawn` | `amount` | Matured withdrawal |
-| `bond_early_exit` | `(net_amount, penalty)` | Early withdrawal |
-| `fees_collected` | `(admin, recipient, amount)` | Fees collected |
-| `fee_config_updated` | `(old_treasury, old_bps, new_treasury, new_bps)` | Fee config changed |
-
-**Backend consumption points:**
-
-- Index `bond_created` / `bond_withdrawn` / `bond_early_exit` to track fixed-term bond positions.
-- Index `fees_collected` for revenue accounting.
-
----
-
 ### `trustforge_errors`
 
-**Responsibility:** Shared `ContractError` enum. Imported by `trustforge_registry`, `dispute_resolution`, and other crates to emit consistent typed errors via `panic_with_error!`.
+**Responsibility:** Shared `ContractError` enum. Imported by `trustforge_registry` and other crates to emit consistent typed errors via `panic_with_error!`.
 
 **No state. No events.**
 
@@ -384,16 +320,11 @@ For a detailed visual mapping of dynamic interactions, callbacks, token custody 
 trustforge_bond
   ├── uses trustforge_math        (arithmetic)
   ├── uses trustforge_errors      (error types, indirectly via panic)
+  ├── uses timelock                (path dependency)
   └── logically paired with trustforge_registry (manual admin step)
 
 trustforge_registry
   └── uses trustforge_errors      (ContractError variants)
-
-dispute_resolution
-  └── uses trustforge_errors      (ContractError variants)
-
-fixed_duration_bond
-  └── uses trustforge_math        (split_bps, add_i128)
 
 All contracts
   └── share pausable module pattern (copy per crate, not a shared lib)
@@ -428,7 +359,7 @@ let after = token.balance(&contract);
 assert!(after - before == amount, "unsupported token");
 ```
 
-This pattern is implemented in `trustforge_bond/src/token_integration.rs`, `dispute_resolution/src/lib.rs`, and `fixed_duration_bond/src/lib.rs`.
+This pattern is implemented in `trustforge_bond/src/token_integration.rs`.
 
 ### Event versioning
 
@@ -447,8 +378,8 @@ This pattern is implemented in `trustforge_bond/src/token_integration.rs`, `disp
 | Current tier per identity | `trustforge_bond`: index `tier_changed` |
 | Attestation graph | `trustforge_bond`: index `attestation_added`, `attestation_revoked` |
 | Active delegations | `trustforge_delegation`: index `delegation_created`, `delegation_revoked` |
-| Dispute outcomes | `trustforge_arbitration`: index `dispute_resolved`; `dispute_resolution`: index `DisputeResolved` |
-| Protocol fee revenue | `trustforge_treasury`: index fee-receipt events; `fixed_duration_bond`: index `fees_collected` |
+| Dispute outcomes | `trustforge_arbitration`: index `dispute_resolved` |
+| Protocol fee revenue | `trustforge_treasury`: index fee-receipt events |
 | Admin / role changes | `trustforge_admin`: index `admin_added`, `admin_removed`, `admin_role_updated` |
 | Pending governance actions | `trustforge_multisig`: index proposal events; `timelock`: index queued operations |
 | Supply utilization | `trustforge_bond`: poll `get_total_supply()`, `get_supply_cap()` |

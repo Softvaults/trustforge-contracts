@@ -19,6 +19,8 @@ node_modules/
 check_all.json
 check_err.json
 gas-report.txt
+build_output*.txt
+*.log
 
 CLAUDE.md
 plan.md

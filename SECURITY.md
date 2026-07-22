@@ -1,8 +1,27 @@
-# Security Analysis: TrustForge Bond Contract
+# Security Policy
 
-## Overview
+## Reporting a Vulnerability
 
-This document describes security aspects of the TrustForge Bond contract, including access control, reentrancy protection, and other security mechanisms.
+**Please do not report security vulnerabilities through public GitHub issues.**
+
+Report vulnerabilities privately via [GitHub Security Advisories](https://github.com/Softvaults/trustforge-contracts/security/advisories/new). This is the same process linked from the "Security Vulnerability" contact link in this repository's issue template and referenced from [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+When reporting, please include:
+
+- A description of the vulnerability and its potential impact.
+- The affected contract(s), module(s), or entrypoint(s).
+- Steps to reproduce, or a proof-of-concept if available.
+- The commit hash or branch you tested against.
+
+We will acknowledge new reports and work with you on a coordinated disclosure timeline before any public advisory is published. Do not exploit a discovered vulnerability against deployed contracts or mainnet funds — report it instead.
+
+## Supported Versions
+
+This project has not yet cut a tagged release. Security fixes are applied against the `main` branch.
+
+## Bond Contract Security Analysis
+
+This document also describes security aspects of the TrustForge Bond contract, including access control, reentrancy protection, and other security mechanisms.
 
 For other security topics (including overflow-safe arithmetic for financial calculations), see `docs/security.md`.
 

@@ -4,5 +4,5 @@ contact_links:
     url: https://discord.gg/nmnPBkBge
     about: Questions, environment help, and community discussion.
   - name: Security Vulnerability
-    url: https://github.com/Ugasutun/Credence-Contracts/security/advisories/new
+    url: https://github.com/Softvaults/trustforge-contracts/security/advisories/new
     about: Please report security vulnerabilities via GitHub Security Advisories — do not file a public issue.
