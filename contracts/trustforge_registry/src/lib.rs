@@ -68,6 +68,7 @@ enum DataKey {
     BondToIdentity(Address),
     RegisteredIdentities,
     AllowNonInterface(Address),
+    BondCodeHash,
 }
 
 /// Maximum number of identities that can be returned in a single page
@@ -786,6 +787,5 @@ fn constant_time_eq(left: &[u8], right: &[u8]) -> bool {
         .zip(right.iter())
         .fold(0, |acc, (l, r)| acc | (l ^ r))
         == 0
-}
 }
 

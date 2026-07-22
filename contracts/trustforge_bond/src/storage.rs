@@ -1,13 +1,9 @@
 use soroban_sdk::{contracttype, Address, Env, Vec};
-use crate::Bond;
-use trustforge_errors::ContractError;
-use soroban_sdk::{contracttype, Address, Env};
 
 #[contracttype]
 pub enum DataKey {
     Admin,
     Token,
-    Bond(Address),
     Attester(Address),
     Attestation(u64),
     AttestationCounter,
@@ -35,23 +31,6 @@ pub fn set_token(e: &Env, token: &Address) {
     e.storage().instance().set(&DataKey::Token, token);
 }
 
-pub fn has_bond(e: &Env, identity: &Address) -> bool {
-    e.storage().instance().has(&DataKey::Bond(identity.clone()))
-}
-
-pub fn get_bond(e: &Env, identity: &Address) -> Result<Bond, ContractError> {
-    e.storage()
-        .instance()
-        .get(&DataKey::Bond(identity.clone()))
-        .ok_or(ContractError::BondNotFound)
-}
-
-pub fn set_bond(e: &Env, identity: &Address, bond: &Bond) {
-    e.storage()
-        .instance()
-        .set(&DataKey::Bond(identity.clone()), bond);
-}
-
 pub fn is_locked(e: &Env) -> bool {
     e.storage()
         .instance()
@@ -76,5 +55,5 @@ pub fn set_accepted_tokens(e: &Env, tokens: &Vec<Address>) {
 
 pub fn is_token_accepted(e: &Env, token: &Address) -> bool {
     let accepted = get_accepted_tokens(e);
-    accepted.iter().any(|t| t == token)
+    accepted.iter().any(|t| t == *token)
 }

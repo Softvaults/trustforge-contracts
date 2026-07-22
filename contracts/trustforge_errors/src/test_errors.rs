@@ -1156,13 +1156,13 @@ mod tests {
             ContractError::InvalidPauseAction => true,
             ContractError::InsufficientSignatures => true, // gather more sigs
             ContractError::AdminSuspended => true,         // wait for suspension
-            ContractError::AdminSuspended => true, // wait for suspension
 
             // Admin Transfer: state-step fixes.
             ContractError::NoPendingAdmin => true,
             ContractError::InvalidAdminAddress => true,
             ContractError::AdminUnchanged => true,
             ContractError::TimelockNotReady => true, // wait for delay
+            ContractError::EmergencyDrainNotPermitted => true, // wait for pause + timelock window
 
             // Bond: state/caller fixes; fatal cases are security/drift/capacity.
             ContractError::BondNotFound => true,
@@ -1181,6 +1181,7 @@ mod tests {
             ContractError::InvalidPenaltyBps => true,
             ContractError::LeverageExceeded => true,
             ContractError::UnsupportedToken => true,
+            ContractError::UnauthorizedToken => true, // use an accepted token
             ContractError::UnsupportedDecimals => true,
             ContractError::InvalidBondAmount => true,
             ContractError::InvalidBondDuration => true,
@@ -1188,12 +1189,10 @@ mod tests {
             ContractError::BondAlreadyExists => true,
             ContractError::InvariantViolation => false, // post-write drift
             ContractError::TreasuryNotConfigured => true, // admin can configure treasury then retry
+            ContractError::DuplicateIdempotencyKey => true, // idempotent - safe to retry with same key
             ContractError::DomainMismatch => false,     // payload binding
             ContractError::BatchTooLarge => true,     // reduce batch size
             ContractError::EmptyBatch => true,         // supply at least one item
-            ContractError::InvariantViolation => false, // post-write drift
-            ContractError::TreasuryNotConfigured => true, // admin can configure treasury then retry
-            ContractError::DomainMismatch => false, // payload binding
             ContractError::OwnerMismatch => false,
             ContractError::TargetMismatch => false,
             ContractError::ContractIdMismatch => false,
@@ -1227,7 +1226,6 @@ mod tests {
             ContractError::VerificationFailed => false, // crypto failure
             ContractError::RevocationGraceExpired => false, // delegation is in terminal state from caller's side; only admin can extend grace (distinct from AlreadyRevoked, whose state is idempotent)
             ContractError::DelegationNotExpired => true,    // wait for expiry then retry
-            ContractError::DelegationNotExpired => true, // wait for expiry then retry
 
             // Treasury: state/caller fixes; fatal cases are callback failures.
             ContractError::AmountMustBePositive => true,
@@ -1239,6 +1237,7 @@ mod tests {
             ContractError::InvalidFlashLoanCallback => false, // bad magic
             ContractError::FlashLoanRepaymentFailed => false, // bad repayment
             ContractError::ProposalExpired => true,
+            ContractError::SlippageExceeded => true, // retry with a looser min_amount_out
 
             // Registry pagination: caller can supply a valid cursor.
             ContractError::CursorOutOfRange => true,
@@ -1281,6 +1280,7 @@ mod tests {
             ContractError::InvalidAdminAddress,
             ContractError::AdminUnchanged,
             ContractError::TimelockNotReady,
+            ContractError::EmergencyDrainNotPermitted,
             ContractError::BondNotFound,
             ContractError::BondNotActive,
             ContractError::InsufficientBalance,
@@ -1296,6 +1296,7 @@ mod tests {
             ContractError::InvalidPenaltyBps,
             ContractError::LeverageExceeded,
             ContractError::UnsupportedToken,
+            ContractError::UnauthorizedToken,
             ContractError::UnsupportedDecimals,
             ContractError::InvalidBondAmount,
             ContractError::InvalidBondDuration,
@@ -1303,6 +1304,7 @@ mod tests {
             ContractError::BondAlreadyExists,
             ContractError::BatchTooLarge,
             ContractError::EmptyBatch,
+            ContractError::DuplicateIdempotencyKey,
             ContractError::StorageCapReached,
             ContractError::TreasuryNotConfigured,
             ContractError::InvariantViolation,
@@ -1323,6 +1325,7 @@ mod tests {
             ContractError::AlreadyActive,
             ContractError::InvalidContractAddress,
             ContractError::ContractCodeVerificationFailed,
+            ContractError::UnsupportedInterface,
             ContractError::ExpiryInPast,
             ContractError::DelegationNotFound,
             ContractError::AlreadyRevoked,
@@ -1348,7 +1351,7 @@ mod tests {
         ];
         assert_eq!(
             cases.len(),
-            78,
+            84,
             "Add the new variant to ALL THREE places: \
              (1) lib.rs is_recoverable() match, \
              (2) expected_is_recoverable() below, \
