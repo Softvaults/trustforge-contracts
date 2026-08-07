@@ -233,10 +233,10 @@ See [docs/SCALABILITY.md](docs/SCALABILITY.md) for optimization roadmap.
 **DO NOT** open public issues for security vulnerabilities.
 
 Report security issues via:
-- **Email**: security@trustforge.io (use [PGP key](SECURITY.md))
-- **GitHub**: [Security Advisories](https://github.com/Softvaults/trustforge-contracts/security/advisories)
+- **GitHub Security Advisories**: [Create Advisory](https://github.com/Softvaults/trustforge-contracts/security/advisories/new)
+- **Email**: security@trustforge.io (coming soon)
 
-See [SECURITY.md](SECURITY.md) for responsible disclosure process.
+For detailed vulnerability disclosure process, see [SECURITY.md](SECURITY.md).
 
 ### Security Features
 
