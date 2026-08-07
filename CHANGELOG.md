@@ -63,12 +63,14 @@ TrustForge v1.0.0 marks the first production-ready release of the protocol. All 
 
 ### Known Limitations
 
-Documented in `docs/known-simplifications.md`:
-1. Multisig proposals have no expiry (manual rejection required)
-2. `get_all_identities()` unbounded (use event-based indexing for production)
-3. Admin-assigned arbitrator weights (not stake-backed)
+See [docs/known-simplifications.md](docs/known-simplifications.md) for complete list:
 
-See [Security Audit Report](SECURITY_AUDIT.md) for detailed security assessment.
+1. **Multisig Proposal Expiry**: Proposals don't auto-expire (manual rejection required)
+2. **Registry Pagination**: Use `get_identities_page()` for large registries; `get_all_identities()` deprecated
+3. **Arbitrator Weights**: Admin-assigned, not stake-backed (governance oversight recommended)
+4. **Single-Bond-Per-Contract**: Each identity deploys separate contract (Phase 2 will add aggregator)
+
+These are documented design choices with established workarounds.
 
 ## [Unreleased]
 
