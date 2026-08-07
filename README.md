@@ -198,28 +198,34 @@ See [.github/workflows/](.github/workflows/) for CI configuration.
 
 ### Testnet
 
+**Status: not currently deployed.** No instance of these contracts is live on testnet right now —
+the table below is the deployment layout you get *after* running through
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md), not a set of existing addresses. Once a maintainer
+deploys a reference instance, real addresses will replace this table and this note will be removed.
+
 ```
 Network: Stellar Testnet
 RPC: https://soroban-rpc.testnet.stellar.org
 Passphrase: Test SDF Network ; September 2015
 
-trustforge_bond:        <DEPLOY_YOUR_OWN>
-trustforge_registry:    <DEPLOY_YOUR_OWN>
-trustforge_treasury:    <DEPLOY_YOUR_OWN>
-trustforge_delegation:  <DEPLOY_YOUR_OWN>
-trustforge_arbitration: <DEPLOY_YOUR_OWN>
-trustforge_admin:       <DEPLOY_YOUR_OWN>
-trustforge_multisig:    <DEPLOY_YOUR_OWN>
-timelock:               <DEPLOY_YOUR_OWN>
-
-See docs/DEPLOYMENT.md for deployment instructions.
+trustforge_bond:        (not deployed — run docs/DEPLOYMENT.md, then fill in)
+trustforge_registry:    (not deployed — run docs/DEPLOYMENT.md, then fill in)
+trustforge_treasury:    (not deployed — run docs/DEPLOYMENT.md, then fill in)
+trustforge_delegation:  (not deployed — run docs/DEPLOYMENT.md, then fill in)
+trustforge_arbitration: (not deployed — run docs/DEPLOYMENT.md, then fill in)
+trustforge_admin:       (not deployed — run docs/DEPLOYMENT.md, then fill in)
+trustforge_multisig:    (not deployed — run docs/DEPLOYMENT.md, then fill in)
+timelock:               (not deployed — run docs/DEPLOYMENT.md, then fill in)
 ```
 
 ### Mainnet
 
-**Status**: Ready for deployment (pending governance approval)
+**Status**: Not deployed. Blocked on a completed third-party audit (see
+[SECURITY_AUDIT.md](SECURITY_AUDIT.md)) and governance approval — do not treat "pending governance
+approval" as the only remaining step.
 
-For mainnet deployment, see [docs/MAINNET_DEPLOYMENT.md](docs/MAINNET_DEPLOYMENT.md).
+For mainnet deployment procedure (once unblocked), see
+[docs/MAINNET_DEPLOYMENT.md](docs/MAINNET_DEPLOYMENT.md).
 
 ## Performance
 
