@@ -47,11 +47,14 @@ See [SECURITY_AUDIT.md](SECURITY_AUDIT.md) for detailed security assessment.
 git clone https://github.com/Softvaults/trustforge-contracts.git
 cd trustforge-contracts
 
-# Build all contracts
+# Build all contracts (development)
 cargo build --workspace
 
-# Build WASM for deployment
-cargo build --target wasm32-unknown-unknown --release --locked \
+# Build optimized WASM for deployment
+cargo build \
+  --target wasm32-unknown-unknown \
+  --release \
+  --locked \
   -p trustforge_bond \
   -p trustforge_delegation \
   -p trustforge_registry \
@@ -60,6 +63,9 @@ cargo build --target wasm32-unknown-unknown --release --locked \
   -p trustforge_admin \
   -p trustforge_multisig \
   -p timelock
+
+# Verify WASM sizes are within budget
+bash scripts/check_wasm_size.sh
 ```
 
 ### Test
