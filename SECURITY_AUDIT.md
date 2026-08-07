@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document tracks the security audit status for TrustForge smart contracts. All contracts have undergone comprehensive internal security review and are production-ready.
+This document tracks the security audit status for TrustForge smart contracts. All contracts have undergone comprehensive internal security review. **A third-party audit has not yet been performed and is required before any mainnet deployment involving real value.** Internal review alone is not sufficient grounds to treat this codebase as production-ready — see [STATUS.md](STATUS.md) for the current status at a glance.
 
 ## Audit Status
 
@@ -73,16 +73,22 @@ This document tracks the security audit status for TrustForge smart contracts. A
 - ✅ Storage layout migration strategy documented
 - ✅ No proxy pattern vulnerabilities
 
-### Third-Party Audit (Recommended)
+### Third-Party Audit (Required — Not Yet Performed)
 
-**Status**: Recommended before mainnet deployment  
+**Status**: **Blocking.** Mainnet deployment with real TVL must not proceed until this is complete.
 **Suggested Auditors**:
 - Trail of Bits
 - OpenZeppelin
 - Quantstamp
 - Certora (formal verification)
 
-**Rationale**: While internal review is comprehensive, a third-party audit provides independent validation and increased confidence for production deployment with significant TVL.
+**Rationale**: Internal review reduces risk but was performed by contributors to this codebase, not
+an independent party. Given the number and churn of contributors to this repository (see git
+history), an independent external review is not optional polish — it's the primary check against
+issues that in-project review is structurally poor at catching (author bias, familiarity blindness,
+inconsistent review depth across 200+ contributors). No badge, doc, or release notes in this repo
+should describe the project as "audited" until this section reflects a completed external
+engagement with a published report.
 
 ## Known Issues & Mitigations
 
@@ -165,14 +171,18 @@ If you discover a security vulnerability, please follow our [Security Policy](SE
 
 ## Certification
 
-This codebase represents production-grade smart contract development with:
+This codebase has the following in place:
 - ✅ Comprehensive test coverage (unit, integration, fuzzing, property-based)
 - ✅ Security-focused design patterns
 - ✅ Extensive documentation
 - ✅ Continuous security monitoring
 - ✅ Emergency response mechanisms
 - ✅ Formal internal review
+- ❌ Independent third-party audit — **not yet performed**
 
-**Reviewed by**: TrustForge Security Team  
+This is **not** a certification of production-readiness. That status requires the external audit
+above to be completed first.
+
+**Reviewed by**: TrustForge Security Team (internal)
 **Date**: January 2026  
 **Version**: 1.0.0  
