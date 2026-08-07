@@ -4,7 +4,7 @@
 
 [![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/Softvaults/trustforge-contracts/releases)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
-[![Security](https://img.shields.io/badge/security-audited-success.svg)](SECURITY_AUDIT.md)
+[![Security](https://img.shields.io/badge/security-internal--review--only-yellow.svg)](SECURITY_AUDIT.md)
 
 ## About
 
@@ -22,15 +22,17 @@ TrustForge is a decentralized identity bond and reputation system built on Stell
 
 ### Production Status
 
-**v1.0.0** - Production Ready ✅
+**v1.0.0** - Pre-Audit — not yet cleared for mainnet or real-value deployment
 
 - Comprehensive internal security review completed
+- Third-party audit **not yet performed** — required before mainnet deployment with real TVL
 - Full test coverage (unit, integration, fuzzing, property-based)
 - Production documentation and deployment guides
 - Monitoring and observability framework
 - Scalability roadmap established
 
-See [SECURITY_AUDIT.md](SECURITY_AUDIT.md) for detailed security assessment.
+See [STATUS.md](STATUS.md) for the current audit/deployment status at a glance, and
+[SECURITY_AUDIT.md](SECURITY_AUDIT.md) for the detailed security assessment.
 
 ## Quick Start
 
