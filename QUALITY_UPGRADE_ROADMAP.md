@@ -30,14 +30,14 @@ A backend/indexing service is planned for later and is intentionally **out of sc
 
 Credibility is the cheapest thing to fix and the most damaging to leave broken.
 
-- [ ] Remove the "security: audited ✅" badge from `README.md` until a third-party audit exists.
+- [x] Remove the "security: audited ✅" badge from `README.md` until a third-party audit exists.
       Replace with "internal review complete, external audit pending" or similar.
-- [ ] Rewrite `SECURITY_AUDIT.md`'s framing: "Third-Party Audit (Recommended)" reads as optional —
+- [x] Rewrite `SECURITY_AUDIT.md`'s framing: "Third-Party Audit (Recommended)" reads as optional —
       make it explicit that mainnet deployment with real TVL should not happen before it's done.
-- [ ] Replace placeholder testnet contract addresses in `README.md` with either real deployed
+- [x] Replace placeholder testnet contract addresses in `README.md` with either real deployed
       addresses or a clearer "not yet deployed" state (currently `<DEPLOY_YOUR_OWN>` reads as if
       deployment already happened and the reader just needs to fill something in).
-- [ ] Add a `STATUS.md` (or a status table at the top of `README.md`) that states plainly: audited
+- [x] Add a `STATUS.md` (or a status table at the top of `README.md`) that states plainly: audited
       (yes/no), deployed to testnet (yes/no + addresses), deployed to mainnet (yes/no), CI passing
       (link to badge). This becomes the single source of truth other docs point to instead of each
       restating status independently and drifting out of sync.
