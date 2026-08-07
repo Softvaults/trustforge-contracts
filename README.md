@@ -193,15 +193,18 @@ See [.github/workflows/](.github/workflows/) for CI configuration.
 ```
 Network: Stellar Testnet
 RPC: https://soroban-rpc.testnet.stellar.org
+Passphrase: Test SDF Network ; September 2015
 
-trustforge_bond:        <TESTNET_CONTRACT_ID>
-trustforge_registry:    <TESTNET_CONTRACT_ID>
-trustforge_treasury:    <TESTNET_CONTRACT_ID>
-trustforge_delegation:  <TESTNET_CONTRACT_ID>
-trustforge_arbitration: <TESTNET_CONTRACT_ID>
-trustforge_admin:       <TESTNET_CONTRACT_ID>
-trustforge_multisig:    <TESTNET_CONTRACT_ID>
-timelock:               <TESTNET_CONTRACT_ID>
+trustforge_bond:        <DEPLOY_YOUR_OWN>
+trustforge_registry:    <DEPLOY_YOUR_OWN>
+trustforge_treasury:    <DEPLOY_YOUR_OWN>
+trustforge_delegation:  <DEPLOY_YOUR_OWN>
+trustforge_arbitration: <DEPLOY_YOUR_OWN>
+trustforge_admin:       <DEPLOY_YOUR_OWN>
+trustforge_multisig:    <DEPLOY_YOUR_OWN>
+timelock:               <DEPLOY_YOUR_OWN>
+
+See docs/DEPLOYMENT.md for deployment instructions.
 ```
 
 ### Mainnet
