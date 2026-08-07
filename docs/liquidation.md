@@ -1,7 +1,7 @@
 # Bond Liquidation Entrypoint
 
 This document describes the bond `liquidate` entrypoint introduced for
-[issue #366](https://github.com/CredenceOrg/Credence-Contracts/issues/366).
+[issue #366](https://github.com/Softvaults/trustforge-contracts/issues/366).
 Liquidation complements the existing `slash` and `withdraw_bond` paths by
 giving the protocol admin (and any delegated keeper) an explicit, idempotent
 way to **finalize** a bond whose withdrawable stake has already been zeroed

@@ -317,10 +317,10 @@ A: The contract will panic with error 213 before any bond is created. Your token
 
 ## References
 
-- [Issue #142](https://github.com/credenceprotocol/credence-contracts/issues/142) - Reject fee-on-transfer tokens
+- [Issue #142](https://github.com/Softvaults/trustforge-contracts/issues/142) - Reject fee-on-transfer tokens
 - [Error Code 213](docs/error-codes.md) - UnsupportedToken
 - [Token Integration](contracts/trustforge_bond/src/token_integration.rs) - Implementation
-- [Balance Delta Checks](contracts/fixed_duration_bond/src/lib.rs) - Pattern example
+- [Balance Delta Checks](contracts/trustforge_bond/src/lib.rs) - Pattern example
 
 ## Contact & Support
 
