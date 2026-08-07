@@ -245,7 +245,7 @@ fn budget_add_attestation_normal() {
     client.register_attester(&attester);
 
     let subject = Address::generate(&e);
-    let data = String::from_str(&e, "credence:verified:kyc-tier-1");
+    let data = String::from_str(&e, "trustforge:verified:kyc-tier-1");
     let deadline = e.ledger().timestamp() + 100_000;
     let nonce = client.get_nonce(&attester);
 
