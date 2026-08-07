@@ -315,10 +315,11 @@ limitations under the License.
 
 ## Support
 
-- **Documentation**: [docs/](docs/)
-- **Discord**: https://discord.gg/trustforge (verify official link)
-- **GitHub Issues**: [Report bugs](https://github.com/Softvaults/trustforge-contracts/issues)
-- **Email**: contact@trustforge.io
+- **Documentation**: [Full Documentation](docs/)
+- **API Reference**: [Integration Guide](docs/API_REFERENCE.md)
+- **GitHub Issues**: [Report Bugs](https://github.com/Softvaults/trustforge-contracts/issues)
+- **GitHub Discussions**: [Ask Questions](https://github.com/Softvaults/trustforge-contracts/discussions)
+- **Security**: security@trustforge.io (coming soon)
 
 ---
 
