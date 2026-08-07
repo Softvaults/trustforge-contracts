@@ -1,6 +1,6 @@
 [package]
 name = "templates"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 license = "Apache-2.0"
 description = "TrustForge Soroban contract template — canonical starting point for new contracts"
@@ -9,7 +9,7 @@ description = "TrustForge Soroban contract template — canonical starting point
 crate-type = ["cdylib"]
 
 [dependencies]
-trustforge_errors = { version = "0.1.0", path = "../trustforge_errors" }
+trustforge_errors = { version = "1.0.0", path = "../trustforge_errors" }
 soroban-sdk = "22.0"
 
 [dev-dependencies]
