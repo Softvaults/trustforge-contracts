@@ -46,7 +46,7 @@ fn test_request_sets_withdrawal_requested_at() {
 /// Setup: request at t=90_000 (after lock-up end=87_400); notice_end = 90_000 + 3_600 = 93_600.
 /// Attempt at t=93_599: lock-up has passed, but notice has not elapsed yet.
 #[test]
-#[should_panic(expected = "notice period not elapsed")]
+#[should_panic(expected = "Error(Contract, #233)")]
 fn test_settle_before_notice_panics() {
     let e = Env::default();
     e.mock_all_auths();
@@ -101,7 +101,7 @@ fn test_settle_after_notice_elapsed_allowed() {
 
 /// A rolling bond without a `request_withdrawal` call cannot be settled.
 #[test]
-#[should_panic(expected = "withdrawal not requested")]
+#[should_panic(expected = "Error(Contract, #232)")]
 fn test_withdraw_without_request_panics() {
     let e = Env::default();
     e.mock_all_auths();
@@ -226,7 +226,7 @@ fn test_request_emits_withdrawal_requested_event() {
 /// request_withdrawal and withdraw in the same ledger (same timestamp) must
 /// be rejected: the notice period (3_600 s) cannot elapse within t=0.
 #[test]
-#[should_panic(expected = "notice period not elapsed")]
+#[should_panic(expected = "Error(Contract, #233)")]
 fn test_same_ledger_request_and_settle_rejected() {
     let e = Env::default();
     e.mock_all_auths();

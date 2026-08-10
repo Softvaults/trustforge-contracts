@@ -636,7 +636,7 @@ impl TrustForgeBond {
 
         let _end_timestamp = bond_start
             .checked_add(duration)
-            .expect("bond end timestamp would overflow");
+            .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
 
         // Validate inputs
         validation::validate_bond_amount(amount);
@@ -831,19 +831,16 @@ impl TrustForgeBond {
         }
 
         // Verify all attesters in the batch are unique.
-        for i in 0..n {
-            let item_i = items.get(i).unwrap();
-            for j in (i + 1)..n {
-                let item_j = items.get(j).unwrap();
+        for (i, item_i) in items.iter().enumerate() {
+            for item_j in items.iter().skip(i + 1) {
                 if item_i.attester == item_j.attester {
-                    panic!("duplicate attester in batch");
+                    panic_with_error!(e, ContractError::DuplicateAttesterInBatch);
                 }
             }
         }
 
         // Enforce authorization, registration, and consume nonces
-        for i in 0..n {
-            let item = items.get(i).unwrap();
+        for item in items.iter() {
             item.attester.require_auth();
 
             let is_authorized = e
@@ -859,8 +856,7 @@ impl TrustForgeBond {
         }
 
         // Check duplicate key in storage
-        for i in 0..n {
-            let item = items.get(i).unwrap();
+        for item in items.iter() {
             let dedup_key = types::AttestationDedupKey {
                 verifier: item.attester.clone(),
                 identity: subject.clone(),
@@ -877,8 +873,7 @@ impl TrustForgeBond {
         // Compute weights, validate weight limits, and accumulate total weight.
         let mut total_weight = 0u64;
         let mut weights = Vec::new(&e);
-        for i in 0..n {
-            let item = items.get(i).unwrap();
+        for item in items.iter() {
             let weight = weighted_attestation::compute_weight(&e, &item.attester);
             types::Attestation::validate_weight(weight);
             total_weight = total_weight
@@ -903,9 +898,7 @@ impl TrustForgeBond {
         let counter_key = DataKey::AttestationCounter;
         let mut next_id: u64 = e.storage().instance().get(&counter_key).unwrap_or(0);
 
-        for i in 0..n {
-            let item = items.get(i).unwrap();
-            let weight = weights.get(i).unwrap();
+        for (item, weight) in items.iter().zip(weights.iter()) {
             let id = next_id;
             next_id = next_id
                 .checked_add(1)
@@ -1000,8 +993,7 @@ impl TrustForgeBond {
             .get(&subject_list_key)
             .unwrap_or(Vec::new(&e));
         let mut new_ids = Vec::new(&e);
-        for i in 0..ids.len() {
-            let v = ids.get(i).unwrap();
+        for v in ids.iter() {
             if v != attestation_id {
                 new_ids.push_back(v);
             }
@@ -1114,8 +1106,8 @@ impl TrustForgeBond {
         };
 
         let end = (offset + effective_limit).min(total);
-        for i in offset..end {
-            page.push_back(all.get(i).unwrap());
+        for item in all.iter().skip(offset as usize).take((end - offset) as usize) {
+            page.push_back(item);
         }
         page
     }
@@ -1324,21 +1316,21 @@ impl TrustForgeBond {
         let end = bond
             .bond_start
             .checked_add(bond.bond_duration)
-            .expect("bond end timestamp overflow");
+            .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
         if now < end {
-            panic!("lock-up not expired; use withdraw_early");
+            panic_with_error!(e, ContractError::LockupNotExpired);
         }
 
         if bond.is_rolling {
             if bond.withdrawal_requested_at == 0 {
-                panic!("withdrawal not requested");
+                panic_with_error!(e, ContractError::WithdrawalNotRequested);
             }
             let earliest = bond
                 .withdrawal_requested_at
                 .checked_add(bond.notice_period_duration)
-                .expect("notice period overflow");
+                .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
             if e.ledger().timestamp() < earliest {
-                panic!("notice period not elapsed");
+                panic_with_error!(e, ContractError::NoticePeriodNotElapsed);
             }
         } else if e.ledger().timestamp() < bond.bond_start.saturating_add(bond.bond_duration) {
             panic_with_error!(e, ContractError::LockupNotExpired);
@@ -1701,15 +1693,15 @@ impl TrustForgeBond {
         if bond.is_rolling {
             if bond.withdrawal_requested_at == 0 {
                 Self::release_lock(&e);
-                panic!("withdrawal not requested");
+                panic_with_error!(e, ContractError::WithdrawalNotRequested);
             }
             let earliest = bond
                 .withdrawal_requested_at
                 .checked_add(bond.notice_period_duration)
-                .expect("notice period overflow");
+                .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
             if e.ledger().timestamp() < earliest {
                 Self::release_lock(&e);
-                panic!("notice period not elapsed");
+                panic_with_error!(e, ContractError::NoticePeriodNotElapsed);
             }
         }
 
@@ -2042,7 +2034,7 @@ impl TrustForgeBond {
         let expired_unrenewed = !bond.is_rolling && now >= lockup_end;
         if !fully_slashed && !expired_unrenewed {
             Self::release_lock(&e);
-            panic!("bond is not eligible for liquidation: must be fully slashed or expired (non-rolling) without renewal");
+            panic_with_error!(e, ContractError::BondNotEligibleForLiquidation);
         }
 
         let residual = bond.bonded_amount.saturating_sub(bond.slashed_amount);

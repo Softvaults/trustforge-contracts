@@ -207,11 +207,11 @@ fn liquidate_without_treasury_still_marks_bond_inactive() {
 // -----------------------------------------------------------------
 // Note: bare `#[should_panic]` is used for unauthorized/no-bond paths to
 // keep tests independent of the SDK's SCErrorCode format. Eligibility
-// rejections come from a literal `panic!("bond is not eligible for ...")`
+// rejections raise `ContractError::BondNotEligibleForLiquidation` (#234)
 // and are matched by the expected substring below.
 
 #[test]
-#[should_panic(expected = "bond is not eligible for liquidation")]
+#[should_panic(expected = "Error(Contract, #234)")]
 fn liquidate_one_second_before_expiry_rejected() {
     let e = Env::default();
     let (client, admin, identity, _treasury) = setup_with_treasury(&e);
@@ -223,7 +223,7 @@ fn liquidate_one_second_before_expiry_rejected() {
 }
 
 #[test]
-#[should_panic(expected = "bond is not eligible for liquidation")]
+#[should_panic(expected = "Error(Contract, #234)")]
 fn liquidate_healthy_bond_rejected() {
     let e = Env::default();
     let (client, admin, identity, _treasury) = setup_with_treasury(&e);
@@ -234,7 +234,7 @@ fn liquidate_healthy_bond_rejected() {
 }
 
 #[test]
-#[should_panic(expected = "bond is not eligible for liquidation")]
+#[should_panic(expected = "Error(Contract, #234)")]
 fn liquidate_partially_slashed_bond_rejected() {
     let e = Env::default();
     let (client, admin, identity, _treasury) = setup_with_treasury(&e);
@@ -245,7 +245,7 @@ fn liquidate_partially_slashed_bond_rejected() {
 }
 
 #[test]
-#[should_panic(expected = "bond is not eligible for liquidation")]
+#[should_panic(expected = "Error(Contract, #234)")]
 fn liquidate_rolling_bond_past_lockup_rejected() {
     // Rolling bonds auto-renew on `renew_if_rolling`. The "expired_unrenewed"
     // path therefore excludes them. The bond below still passes eligibility
