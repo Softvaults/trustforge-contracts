@@ -409,6 +409,34 @@ pub enum ContractError {
     /// Wire-stable: do not renumber this error code.
     GovernanceApprovalCategoryMismatch = 243,
 
+    /// `set_usdc_token` was called with a network label other than
+    /// `"mainnet"` or `"testnet"`.
+    /// Replaces: panic!("unsupported stellar network")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    UnsupportedNetwork = 244,
+
+    /// A token-moving helper (`transfer_into_contract`/`transfer_from_contract`)
+    /// was called with a negative amount.
+    /// Replaces: panic!("amount must be non-negative")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    NegativeTransferAmount = 245,
+
+    /// The token owner's allowance for the contract is less than the
+    /// amount a transfer-in operation requires.
+    /// Replaces: panic!("insufficient token allowance")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    InsufficientAllowance = 246,
+
+    /// The underlying `try_transfer`/`try_transfer_from` call to the token
+    /// contract returned an error.
+    /// Replaces: panic!("token transfer failed")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    TokenTransferFailed = 247,
+
     // --- Attestation (300-399) ---
     /// An attestation already exists from this attester for this bond.
     /// Replaces: panic!("duplicate attestation")
@@ -877,7 +905,11 @@ impl ErrorExt for ContractError {
             | ContractError::ParameterOutOfBounds
             | ContractError::GovernanceApproverMismatch
             | ContractError::GovernanceApprovalExpired
-            | ContractError::GovernanceApprovalCategoryMismatch => ErrorCategory::Bond,
+            | ContractError::GovernanceApprovalCategoryMismatch
+            | ContractError::UnsupportedNetwork
+            | ContractError::NegativeTransferAmount
+            | ContractError::InsufficientAllowance
+            | ContractError::TokenTransferFailed => ErrorCategory::Bond,
 
             ContractError::DuplicateAttestation
             | ContractError::AttestationNotFound
@@ -1027,6 +1059,14 @@ impl ErrorExt for ContractError {
             ContractError::GovernanceApprovalCategoryMismatch => {
                 "Governance approval category does not match the parameter being set"
             }
+            ContractError::UnsupportedNetwork => {
+                "Network label must be \"mainnet\" or \"testnet\""
+            }
+            ContractError::NegativeTransferAmount => "Transfer amount must be non-negative",
+            ContractError::InsufficientAllowance => {
+                "Token owner's allowance for the contract is less than the transfer amount"
+            }
+            ContractError::TokenTransferFailed => "The underlying token contract call failed",
             ContractError::DuplicateAttestation => "Attestation already exists from this attester",
             ContractError::AttestationNotFound => "No attestation found for the given key",
             ContractError::AttestationAlreadyRevoked => "Attestation has already been revoked",
@@ -1239,6 +1279,10 @@ impl ErrorExt for ContractError {
             | ContractError::GovernanceApproverMismatch // sign with the correct approver
             | ContractError::GovernanceApprovalExpired  // obtain a fresh approval
             | ContractError::GovernanceApprovalCategoryMismatch // use the matching category
+            | ContractError::UnsupportedNetwork       // pass "mainnet" or "testnet"
+            | ContractError::NegativeTransferAmount   // supply amount >= 0
+            | ContractError::InsufficientAllowance    // owner can raise the allowance
+            | ContractError::TokenTransferFailed      // owner can fix balance/trustline and retry
             => true,
 
             // FATAL Bond: caller cannot directly fix any of these.

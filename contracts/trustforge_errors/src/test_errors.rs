@@ -1221,6 +1221,10 @@ mod tests {
             ContractError::GovernanceApproverMismatch => true, // sign with the correct approver
             ContractError::GovernanceApprovalExpired => true,  // obtain a fresh approval
             ContractError::GovernanceApprovalCategoryMismatch => true, // use the matching category
+            ContractError::UnsupportedNetwork => true,     // pass "mainnet" or "testnet"
+            ContractError::NegativeTransferAmount => true, // supply amount >= 0
+            ContractError::InsufficientAllowance => true,  // owner can raise the allowance
+            ContractError::TokenTransferFailed => true, // owner can fix balance/trustline and retry
             ContractError::InvariantViolation => false, // post-write drift
             ContractError::TreasuryNotConfigured => true, // admin can configure treasury then retry
             ContractError::DuplicateIdempotencyKey => true, // idempotent - safe to retry with same key

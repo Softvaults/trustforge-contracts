@@ -39,10 +39,10 @@ pub fn set_token(e: &Env, admin: &Address, token: &Address) {
         .storage()
         .instance()
         .get(&crate::DataKey::Admin)
-        .unwrap_or_else(|| panic!("not initialized"));
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::NotInitialized));
     admin.require_auth();
     if *admin != stored_admin {
-        panic!("not admin");
+        panic_with_error!(e, ContractError::NotAdmin);
     }
 
     // Validate token is in accepted tokens set
@@ -60,7 +60,7 @@ pub fn set_usdc_token(e: &Env, admin: &Address, token: &Address, network: &Strin
     if *network != String::from_str(e, STELLAR_MAINNET)
         && *network != String::from_str(e, STELLAR_TESTNET)
     {
-        panic!("unsupported stellar network");
+        panic_with_error!(e, ContractError::UnsupportedNetwork);
     }
     set_token(e, admin, token);
     e.storage().instance().set(&network_key(e), network);
@@ -76,7 +76,7 @@ pub fn get_token(e: &Env) -> Address {
     e.storage()
         .instance()
         .get(&crate::DataKey::BondToken)
-        .unwrap_or_else(|| panic!("token not configured - contract not properly initialized"))
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::BondTokenNotConfigured))
 }
 
 /// @notice Returns whether a bond token has been configured.
@@ -110,7 +110,7 @@ pub fn require_allowance(e: &Env, owner: &Address, amount: i128) {
 /// @throws panic with UnsupportedToken error (code 213) if transfer amount differs
 pub fn transfer_into_contract(e: &Env, owner: &Address, amount: i128) {
     if amount < 0 {
-        panic!("amount must be non-negative");
+        panic_with_error!(e, ContractError::NegativeTransferAmount);
     }
     if amount == 0 {
         return;
@@ -124,7 +124,7 @@ pub fn transfer_into_contract(e: &Env, owner: &Address, amount: i128) {
 
     let allowance = token.allowance(owner, &contract);
     if allowance < amount {
-        panic!("{}", safe_token::errors::INSUFFICIENT_ALLOWANCE);
+        panic_with_error!(e, ContractError::InsufficientAllowance);
     }
 
     // Balance-delta check: authoritative fee-on-transfer guard.
@@ -133,16 +133,16 @@ pub fn transfer_into_contract(e: &Env, owner: &Address, amount: i128) {
 
     match token.try_transfer_from(&contract, owner, &contract, &amount) {
         Ok(_) => {}
-        Err(_) => panic!("token transfer failed"),
+        Err(_) => panic_with_error!(e, ContractError::TokenTransferFailed),
     }
 
     let balance_after = token.balance(&contract);
     let actual_received = balance_after
         .checked_sub(balance_before)
-        .expect("balance underflow");
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::Underflow));
 
     if actual_received != amount {
-        panic!("unsupported token: transfer amount mismatch (code 213)");
+        panic_with_error!(e, ContractError::UnsupportedToken);
     }
 }
 
@@ -158,7 +158,7 @@ pub fn transfer_into_contract(e: &Env, owner: &Address, amount: i128) {
 /// @throws panic with UnsupportedToken error (code 213) if transfer amount differs
 pub fn transfer_from_contract(e: &Env, recipient: &Address, amount: i128) {
     if amount < 0 {
-        panic!("amount must be non-negative");
+        panic_with_error!(e, ContractError::NegativeTransferAmount);
     }
     if amount == 0 {
         return;
@@ -174,16 +174,16 @@ pub fn transfer_from_contract(e: &Env, recipient: &Address, amount: i128) {
 
     match token.try_transfer(&contract, recipient, &amount) {
         Ok(_) => {}
-        Err(_) => panic!("token transfer failed"),
+        Err(_) => panic_with_error!(e, ContractError::TokenTransferFailed),
     }
 
     let balance_after = token.balance(&contract);
     let actual_sent = balance_before
         .checked_sub(balance_after)
-        .expect("balance underflow");
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::Underflow));
 
     if actual_sent != amount {
-        panic!("unsupported token: transfer amount mismatch (code 213)");
+        panic_with_error!(e, ContractError::UnsupportedToken);
     }
 }
 
