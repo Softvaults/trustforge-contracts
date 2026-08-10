@@ -14,7 +14,8 @@
 
 use crate::parameters::MAX_QUERY_LIMIT;
 use crate::{events, DataKey};
-use soroban_sdk::{contracttype, Address, Env, Map, Symbol, Vec};
+use soroban_sdk::{contracttype, panic_with_error, Address, Env, Map, Symbol, Vec};
+use trustforge_errors::ContractError;
 
 /// Maximum number of claims that can be processed in a single batch
 const MAX_BATCH_CLAIMS: u32 = 50;
@@ -144,7 +145,7 @@ pub fn add_pending_claim(
     metadata: Option<Symbol>,
 ) -> u64 {
     if amount <= 0 {
-        panic!("claim amount must be positive");
+        panic_with_error!(e, ContractError::ClaimAmountMustBePositive);
     }
 
     // Get next claim ID
@@ -196,7 +197,7 @@ pub fn add_pending_claim(
 
     let new_total = current_total
         .checked_add(amount)
-        .expect("claimable amount overflow");
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
 
     e.storage().persistent().set(&claimable_key, &new_total);
     e.storage()
@@ -216,7 +217,9 @@ fn get_next_claim_id(e: &Env) -> u64 {
         .persistent()
         .get(&DataKey::ClaimCounter)
         .unwrap_or(0);
-    let next = current.checked_add(1).expect("claim counter overflow");
+    let next = current
+        .checked_add(1)
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
     e.storage().persistent().set(&DataKey::ClaimCounter, &next);
     e.storage().persistent().extend_ttl(
         &DataKey::ClaimCounter,
@@ -354,15 +357,15 @@ pub fn process_claims(
     let claims = get_pending_claims(e, user);
 
     if claims.is_empty() {
-        panic!("no pending claims");
+        panic_with_error!(e, ContractError::NoPendingClaims);
     }
 
     // Filter claims by type if specified
     let filter_types = !claim_types.is_empty();
     let type_set: Map<ClaimType, bool> = if filter_types {
         let mut map = Map::new(e);
-        for i in 0..claim_types.len() {
-            map.set(claim_types.get(i).unwrap(), true);
+        for ct in claim_types.iter() {
+            map.set(ct, true);
         }
         map
     } else {
@@ -380,16 +383,12 @@ pub fn process_claims(
     };
 
     // Process claims
-    for i in 0..claims.len() {
+    for (i, claim) in claims.iter().enumerate() {
         if processed_claims.len() >= limit {
             // Add remaining claims back to the list
-            for j in i..claims.len() {
-                remaining_claims.push_back(claims.get(j).unwrap());
-            }
+            remaining_claims.append(&claims.slice(i as u32..));
             break;
         }
-
-        let claim = claims.get(i).unwrap();
 
         // Skip already-processed claims — they have been paid out and must not be re-paid.
         if claim.processed {
@@ -424,23 +423,17 @@ pub fn process_claims(
         processed_claims.push_back(paid_claim);
         total_amount = total_amount
             .checked_add(claim.amount)
-            .expect("claim total overflow");
+            .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
 
         // Track unique claim types
-        let mut type_exists = false;
-        for j in 0..processed_types.len() {
-            if processed_types.get(j).unwrap() == claim.claim_type {
-                type_exists = true;
-                break;
-            }
-        }
+        let type_exists = processed_types.iter().any(|t| t == claim.claim_type);
         if !type_exists {
             processed_types.push_back(claim.claim_type);
         }
     }
 
     if processed_claims.is_empty() {
-        panic!("no valid claims to process");
+        panic_with_error!(e, ContractError::NoValidClaimsToProcess);
     }
 
     // Update storage with remaining claims
@@ -464,7 +457,7 @@ pub fn process_claims(
 
         let remaining_amount = get_claimable_amount(e, user)
             .checked_sub(total_amount)
-            .expect("claimable amount underflow");
+            .unwrap_or_else(|| panic_with_error!(e, ContractError::Underflow));
 
         let remaining_claimable_key = DataKey::ClaimableAmount(user.clone());
         e.storage()
@@ -483,7 +476,7 @@ pub fn process_claims(
             .storage()
             .instance()
             .get(&DataKey::BondToken)
-            .expect("token not configured");
+            .unwrap_or_else(|| panic_with_error!(e, ContractError::BondTokenNotConfigured));
 
         let contract = e.current_contract_address();
         soroban_sdk::token::TokenClient::new(e, &token).transfer(&contract, user, &total_amount);
@@ -521,13 +514,11 @@ pub fn cleanup_expired_claims(e: &Env, user: &Address) -> u32 {
     let mut expired_amount = 0i128;
     let mut expired_count = 0u32;
 
-    for i in 0..claims.len() {
-        let claim = claims.get(i).unwrap();
-
+    for claim in claims.iter() {
         if claim.expires_at > 0 && now > claim.expires_at {
             expired_amount = expired_amount
                 .checked_add(claim.amount)
-                .expect("expired amount overflow");
+                .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
             expired_count += 1;
         } else {
             valid_claims.push_back(claim);
@@ -556,7 +547,7 @@ pub fn cleanup_expired_claims(e: &Env, user: &Address) -> u32 {
 
             let remaining_amount = get_claimable_amount(e, user)
                 .checked_sub(expired_amount)
-                .expect("claimable amount underflow");
+                .unwrap_or_else(|| panic_with_error!(e, ContractError::Underflow));
 
             let valid_claimable_key = DataKey::ClaimableAmount(user.clone());
             e.storage()
@@ -588,8 +579,7 @@ pub fn get_claims_summary(e: &Env, user: &Address) -> Map<ClaimType, i128> {
     let claims = get_pending_claims(e, user);
     let mut summary = Map::new(e);
 
-    for i in 0..claims.len() {
-        let claim = claims.get(i).unwrap();
+    for claim in claims.iter() {
         let current = summary.get(claim.claim_type).unwrap_or(0);
         summary.set(claim.claim_type, current + claim.amount);
     }
@@ -646,7 +636,7 @@ pub fn expire_claims_bounded(e: &Env, user: &Address, max_iter: u32) -> u32 {
         if now > claim.expires_at {
             expired_amount = expired_amount
                 .checked_add(claim.amount)
-                .expect("expired amount overflow");
+                .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
             expired_count += 1;
             // Don't add to valid_claims; this removes it
         } else {
@@ -676,7 +666,7 @@ pub fn expire_claims_bounded(e: &Env, user: &Address, max_iter: u32) -> u32 {
 
             let remaining_amount = get_claimable_amount(e, user)
                 .checked_sub(expired_amount)
-                .expect("claimable amount underflow");
+                .unwrap_or_else(|| panic_with_error!(e, ContractError::Underflow));
 
             let pruned_claimable_key = DataKey::ClaimableAmount(user.clone());
             e.storage()
@@ -760,8 +750,8 @@ pub fn get_pending_claims_paginated(
     };
 
     let end = (offset + effective_limit).min(total);
-    for i in offset..end {
-        page.push_back(all.get(i).unwrap());
+    for item in all.iter().skip(offset as usize).take((end - offset) as usize) {
+        page.push_back(item);
     }
     page
 }
@@ -769,10 +759,10 @@ pub fn get_pending_claims_paginated(
 /// Look up a single claim by its unique `claim_id`.
 ///
 /// # Panics
-/// Panics with `"claim not found"` when no claim with that ID exists.
+/// Panics with `ContractError::ClaimNotFound` when no claim with that ID exists.
 pub fn get_claim_by_id(e: &Env, claim_id: u64) -> PendingClaim {
     e.storage()
         .persistent()
         .get(&DataKey::ClaimById(claim_id))
-        .unwrap_or_else(|| panic!("claim not found"))
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::ClaimNotFound))
 }

@@ -1212,6 +1212,11 @@ mod tests {
             ContractError::WithdrawalNotRequested => true, // call request_withdrawal first
             ContractError::NoticePeriodNotElapsed => true, // wait for the notice period
             ContractError::BondNotEligibleForLiquidation => true, // wait for slash/lock-up expiry
+            ContractError::ClaimAmountMustBePositive => true, // supply amount > 0
+            ContractError::NoPendingClaims => true,           // wait for claims to accrue
+            ContractError::NoValidClaimsToProcess => true,    // wait, or adjust the type filter
+            ContractError::ClaimNotFound => true,             // supply a valid claim id
+            ContractError::BondTokenNotConfigured => true, // admin can configure the token then retry
             ContractError::InvariantViolation => false, // post-write drift
             ContractError::TreasuryNotConfigured => true, // admin can configure treasury then retry
             ContractError::DuplicateIdempotencyKey => true, // idempotent - safe to retry with same key

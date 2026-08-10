@@ -348,6 +348,38 @@ pub enum ContractError {
     /// Wire-stable: do not renumber this error code.
     BondNotEligibleForLiquidation = 234,
 
+    /// `add_pending_claim` was called with a non-positive amount.
+    /// Replaces: panic!("claim amount must be positive")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    ClaimAmountMustBePositive = 235,
+
+    /// `process_claims` was called for a user with no pending claims at all.
+    /// Replaces: panic!("no pending claims")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    NoPendingClaims = 236,
+
+    /// `process_claims` found pending claims but none were payable this call
+    /// (all filtered out, already processed, or expired).
+    /// Replaces: panic!("no valid claims to process")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    NoValidClaimsToProcess = 237,
+
+    /// No claim exists with the given claim ID.
+    /// Replaces: panic!("claim not found")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    ClaimNotFound = 238,
+
+    /// The contract's bond token (`DataKey::BondToken`) has not been
+    /// configured, so a token-moving operation cannot proceed.
+    /// Replaces: expect("token not configured")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    BondTokenNotConfigured = 239,
+
     // --- Attestation (300-399) ---
     /// An attestation already exists from this attester for this bond.
     /// Replaces: panic!("duplicate attestation")
@@ -807,7 +839,12 @@ impl ErrorExt for ContractError {
             | ContractError::InvariantViolation
             | ContractError::WithdrawalNotRequested
             | ContractError::NoticePeriodNotElapsed
-            | ContractError::BondNotEligibleForLiquidation => ErrorCategory::Bond,
+            | ContractError::BondNotEligibleForLiquidation
+            | ContractError::ClaimAmountMustBePositive
+            | ContractError::NoPendingClaims
+            | ContractError::NoValidClaimsToProcess
+            | ContractError::ClaimNotFound
+            | ContractError::BondTokenNotConfigured => ErrorCategory::Bond,
 
             ContractError::DuplicateAttestation
             | ContractError::AttestationNotFound
@@ -940,6 +977,13 @@ impl ErrorExt for ContractError {
             ContractError::BondNotEligibleForLiquidation => {
                 "Bond must be fully slashed, or expired and non-rolling, to be liquidated"
             }
+            ContractError::ClaimAmountMustBePositive => "Claim amount must be greater than zero",
+            ContractError::NoPendingClaims => "User has no pending claims",
+            ContractError::NoValidClaimsToProcess => {
+                "User has pending claims, but none are currently payable"
+            }
+            ContractError::ClaimNotFound => "No claim exists with the given claim ID",
+            ContractError::BondTokenNotConfigured => "Bond token has not been configured",
             ContractError::DuplicateAttestation => "Attestation already exists from this attester",
             ContractError::AttestationNotFound => "No attestation found for the given key",
             ContractError::AttestationAlreadyRevoked => "Attestation has already been revoked",
@@ -1143,6 +1187,11 @@ impl ErrorExt for ContractError {
             | ContractError::WithdrawalNotRequested // call request_withdrawal first
             | ContractError::NoticePeriodNotElapsed // wait for the notice period
             | ContractError::BondNotEligibleForLiquidation // wait for slash/lock-up expiry
+            | ContractError::ClaimAmountMustBePositive // supply amount > 0
+            | ContractError::NoPendingClaims          // wait for claims to accrue
+            | ContractError::NoValidClaimsToProcess   // wait, or adjust the type filter
+            | ContractError::ClaimNotFound            // supply a valid claim id
+            | ContractError::BondTokenNotConfigured   // admin can configure the token then retry
             => true,
 
             // FATAL Bond: caller cannot directly fix any of these.
