@@ -10,7 +10,7 @@
 //!
 //! ## Governance Control
 //! All parameter updates are restricted to the governance address (contract admin).
-//! Non-governance callers are rejected with "not admin" error.
+//! Non-governance callers are rejected with `ContractError::NotAdmin`.
 //!
 //! ## Bounds Enforcement
 //! Every parameter write validates against min/max bounds. Out-of-range values
@@ -27,7 +27,8 @@
 #![allow(dead_code)]
 
 use crate::events::emit_parameter_updated;
-use soroban_sdk::{contracttype, symbol_short, Address, Env, String, Symbol};
+use soroban_sdk::{contracttype, panic_with_error, symbol_short, Address, Env, String, Symbol};
+use trustforge_errors::ContractError;
 
 /// Governance approval envelope for parameter mutations.
 #[contracttype]
@@ -275,8 +276,8 @@ pub fn get_max_leverage(e: &Env) -> u32 {
 /// Must be between MIN_PROTOCOL_FEE_BPS and MAX_PROTOCOL_FEE_BPS (0-1000 bps = 0-10%)
 ///
 /// # Panics
-/// - "not admin" if caller is not the contract admin
-/// - "protocol_fee_bps out of bounds" if value < min or value > max
+/// - `ContractError::NotAdmin` if caller is not the contract admin
+/// - `ContractError::ParameterOutOfBounds` if value is outside the configured min/max
 ///
 /// # Events
 /// Emits `parameter_changed` event with old and new values
@@ -300,7 +301,7 @@ pub fn set_protocol_fee_bps_with_approval(
     validate_governance_approval(e, admin, approval, symbol_short!("fee"));
 
     if !(MIN_PROTOCOL_FEE_BPS..=MAX_PROTOCOL_FEE_BPS).contains(&value) {
-        panic!("protocol_fee_bps out of bounds");
+        panic_with_error!(e, ContractError::ParameterOutOfBounds);
     }
 
     let old_value = get_protocol_fee_bps(e);
@@ -329,8 +330,8 @@ pub fn set_protocol_fee_bps_with_approval(
 /// Must be between MIN_ATTESTATION_FEE_BPS and MAX_ATTESTATION_FEE_BPS (0-500 bps = 0-5%)
 ///
 /// # Panics
-/// - "not admin" if caller is not the contract admin
-/// - "attestation_fee_bps out of bounds" if value < min or value > max
+/// - `ContractError::NotAdmin` if caller is not the contract admin
+/// - `ContractError::ParameterOutOfBounds` if value is outside the configured min/max
 ///
 /// # Events
 /// Emits `parameter_changed` event with old and new values
@@ -354,7 +355,7 @@ pub fn set_attestation_fee_bps_with_approval(
     validate_governance_approval(e, admin, approval, symbol_short!("fee"));
 
     if !(MIN_ATTESTATION_FEE_BPS..=MAX_ATTESTATION_FEE_BPS).contains(&value) {
-        panic!("attestation_fee_bps out of bounds");
+        panic_with_error!(e, ContractError::ParameterOutOfBounds);
     }
 
     let old_value = get_attestation_fee_bps(e);
@@ -383,8 +384,8 @@ pub fn set_attestation_fee_bps_with_approval(
 /// Must be between MIN_WITHDRAWAL_COOLDOWN_SECS and MAX_WITHDRAWAL_COOLDOWN_SECS (0-30 days)
 ///
 /// # Panics
-/// - "not admin" if caller is not the contract admin
-/// - "withdrawal_cooldown_secs out of bounds" if value < min or value > max
+/// - `ContractError::NotAdmin` if caller is not the contract admin
+/// - `ContractError::ParameterOutOfBounds` if value is outside the configured min/max
 ///
 /// # Events
 /// Emits `parameter_changed` event with old and new values
@@ -408,7 +409,7 @@ pub fn set_withdrawal_cooldown_secs_with_approval(
     validate_governance_approval(e, admin, approval, symbol_short!("cooldown"));
 
     if !(MIN_WITHDRAWAL_COOLDOWN_SECS..=MAX_WITHDRAWAL_COOLDOWN_SECS).contains(&value) {
-        panic!("withdrawal_cooldown_secs out of bounds");
+        panic_with_error!(e, ContractError::ParameterOutOfBounds);
     }
 
     let old_value = get_withdrawal_cooldown_secs(e);
@@ -437,8 +438,8 @@ pub fn set_withdrawal_cooldown_secs_with_approval(
 /// Must be between MIN_SLASH_COOLDOWN_SECS and MAX_SLASH_COOLDOWN_SECS (0-7 days)
 ///
 /// # Panics
-/// - "not admin" if caller is not the contract admin
-/// - "slash_cooldown_secs out of bounds" if value < min or value > max
+/// - `ContractError::NotAdmin` if caller is not the contract admin
+/// - `ContractError::ParameterOutOfBounds` if value is outside the configured min/max
 ///
 /// # Events
 /// Emits `parameter_changed` event with old and new values
@@ -462,7 +463,7 @@ pub fn set_slash_cooldown_secs_with_approval(
     validate_governance_approval(e, admin, approval, symbol_short!("cooldown"));
 
     if !(MIN_SLASH_COOLDOWN_SECS..=MAX_SLASH_COOLDOWN_SECS).contains(&value) {
-        panic!("slash_cooldown_secs out of bounds");
+        panic_with_error!(e, ContractError::ParameterOutOfBounds);
     }
 
     let old_value = get_slash_cooldown_secs(e);
@@ -491,8 +492,8 @@ pub fn set_slash_cooldown_secs_with_approval(
 /// Must be between MIN_BRONZE_THRESHOLD and MAX_BRONZE_THRESHOLD
 ///
 /// # Panics
-/// - "not admin" if caller is not the contract admin
-/// - "bronze_threshold out of bounds" if value < min or value > max
+/// - `ContractError::NotAdmin` if caller is not the contract admin
+/// - `ContractError::ParameterOutOfBounds` if value is outside the configured min/max
 ///
 /// # Events
 /// Emits `parameter_changed` event with old and new values
@@ -516,7 +517,7 @@ pub fn set_bronze_threshold_with_approval(
     validate_governance_approval(e, admin, approval, symbol_short!("tier"));
 
     if !(MIN_BRONZE_THRESHOLD..=MAX_BRONZE_THRESHOLD).contains(&value) {
-        panic!("bronze_threshold out of bounds");
+        panic_with_error!(e, ContractError::ParameterOutOfBounds);
     }
 
     let old_value = get_bronze_threshold(e);
@@ -545,8 +546,8 @@ pub fn set_bronze_threshold_with_approval(
 /// Must be between MIN_SILVER_THRESHOLD and MAX_SILVER_THRESHOLD
 ///
 /// # Panics
-/// - "not admin" if caller is not the contract admin
-/// - "silver_threshold out of bounds" if value < min or value > max
+/// - `ContractError::NotAdmin` if caller is not the contract admin
+/// - `ContractError::ParameterOutOfBounds` if value is outside the configured min/max
 ///
 /// # Events
 /// Emits `parameter_changed` event with old and new values
@@ -570,7 +571,7 @@ pub fn set_silver_threshold_with_approval(
     validate_governance_approval(e, admin, approval, symbol_short!("tier"));
 
     if !(MIN_SILVER_THRESHOLD..=MAX_SILVER_THRESHOLD).contains(&value) {
-        panic!("silver_threshold out of bounds");
+        panic_with_error!(e, ContractError::ParameterOutOfBounds);
     }
 
     let old_value = get_silver_threshold(e);
@@ -599,8 +600,8 @@ pub fn set_silver_threshold_with_approval(
 /// Must be between MIN_GOLD_THRESHOLD and MAX_GOLD_THRESHOLD
 ///
 /// # Panics
-/// - "not admin" if caller is not the contract admin
-/// - "gold_threshold out of bounds" if value < min or value > max
+/// - `ContractError::NotAdmin` if caller is not the contract admin
+/// - `ContractError::ParameterOutOfBounds` if value is outside the configured min/max
 ///
 /// # Events
 /// Emits `parameter_changed` event with old and new values
@@ -624,7 +625,7 @@ pub fn set_gold_threshold_with_approval(
     validate_governance_approval(e, admin, approval, symbol_short!("tier"));
 
     if !(MIN_GOLD_THRESHOLD..=MAX_GOLD_THRESHOLD).contains(&value) {
-        panic!("gold_threshold out of bounds");
+        panic_with_error!(e, ContractError::ParameterOutOfBounds);
     }
 
     let old_value = get_gold_threshold(e);
@@ -653,8 +654,8 @@ pub fn set_gold_threshold_with_approval(
 /// Must be between MIN_PLATINUM_THRESHOLD and MAX_PLATINUM_THRESHOLD
 ///
 /// # Panics
-/// - "not admin" if caller is not the contract admin
-/// - "platinum_threshold out of bounds" if value < min or value > max
+/// - `ContractError::NotAdmin` if caller is not the contract admin
+/// - `ContractError::ParameterOutOfBounds` if value is outside the configured min/max
 ///
 /// # Events
 /// Emits `parameter_changed` event with old and new values
@@ -678,7 +679,7 @@ pub fn set_platinum_threshold_with_approval(
     validate_governance_approval(e, admin, approval, symbol_short!("tier"));
 
     if !(MIN_PLATINUM_THRESHOLD..=MAX_PLATINUM_THRESHOLD).contains(&value) {
-        panic!("platinum_threshold out of bounds");
+        panic_with_error!(e, ContractError::ParameterOutOfBounds);
     }
 
     let old_value = get_platinum_threshold(e);
@@ -710,8 +711,8 @@ pub fn set_platinum_threshold_with_approval(
 /// Must be between MIN_MAX_LEVERAGE and MAX_MAX_LEVERAGE (1–100 000 000)
 ///
 /// # Panics
-/// - "not admin" if caller is not the contract admin
-/// - "max_leverage out of bounds" if value < MIN_MAX_LEVERAGE or value > MAX_MAX_LEVERAGE
+/// - `ContractError::NotAdmin` if caller is not the contract admin
+/// - `ContractError::ParameterOutOfBounds` if value is outside the configured min/max
 ///
 /// # Events
 /// Emits `parameter_changed` event with old and new values
@@ -735,7 +736,7 @@ pub fn set_max_leverage_with_approval(
     validate_governance_approval(e, admin, approval, symbol_short!("risk"));
 
     if !(MIN_MAX_LEVERAGE..=MAX_MAX_LEVERAGE).contains(&value) {
-        panic!("max_leverage out of bounds");
+        panic_with_error!(e, ContractError::ParameterOutOfBounds);
     }
 
     let old_value = get_max_leverage(e);
@@ -821,17 +822,17 @@ pub fn set_max_leverage_with_approval(
 /// * `caller` - Address to validate as admin
 ///
 /// # Panics
-/// - "not initialized" if contract not initialized
-/// - "not admin" if caller is not the stored admin address
+/// - `ContractError::NotInitialized` if contract not initialized
+/// - `ContractError::NotAdmin` if caller is not the stored admin address
 fn validate_admin(e: &Env, caller: &Address) {
     caller.require_auth();
     let stored_admin: Address = e
         .storage()
         .instance()
         .get(&crate::DataKey::Admin)
-        .unwrap_or_else(|| panic!("not initialized"));
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::NotInitialized));
     if caller != &stored_admin {
-        panic!("not admin");
+        panic_with_error!(e, ContractError::NotAdmin);
     }
 }
 
@@ -842,13 +843,13 @@ fn validate_governance_approval(
     expected_category: Symbol,
 ) {
     if approval.approver != *admin {
-        panic!("governance approver mismatch");
+        panic_with_error!(e, ContractError::GovernanceApproverMismatch);
     }
     if approval.expires_at > 0 && e.ledger().timestamp() > approval.expires_at {
-        panic!("governance approval expired");
+        panic_with_error!(e, ContractError::GovernanceApprovalExpired);
     }
     if approval.category != expected_category {
-        panic!("governance approval category mismatch");
+        panic_with_error!(e, ContractError::GovernanceApprovalCategoryMismatch);
     }
 }
 

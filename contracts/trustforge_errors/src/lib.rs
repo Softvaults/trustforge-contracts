@@ -380,6 +380,35 @@ pub enum ContractError {
     /// Wire-stable: do not renumber this error code.
     BondTokenNotConfigured = 239,
 
+    /// A governance-controlled protocol parameter setter (`parameters`
+    /// module) received a value outside that parameter's configured
+    /// min/max bounds.
+    /// Replaces: panic!("{parameter}_out_of_bounds")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    ParameterOutOfBounds = 240,
+
+    /// The `GovernanceApproval` passed to a parameter setter was signed by
+    /// an address other than the caller.
+    /// Replaces: panic!("governance approver mismatch")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    GovernanceApproverMismatch = 241,
+
+    /// The `GovernanceApproval` passed to a parameter setter has a non-zero
+    /// `expires_at` that has already passed.
+    /// Replaces: panic!("governance approval expired")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    GovernanceApprovalExpired = 242,
+
+    /// The `GovernanceApproval` passed to a parameter setter was scoped to
+    /// a different parameter category than the one being set.
+    /// Replaces: panic!("governance approval category mismatch")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    GovernanceApprovalCategoryMismatch = 243,
+
     // --- Attestation (300-399) ---
     /// An attestation already exists from this attester for this bond.
     /// Replaces: panic!("duplicate attestation")
@@ -844,7 +873,11 @@ impl ErrorExt for ContractError {
             | ContractError::NoPendingClaims
             | ContractError::NoValidClaimsToProcess
             | ContractError::ClaimNotFound
-            | ContractError::BondTokenNotConfigured => ErrorCategory::Bond,
+            | ContractError::BondTokenNotConfigured
+            | ContractError::ParameterOutOfBounds
+            | ContractError::GovernanceApproverMismatch
+            | ContractError::GovernanceApprovalExpired
+            | ContractError::GovernanceApprovalCategoryMismatch => ErrorCategory::Bond,
 
             ContractError::DuplicateAttestation
             | ContractError::AttestationNotFound
@@ -984,6 +1017,16 @@ impl ErrorExt for ContractError {
             }
             ContractError::ClaimNotFound => "No claim exists with the given claim ID",
             ContractError::BondTokenNotConfigured => "Bond token has not been configured",
+            ContractError::ParameterOutOfBounds => {
+                "Parameter value is outside its configured min/max bounds"
+            }
+            ContractError::GovernanceApproverMismatch => {
+                "Governance approval was signed by a different address than the caller"
+            }
+            ContractError::GovernanceApprovalExpired => "Governance approval has expired",
+            ContractError::GovernanceApprovalCategoryMismatch => {
+                "Governance approval category does not match the parameter being set"
+            }
             ContractError::DuplicateAttestation => "Attestation already exists from this attester",
             ContractError::AttestationNotFound => "No attestation found for the given key",
             ContractError::AttestationAlreadyRevoked => "Attestation has already been revoked",
@@ -1192,6 +1235,10 @@ impl ErrorExt for ContractError {
             | ContractError::NoValidClaimsToProcess   // wait, or adjust the type filter
             | ContractError::ClaimNotFound            // supply a valid claim id
             | ContractError::BondTokenNotConfigured   // admin can configure the token then retry
+            | ContractError::ParameterOutOfBounds     // supply a value within bounds
+            | ContractError::GovernanceApproverMismatch // sign with the correct approver
+            | ContractError::GovernanceApprovalExpired  // obtain a fresh approval
+            | ContractError::GovernanceApprovalCategoryMismatch // use the matching category
             => true,
 
             // FATAL Bond: caller cannot directly fix any of these.

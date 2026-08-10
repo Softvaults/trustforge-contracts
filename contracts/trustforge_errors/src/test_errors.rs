@@ -1217,6 +1217,10 @@ mod tests {
             ContractError::NoValidClaimsToProcess => true,    // wait, or adjust the type filter
             ContractError::ClaimNotFound => true,             // supply a valid claim id
             ContractError::BondTokenNotConfigured => true, // admin can configure the token then retry
+            ContractError::ParameterOutOfBounds => true, // supply a value within bounds
+            ContractError::GovernanceApproverMismatch => true, // sign with the correct approver
+            ContractError::GovernanceApprovalExpired => true,  // obtain a fresh approval
+            ContractError::GovernanceApprovalCategoryMismatch => true, // use the matching category
             ContractError::InvariantViolation => false, // post-write drift
             ContractError::TreasuryNotConfigured => true, // admin can configure treasury then retry
             ContractError::DuplicateIdempotencyKey => true, // idempotent - safe to retry with same key
