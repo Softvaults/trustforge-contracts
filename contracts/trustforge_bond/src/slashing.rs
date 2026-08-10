@@ -58,9 +58,9 @@ pub fn validate_admin(e: &Env, caller: &Address) {
         .storage()
         .instance()
         .get(&crate::DataKey::Admin)
-        .unwrap_or_else(|| panic!("not initialized"));
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::NotInitialized));
     if caller != &stored_admin {
-        panic!("not admin");
+        panic_with_error!(e, ContractError::NotAdmin);
     }
 }
 
@@ -97,7 +97,7 @@ pub fn validate_admin(e: &Env, caller: &Address) {
 /// - Slasher receives 10% of slashed amount as reward (pull-payment)
 pub fn slash_bond(e: &Env, admin: &Address, amount: i128) -> crate::IdentityBond {
     if amount < 0 {
-        panic!("slash amount must be non-negative");
+        panic_with_error!(e, ContractError::NegativeSlashAmount);
     }
     // 1. Authorization check
     validate_admin(e, admin);
@@ -110,13 +110,13 @@ pub fn slash_bond(e: &Env, admin: &Address, amount: i128) -> crate::IdentityBond
         .storage()
         .instance()
         .get::<_, crate::IdentityBond>(&key)
-        .unwrap_or_else(|| panic!("no bond"));
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::BondNotFound));
 
     // 3. Available balance = bonded − already_slashed
     let available = bond
         .bonded_amount
         .checked_sub(bond.slashed_amount)
-        .expect("slashed exceeds bonded");
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::SlashExceedsBond));
 
     // 4. Cap slash at available balance (not just bonded_amount)
     let actual_slash_amount = if amount > available {
@@ -128,7 +128,7 @@ pub fn slash_bond(e: &Env, admin: &Address, amount: i128) -> crate::IdentityBond
     let new_slashed = bond
         .slashed_amount
         .checked_add(actual_slash_amount)
-        .expect("slashing caused overflow");
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
 
     // Dust-floor clamp: eliminate sub-dust residual to prevent bad debt
     const DUST_THRESHOLD: i128 = 1;
@@ -242,7 +242,7 @@ fn get_next_slash_id(e: &Env) -> u64 {
 #[allow(dead_code)]
 pub fn unslash_bond(e: &Env, admin: &Address, amount: i128) -> crate::IdentityBond {
     if amount < 0 {
-        panic!("unslash amount must be non-negative");
+        panic_with_error!(e, ContractError::NegativeSlashAmount);
     }
     validate_admin(e, admin);
 
@@ -251,12 +251,12 @@ pub fn unslash_bond(e: &Env, admin: &Address, amount: i128) -> crate::IdentityBo
         .storage()
         .instance()
         .get::<_, crate::IdentityBond>(&key)
-        .unwrap_or_else(|| panic!("no bond"));
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::BondNotFound));
 
     bond.slashed_amount = bond
         .slashed_amount
         .checked_sub(amount)
-        .expect("unslashing would reduce below 0");
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::UnslashExceedsSlashedAmount));
 
     e.storage().instance().set(&key, &bond);
     crate::invariants::assert_self_consistent(e);
@@ -273,6 +273,12 @@ pub fn unslash_bond(e: &Env, admin: &Address, amount: i128) -> crate::IdentityBo
 ///
 /// # Returns
 /// Available balance = bonded_amount - slashed_amount
+///
+/// # Panics
+/// A plain `expect()`, not a typed `ContractError`: this is a pure, `Env`-less
+/// helper with no production caller (see `#[allow(dead_code)]`) — there is no
+/// `Env` available here to escalate a contract error through. `slash_bond`
+/// performs the equivalent check inline via `ContractError::SlashExceedsBond`.
 #[allow(dead_code)]
 #[must_use]
 pub fn get_available_balance(bonded_amount: i128, slashed_amount: i128) -> i128 {
@@ -337,7 +343,7 @@ fn transfer_slashed_funds_to_treasury(e: &Env, amount: i128) {
         .storage()
         .instance()
         .get(&crate::DataKey::BondToken)
-        .unwrap_or_else(|| panic!("token not configured"));
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::BondTokenNotConfigured));
     let contract = e.current_contract_address();
     soroban_sdk::token::TokenClient::new(e, &token_addr).transfer(&contract, &treasury, &amount);
 }

@@ -437,6 +437,20 @@ pub enum ContractError {
     /// Wire-stable: do not renumber this error code.
     TokenTransferFailed = 247,
 
+    /// `slash_bond`/`unslash_bond` was called with a negative amount.
+    /// Replaces: panic!("slash amount must be non-negative")
+    ///           panic!("unslash amount must be non-negative")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    NegativeSlashAmount = 248,
+
+    /// `unslash_bond`'s amount is greater than the bond's currently
+    /// recorded `slashed_amount`, which would drive it below zero.
+    /// Replaces: panic!("unslashing would reduce below 0")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    UnslashExceedsSlashedAmount = 249,
+
     // --- Attestation (300-399) ---
     /// An attestation already exists from this attester for this bond.
     /// Replaces: panic!("duplicate attestation")
@@ -909,7 +923,9 @@ impl ErrorExt for ContractError {
             | ContractError::UnsupportedNetwork
             | ContractError::NegativeTransferAmount
             | ContractError::InsufficientAllowance
-            | ContractError::TokenTransferFailed => ErrorCategory::Bond,
+            | ContractError::TokenTransferFailed
+            | ContractError::NegativeSlashAmount
+            | ContractError::UnslashExceedsSlashedAmount => ErrorCategory::Bond,
 
             ContractError::DuplicateAttestation
             | ContractError::AttestationNotFound
@@ -1067,6 +1083,10 @@ impl ErrorExt for ContractError {
                 "Token owner's allowance for the contract is less than the transfer amount"
             }
             ContractError::TokenTransferFailed => "The underlying token contract call failed",
+            ContractError::NegativeSlashAmount => "Slash/unslash amount must be non-negative",
+            ContractError::UnslashExceedsSlashedAmount => {
+                "Unslash amount exceeds the bond's currently slashed amount"
+            }
             ContractError::DuplicateAttestation => "Attestation already exists from this attester",
             ContractError::AttestationNotFound => "No attestation found for the given key",
             ContractError::AttestationAlreadyRevoked => "Attestation has already been revoked",
@@ -1283,6 +1303,8 @@ impl ErrorExt for ContractError {
             | ContractError::NegativeTransferAmount   // supply amount >= 0
             | ContractError::InsufficientAllowance    // owner can raise the allowance
             | ContractError::TokenTransferFailed      // owner can fix balance/trustline and retry
+            | ContractError::NegativeSlashAmount      // supply amount >= 0
+            | ContractError::UnslashExceedsSlashedAmount // reduce the unslash amount
             => true,
 
             // FATAL Bond: caller cannot directly fix any of these.

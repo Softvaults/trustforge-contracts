@@ -1225,6 +1225,8 @@ mod tests {
             ContractError::NegativeTransferAmount => true, // supply amount >= 0
             ContractError::InsufficientAllowance => true,  // owner can raise the allowance
             ContractError::TokenTransferFailed => true, // owner can fix balance/trustline and retry
+            ContractError::NegativeSlashAmount => true, // supply amount >= 0
+            ContractError::UnslashExceedsSlashedAmount => true, // reduce the unslash amount
             ContractError::InvariantViolation => false, // post-write drift
             ContractError::TreasuryNotConfigured => true, // admin can configure treasury then retry
             ContractError::DuplicateIdempotencyKey => true, // idempotent - safe to retry with same key
