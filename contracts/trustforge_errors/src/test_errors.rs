@@ -1227,6 +1227,9 @@ mod tests {
             ContractError::TokenTransferFailed => true, // owner can fix balance/trustline and retry
             ContractError::NegativeSlashAmount => true, // supply amount >= 0
             ContractError::UnslashExceedsSlashedAmount => true, // reduce the unslash amount
+            ContractError::PauseThresholdExceedsSignerCount => true, // lower the threshold
+            ContractError::NotPauseSigner => true, // switch to an enabled pause signer
+            ContractError::PauseProposalNotFound => true, // supply a valid proposal id
             ContractError::InvariantViolation => false, // post-write drift
             ContractError::TreasuryNotConfigured => true, // admin can configure treasury then retry
             ContractError::DuplicateIdempotencyKey => true, // idempotent - safe to retry with same key

@@ -135,13 +135,14 @@ pub enum ContractError {
 
     /// Pause proposal action value is invalid.
     /// Replaces: panic!("invalid pause action")
-    /// Contracts: registry, treasury
+    /// Contracts: registry, treasury, bond
     /// Wire-stable: do not renumber this error code.
     InvalidPauseAction = 107,
 
     /// Not enough approvals to execute the proposal.
-    /// Replaces: panic!("insufficient signatures to execute"), panic!("insufficient approvals")
-    /// Contracts: multisig, treasury
+    /// Replaces: panic!("insufficient signatures to execute"), panic!("insufficient approvals"),
+    ///           panic!("insufficient approvals to execute")
+    /// Contracts: multisig, treasury, bond
     /// Wire-stable: do not renumber this error code.
     InsufficientSignatures = 108,
 
@@ -450,6 +451,25 @@ pub enum ContractError {
     /// Contracts: bond
     /// Wire-stable: do not renumber this error code.
     UnslashExceedsSlashedAmount = 249,
+
+    /// `set_pause_threshold` was called with a threshold greater than the
+    /// current number of enabled pause signers.
+    /// Replaces: panic!("threshold cannot exceed signer count")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    PauseThresholdExceedsSignerCount = 250,
+
+    /// Caller is not an enabled multisig pause signer.
+    /// Replaces: panic!("not pause signer")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    NotPauseSigner = 251,
+
+    /// No pause/unpause proposal exists with the given ID.
+    /// Replaces: panic!("proposal not found")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    PauseProposalNotFound = 252,
 
     // --- Attestation (300-399) ---
     /// An attestation already exists from this attester for this bond.
@@ -925,7 +945,10 @@ impl ErrorExt for ContractError {
             | ContractError::InsufficientAllowance
             | ContractError::TokenTransferFailed
             | ContractError::NegativeSlashAmount
-            | ContractError::UnslashExceedsSlashedAmount => ErrorCategory::Bond,
+            | ContractError::UnslashExceedsSlashedAmount
+            | ContractError::PauseThresholdExceedsSignerCount
+            | ContractError::NotPauseSigner
+            | ContractError::PauseProposalNotFound => ErrorCategory::Bond,
 
             ContractError::DuplicateAttestation
             | ContractError::AttestationNotFound
@@ -1087,6 +1110,11 @@ impl ErrorExt for ContractError {
             ContractError::UnslashExceedsSlashedAmount => {
                 "Unslash amount exceeds the bond's currently slashed amount"
             }
+            ContractError::PauseThresholdExceedsSignerCount => {
+                "Pause threshold cannot exceed the number of enabled pause signers"
+            }
+            ContractError::NotPauseSigner => "Caller is not an enabled multisig pause signer",
+            ContractError::PauseProposalNotFound => "No pause proposal exists with the given ID",
             ContractError::DuplicateAttestation => "Attestation already exists from this attester",
             ContractError::AttestationNotFound => "No attestation found for the given key",
             ContractError::AttestationAlreadyRevoked => "Attestation has already been revoked",
@@ -1305,6 +1333,9 @@ impl ErrorExt for ContractError {
             | ContractError::TokenTransferFailed      // owner can fix balance/trustline and retry
             | ContractError::NegativeSlashAmount      // supply amount >= 0
             | ContractError::UnslashExceedsSlashedAmount // reduce the unslash amount
+            | ContractError::PauseThresholdExceedsSignerCount // lower the threshold
+            | ContractError::NotPauseSigner            // switch to an enabled pause signer
+            | ContractError::PauseProposalNotFound     // supply a valid proposal id
             => true,
 
             // FATAL Bond: caller cannot directly fix any of these.
