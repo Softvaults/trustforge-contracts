@@ -17,10 +17,11 @@
 //! * The upper boundary nonce `new_nonce - 1` is rejected.
 //! * The first post-invalidation nonce `new_nonce` is accepted.
 
-use trustforge_delegation::{
-    TrustForgeDelegation, TrustForgeDelegationClient, DelegatedActionPayload, DelegationType, DomainTag,
-};
 use soroban_sdk::{testutils::Address as _, Address, Env};
+use trustforge_delegation::{
+    DelegatedActionPayload, DelegationType, DomainTag, TrustForgeDelegation,
+    TrustForgeDelegationClient,
+};
 
 use proptest::prelude::*;
 

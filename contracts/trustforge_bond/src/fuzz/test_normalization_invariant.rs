@@ -9,7 +9,6 @@ use crate::normalization::{
     denormalize, normalize, MAX_SUPPORTED_DECIMALS, MIN_SUPPORTED_DECIMALS, NORMALIZED_DECIMALS,
 };
 use proptest::prelude::*;
-use soroban_sdk::testutils::Address as _;
 use soroban_sdk::{contract, contractimpl, Address, Env, Symbol};
 
 /// Mock token that returns a configurable `decimals()` value.
@@ -28,14 +27,7 @@ impl MockDecimalToken {
         0
     }
     pub fn transfer(_e: Env, _from: Address, _to: Address, _amount: i128) {}
-    pub fn transfer_from(
-        _e: Env,
-        _spender: Address,
-        _from: Address,
-        _to: Address,
-        _amount: i128,
-    ) {
-    }
+    pub fn transfer_from(_e: Env, _spender: Address, _from: Address, _to: Address, _amount: i128) {}
     pub fn allowance(_e: Env, _from: Address, _spender: Address) -> i128 {
         0
     }
@@ -61,11 +53,10 @@ fn max_safe_amount(decimals: u32) -> i128 {
 }
 
 fn roundtrip_strategy() -> impl Strategy<Value = (u32, i128)> {
-    (MIN_SUPPORTED_DECIMALS..=MAX_SUPPORTED_DECIMALS)
-        .prop_flat_map(|decimals| {
-            let max_safe = max_safe_amount(decimals);
-            (Just(decimals), 0_i128..=max_safe)
-        })
+    (MIN_SUPPORTED_DECIMALS..=MAX_SUPPORTED_DECIMALS).prop_flat_map(|decimals| {
+        let max_safe = max_safe_amount(decimals);
+        (Just(decimals), 0_i128..=max_safe)
+    })
 }
 
 proptest! {

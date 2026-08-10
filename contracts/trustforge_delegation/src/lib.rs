@@ -14,9 +14,9 @@
     clippy::restriction
 )]
 
-use trustforge_errors::ContractError;
 use soroban_sdk::panic_with_error;
 use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, Symbol, Vec};
+use trustforge_errors::ContractError;
 
 use soroban_sdk::String;
 pub mod domain;
@@ -33,7 +33,7 @@ pub use verifier::SchemeTag;
 /// Increment this whenever the pinned spec snapshot in
 /// `tests/spec_xdr_regression.rs` is refreshed so CI can distinguish deliberate
 /// interface bumps from accidental drift.
-pub const CONTRACT_SPEC_VERSION: u32 = 1;
+pub const CONTRACT_SPEC_VERSION: u32 = 2;
 
 // ---------------------------------------------------------------------------
 // Contract types

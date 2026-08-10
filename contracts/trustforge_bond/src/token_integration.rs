@@ -5,9 +5,9 @@
 use crate::safe_token;
 use crate::storage;
 use crate::DataKey;
-use trustforge_errors::ContractError;
 use soroban_sdk::token::TokenClient;
 use soroban_sdk::{contracttype, panic_with_error, Address, Env, String, Symbol};
+use trustforge_errors::ContractError;
 
 /// Source classification for funds leaving the bond contract.
 #[contracttype]
@@ -92,6 +92,8 @@ pub fn get_usdc_network(e: &Env) -> Option<String> {
 
 /// @notice Checks if owner has enough allowance for the contract to spend amount.
 /// @dev Uses safe allowance checking with proper error handling.
+/// No production caller today (see docs/ORPHANED_MODULES.md).
+#[allow(dead_code)]
 pub fn require_allowance(e: &Env, owner: &Address, amount: i128) {
     crate::safe_token::safe_require_allowance(e, owner, amount);
 }

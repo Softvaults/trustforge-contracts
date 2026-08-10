@@ -13,16 +13,16 @@ mod invariants;
 mod leverage;
 mod math;
 mod migration;
-mod normalization;
 mod nonce;
+mod normalization;
 mod parameters;
 mod pausable;
 mod rolling_bond;
 mod safe_token;
-mod storage;
 mod same_ledger_liquidation_guard;
 mod slash_history;
 mod slashing;
+mod storage;
 mod tiered_bond;
 mod token_integration;
 mod upgrade_auth;
@@ -40,13 +40,11 @@ mod test_normalization_invariant;
 #[path = "types/mod.rs"]
 pub mod types;
 
-#[cfg(test)]
-mod test_unauthorized_token;
 /// Reusable bond-invariant assertion library (test-only).
 #[cfg(test)]
 pub mod test_invariants;
 #[cfg(test)]
-mod test_helpers;
+mod test_unauthorized_token;
 
 /// Shared test setup utilities (mock token, bond registration).
 #[cfg(test)]
@@ -72,12 +70,12 @@ mod test_liquidate;
 #[cfg(test)]
 mod test_claim_expiry_sweep;
 
-/// Tests for paginated reads — attestations, slash history, and pending claims.
-#[cfg(test)]
-mod test_pagination;
 /// Authentication boundary tests — every non-view fn must require an auth'd address.
 #[cfg(test)]
 mod test_auth;
+/// Tests for paginated reads — attestations, slash history, and pending claims.
+#[cfg(test)]
+mod test_pagination;
 
 /// State-machine tests for rolling-bond notice-period request/renew/settle sequencing.
 #[cfg(test)]
@@ -88,11 +86,11 @@ mod test_rolling_notice;
 #[cfg(test)]
 mod fee_tests;
 
-use trustforge_errors::ContractError;
 use soroban_sdk::{
     contract, contractimpl, contracttype, panic_with_error, Address, Bytes, Env, IntoVal, String,
     Symbol, Val, Vec,
 };
+use trustforge_errors::ContractError;
 
 pub use soroban_sdk;
 
@@ -346,20 +344,20 @@ pub struct TrustForgeBond;
 
 #[contractimpl]
 impl TrustForgeBond {
-        /// Set the set of accepted token addresses.
-        /// Only callable by admin.
-        pub fn set_accepted_tokens(e: Env, admin: Address, accepted_tokens: Vec<Address>) {
-            admin.require_auth();
-            if Some(admin) != storage::get_admin(&e) {
-                panic_with_error!(e, ContractError::NotAdmin);
-            }
-            storage::set_accepted_tokens(&e, &accepted_tokens);
+    /// Set the set of accepted token addresses.
+    /// Only callable by admin.
+    pub fn set_accepted_tokens(e: Env, admin: Address, accepted_tokens: Vec<Address>) {
+        admin.require_auth();
+        if Some(admin) != storage::get_admin(&e) {
+            panic_with_error!(e, ContractError::NotAdmin);
         }
+        storage::set_accepted_tokens(&e, &accepted_tokens);
+    }
 
-        /// Return the contract version.
-        pub fn version(e: Env) -> String {
-            String::from_str(&e, trustforge_errors::VERSION)
-        }
+    /// Return the contract version.
+    pub fn version(e: Env) -> String {
+        String::from_str(&e, trustforge_errors::VERSION)
+    }
 
     /// Initialize the contract with admin authority.
     ///
@@ -368,9 +366,13 @@ impl TrustForgeBond {
     ///
     /// See also: [`docs/trustforge-bond.md`](../../../docs/trustforge-bond.md)
     pub fn initialize(e: Env, admin: Address, registry: Option<Address>) {
+        if e.storage().instance().has(&DataKey::Admin) {
+            panic_with_error!(e, ContractError::AlreadyInitialized);
+        }
         // auth: tree shape identifies the admin; usually a single signature entry.
         admin.require_auth();
         e.storage().instance().set(&DataKey::Admin, &admin);
+        bump_instance_ttl(&e);
         if let Some(registry) = registry {
             e.invoke_contract::<()>(
                 &registry,
@@ -1752,18 +1754,18 @@ impl TrustForgeBond {
     /// - `ContractError::DuplicateIdempotencyKey` when the same idempotency key is reused.
     ///
     /// See also: [`docs/slashing.md`](../../../docs/slashing.md)
-    pub fn slash_bond(
-        e: Env,
-        admin: Address,
-        slash_amount: i128,
-        idempotency_salt: Bytes,
-    ) -> i128 {
+    pub fn slash_bond(e: Env, admin: Address, slash_amount: i128, idempotency_salt: Bytes) -> i128 {
         // auth: tree shape [Admin] -> [Bond::slash_bond]; usually direct admin call.
         admin.require_auth();
 
         // Check idempotency if a salt is provided (non-empty)
-        if idempotency_salt.len() > 0 {
-            idempotency::check_and_record(&e, &admin, &Symbol::new(&e, "slash_bond"), &idempotency_salt);
+        if !idempotency_salt.is_empty() {
+            idempotency::check_and_record(
+                &e,
+                &admin,
+                &Symbol::new(&e, "slash_bond"),
+                &idempotency_salt,
+            );
         }
 
         Self::acquire_lock(&e);
@@ -1831,8 +1833,13 @@ impl TrustForgeBond {
         admin.require_auth();
 
         // Check idempotency if a salt is provided (non-empty)
-        if idempotency_salt.len() > 0 {
-            idempotency::check_and_record(&e, &admin, &Symbol::new(&e, "collect_fees"), &idempotency_salt);
+        if !idempotency_salt.is_empty() {
+            idempotency::check_and_record(
+                &e,
+                &admin,
+                &Symbol::new(&e, "collect_fees"),
+                &idempotency_salt,
+            );
         }
 
         Self::acquire_lock(&e);
@@ -2624,7 +2631,6 @@ mod test_early_exit_precision;
 
 #[cfg(test)]
 mod test_early_exit_penalty;
-
 
 /// Deliberately-divergent contract used by `test_differential` to verify the
 /// harness detects behavioural divergence.  Never shipped to mainnet.

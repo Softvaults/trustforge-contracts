@@ -4,8 +4,8 @@
 //! accounting drift before it propagates to downstream operations.
 
 use crate::{DataKey, IdentityBond};
-use trustforge_errors::ContractError;
 use soroban_sdk::{contracttype, panic_with_error, Address, Env, Vec};
+use trustforge_errors::ContractError;
 
 /// Kind of invariant breach detected during a self-check.
 #[contracttype]

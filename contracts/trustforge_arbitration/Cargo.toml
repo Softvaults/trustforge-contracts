@@ -6,7 +6,10 @@ license = "Apache-2.0"
 description = "TrustForge arbitration voting system — weighted voting for dispute resolution"
 
 [lib]
-crate-type = ["cdylib"]
+# `rlib` is added alongside `cdylib` so the datakey-fingerprint integration test
+# (tests/datakey_fingerprint.rs) can link the contract as a normal Rust
+# dependency. The `cdylib` artifact used for the on-chain wasm is unaffected.
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 soroban-sdk = "22.0"

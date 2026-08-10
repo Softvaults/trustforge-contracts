@@ -1190,9 +1190,9 @@ mod tests {
             ContractError::InvariantViolation => false, // post-write drift
             ContractError::TreasuryNotConfigured => true, // admin can configure treasury then retry
             ContractError::DuplicateIdempotencyKey => true, // idempotent - safe to retry with same key
-            ContractError::DomainMismatch => false,     // payload binding
-            ContractError::BatchTooLarge => true,     // reduce batch size
-            ContractError::EmptyBatch => true,         // supply at least one item
+            ContractError::DomainMismatch => false,         // payload binding
+            ContractError::BatchTooLarge => true,           // reduce batch size
+            ContractError::EmptyBatch => true,              // supply at least one item
             ContractError::OwnerMismatch => false,
             ContractError::TargetMismatch => false,
             ContractError::ContractIdMismatch => false,

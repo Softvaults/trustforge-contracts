@@ -1,11 +1,11 @@
 #![cfg(test)]
 
-use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
-use trustforge_delegation::{TrustForgeDelegation, TrustForgeDelegationClient};
 use soroban_sdk::{
     testutils::{Address as _, MockAuth, MockAuthInvoke},
     vec, Address, Env, IntoVal, String,
 };
+use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
+use trustforge_delegation::{TrustForgeDelegation, TrustForgeDelegationClient};
 
 /// A proxy contract to simulate the cross-contract auth tree.
 #[soroban_sdk::contract]

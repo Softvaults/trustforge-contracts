@@ -26,8 +26,8 @@
 //! the scheme field is absent, preserving backwards compatibility. Clients
 //! transmitting payloads should always set the scheme explicitly.
 
-use trustforge_errors::ContractError;
 use soroban_sdk::{contracttype, panic_with_error, Address, Env};
+use trustforge_errors::ContractError;
 
 pub use crate::verifier::SchemeTag;
 

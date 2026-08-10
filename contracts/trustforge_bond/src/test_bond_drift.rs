@@ -1,10 +1,10 @@
 //! Issue #436: bond drift detection — panic + `bond_drift_detected` event coverage.
 
 use crate::invariants::{assert_self_consistent, BondDriftKind};
-use crate::{TrustForgeBond, TrustForgeBondClient, DataKey, IdentityBond};
-use trustforge_errors::ContractError;
+use crate::{DataKey, IdentityBond, TrustForgeBond, TrustForgeBondClient};
 use soroban_sdk::testutils::{Address as _, Events};
 use soroban_sdk::{Address, Env, Symbol, TryFromVal};
+use trustforge_errors::ContractError;
 
 fn setup_contract(e: &Env) -> (Address, TrustForgeBondClient<'_>) {
     e.mock_all_auths();

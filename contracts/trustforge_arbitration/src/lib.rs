@@ -14,10 +14,10 @@
     clippy::restriction
 )]
 
-use trustforge_errors::ContractError;
 use soroban_sdk::{
     contract, contractimpl, contracttype, panic_with_error, Address, Env, Map, String, Symbol, Vec,
 };
+use trustforge_errors::ContractError;
 
 pub mod pausable;
 pub mod status;
@@ -480,15 +480,10 @@ impl TrustForgeArbitration {
 
             e.events().publish(
                 (Symbol::new(&e, "status_transition"), dispute_id),
-                (
-                    DisputeStatus::Resolving as u32,
-                    DisputeStatus::Tied as u32,
-                ),
+                (DisputeStatus::Resolving as u32, DisputeStatus::Tied as u32),
             );
-            e.events().publish(
-                (Symbol::new(&e, "dispute_tied"), dispute_id),
-                (),
-            );
+            e.events()
+                .publish((Symbol::new(&e, "dispute_tied"), dispute_id), ());
 
             Ok(0)
         } else {

@@ -20,10 +20,10 @@
 //! - Validates addresses before registration
 //! - Emits events for audit trail
 
-use soroban_sdk::String;
-use trustforge_errors::ContractError;
 use soroban_sdk::panic_with_error;
+use soroban_sdk::String;
 use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, Symbol, Vec};
+use trustforge_errors::ContractError;
 pub mod idempotency;
 
 const STORAGE_TTL_EXTEND_TO: u32 = 31_536_000;
@@ -460,7 +460,7 @@ impl TrustForgeRegistry {
             .unwrap_or_else(|| Vec::new(&e));
 
         let actual_limit = limit.min(MAX_IDENTITIES_PAGE_SIZE);
-        let total_count = all_identities.len() as u32;
+        let total_count = all_identities.len();
 
         // Handle offset past end
         if offset >= total_count {
@@ -472,7 +472,7 @@ impl TrustForgeRegistry {
 
         let mut result = Vec::new(&e);
         for i in start..end {
-            result.push_back(all_identities.get(i as u32).unwrap());
+            result.push_back(all_identities.get(i).unwrap());
         }
 
         result
@@ -788,4 +788,3 @@ fn constant_time_eq(left: &[u8], right: &[u8]) -> bool {
         .fold(0, |acc, (l, r)| acc | (l ^ r))
         == 0
 }
-

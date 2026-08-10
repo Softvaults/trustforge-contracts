@@ -2712,7 +2712,7 @@ dependencies = [
 
 [[package]]
 name = "templates"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "soroban-sdk",
  "trustforge_errors",
@@ -2720,7 +2720,7 @@ dependencies = [
 
 [[package]]
 name = "testutils"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "soroban-sdk",
 ]
@@ -2798,7 +2798,7 @@ dependencies = [
 
 [[package]]
 name = "timelock"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "soroban-sdk",
  "trustforge_errors",
@@ -2890,7 +2890,7 @@ dependencies = [
 
 [[package]]
 name = "trustforge_admin"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "soroban-sdk",
  "testutils",
@@ -2899,7 +2899,7 @@ dependencies = [
 
 [[package]]
 name = "trustforge_admin_cli"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -2913,7 +2913,7 @@ dependencies = [
 
 [[package]]
 name = "trustforge_arbitration"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "soroban-sdk",
  "trustforge_errors",
@@ -2921,7 +2921,7 @@ dependencies = [
 
 [[package]]
 name = "trustforge_bond"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "proptest",
  "soroban-sdk",
@@ -2932,7 +2932,7 @@ dependencies = [
 
 [[package]]
 name = "trustforge_delegation"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "insta",
  "proptest",
@@ -2946,14 +2946,14 @@ dependencies = [
 
 [[package]]
 name = "trustforge_errors"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "soroban-sdk",
 ]
 
 [[package]]
 name = "trustforge_math"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "ethnum",
  "trustforge_errors",
@@ -2961,7 +2961,7 @@ dependencies = [
 
 [[package]]
 name = "trustforge_multisig"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "soroban-sdk",
  "trustforge_errors",
@@ -2969,7 +2969,7 @@ dependencies = [
 
 [[package]]
 name = "trustforge_registry"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "soroban-sdk",
  "trustforge_errors",
@@ -2977,7 +2977,7 @@ dependencies = [
 
 [[package]]
 name = "trustforge_treasury"
-version = "0.1.0"
+version = "1.0.0"
 dependencies = [
  "ethnum",
  "proptest",

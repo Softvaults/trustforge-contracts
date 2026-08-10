@@ -14,8 +14,8 @@
     clippy::restriction
 )]
 
-use trustforge_errors::ContractError;
 use ethnum::U256;
+use trustforge_errors::ContractError;
 
 /// Fixed-point denominator for basis-point calculations.
 pub const BPS_DENOMINATOR: i128 = 10_000;
@@ -513,10 +513,7 @@ mod tests {
     #[test]
     fn ceil_div_i128_differs_from_floor_by_one_on_remainder() {
         // remainder present: ceil(11/5) = 3, floor(11/5) = 2
-        assert_eq!(
-            ceil_div_i128(11, 5, "test"),
-            div_i128(11, 5, "test") + 1
-        );
+        assert_eq!(ceil_div_i128(11, 5, "test"), div_i128(11, 5, "test") + 1);
         // exact division: ceil(10/5) == floor(10/5)
         assert_eq!(ceil_div_i128(10, 5, "test"), div_i128(10, 5, "test"));
     }

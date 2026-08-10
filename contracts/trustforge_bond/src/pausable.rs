@@ -1,5 +1,5 @@
-use trustforge_errors::ContractError;
 use soroban_sdk::{Address, Env, Symbol};
+use trustforge_errors::ContractError;
 
 use crate::DataKey;
 
@@ -29,12 +29,22 @@ pub fn is_paused(e: &Env) -> bool {
         .unwrap_or(false)
 }
 
+// NOTE: no production entrypoint in lib.rs calls `require_not_paused` (or checks
+// `is_paused` at all) before executing — `pause()`/`unpause()` currently only flip
+// a storage flag with no effect on any other method. Flagged for Phase 4/5 review
+// rather than silently allowed away — see docs/ORPHANED_MODULES.md.
+#[allow(dead_code)]
 pub fn require_not_paused(e: &Env) {
     if is_paused(e) {
         e.panic_with_error(ContractError::ContractPaused);
     }
 }
 
+// The multisig pause-signer/proposal flow below (set_pause_signer through
+// execute_pause_proposal) is fully implemented but has no production caller —
+// its only exerciser, test_pausable.rs, is one of the orphaned files documented
+// in docs/ORPHANED_MODULES.md.
+#[allow(dead_code)]
 pub fn set_pause_signer(e: &Env, admin: &Address, signer: &Address, enabled: bool) {
     require_admin_auth(e, admin);
 
@@ -88,6 +98,7 @@ pub fn set_pause_signer(e: &Env, admin: &Address, signer: &Address, enabled: boo
     );
 }
 
+#[allow(dead_code)]
 pub fn set_pause_threshold(e: &Env, admin: &Address, threshold: u32) {
     require_admin_auth(e, admin);
     let count: u32 = e
@@ -205,6 +216,7 @@ fn propose_action(e: &Env, caller: &Address, action: PauseAction) -> Option<u64>
     Some(id)
 }
 
+#[allow(dead_code)]
 pub fn approve_pause_proposal(e: &Env, signer: &Address, proposal_id: u64) {
     require_pause_signer(e, signer);
 
@@ -222,6 +234,7 @@ pub fn approve_pause_proposal(e: &Env, signer: &Address, proposal_id: u64) {
     );
 }
 
+#[allow(dead_code)]
 pub fn execute_pause_proposal(e: &Env, proposal_id: u64) {
     let action: u32 = e
         .storage()

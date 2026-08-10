@@ -4,7 +4,7 @@
 //! to ensure the treasury maintains solvency and protects against unfavorable
 //! withdrawal conditions.
 
-use crate::{TrustForgeTreasury, TrustForgeTreasuryClient, FundSource};
+use crate::{FundSource, TrustForgeTreasury, TrustForgeTreasuryClient};
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::{Address, Env};
 

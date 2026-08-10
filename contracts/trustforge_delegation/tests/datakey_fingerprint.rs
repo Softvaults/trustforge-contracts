@@ -9,10 +9,10 @@
 //! Field values are fixed, deterministic placeholders: the fingerprint is about
 //! the variant *tag and shape*, not the runtime data stored under it.
 
-use trustforge_delegation::{DataKey, DelegationType};
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::xdr::ToXdr;
 use soroban_sdk::{Address, Bytes, Env};
+use trustforge_delegation::{DataKey, DelegationType};
 
 fn hex(bytes: &Bytes) -> String {
     let mut s = String::with_capacity(bytes.len() as usize * 2);

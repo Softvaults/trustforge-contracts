@@ -1,6 +1,6 @@
 extern crate std;
 
-use crate::{ActionType, TrustForgeMultiSig, TrustForgeMultiSigClient, ProposalStatus};
+use crate::{ActionType, ProposalStatus, TrustForgeMultiSig, TrustForgeMultiSigClient};
 use soroban_sdk::{
     testutils::{Address as _, Events, Ledger},
     Address, BytesN, Env, String, Vec,

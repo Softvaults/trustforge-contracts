@@ -29,8 +29,8 @@
 //! A `emergency_drain` event is published on every successful execution,
 //! carrying `(amount, recipient, drain_id, timestamp)`.
 
-use trustforge_errors::ContractError;
 use soroban_sdk::{contracttype, panic_with_error, Address, Env, Symbol};
+use trustforge_errors::ContractError;
 
 use crate::safe_token;
 
@@ -41,9 +41,6 @@ pub const DRAIN_TIMELOCK_SECONDS: u64 = 86_400; // 24 hours
 /// Storage key for the drain timelock ETA (ledger timestamp when drain becomes
 /// executable).  Stored in instance storage so it is cleared on upgrade.
 pub const KEY_DRAIN_ETA: &str = "drain_eta";
-
-/// Storage key for the drain sequence counter.
-pub const KEY_DRAIN_SEQ: &str = "drain_seq";
 
 /// Persistent storage key for individual drain audit records.
 #[contracttype]
@@ -117,9 +114,7 @@ pub fn schedule_drain(e: &Env, admin: &Address, delay: u64) {
 
 /// Return the currently scheduled drain ETA, or `None` if not yet scheduled.
 pub fn get_drain_eta(e: &Env) -> Option<u64> {
-    e.storage()
-        .instance()
-        .get(&Symbol::new(e, KEY_DRAIN_ETA))
+    e.storage().instance().get(&Symbol::new(e, KEY_DRAIN_ETA))
 }
 
 /// Cancel a pending drain schedule (admin-only; contract must remain paused).
@@ -219,11 +214,7 @@ pub fn execute_drain(
 
     // Emit event.
     e.events().publish(
-        (
-            Symbol::new(e, "emergency_drain"),
-            drain_id,
-            admin.clone(),
-        ),
+        (Symbol::new(e, "emergency_drain"), drain_id, admin.clone()),
         (amount, recipient.clone(), now),
     );
 
@@ -261,8 +252,6 @@ fn increment_drain_seq(e: &Env) -> u64 {
         .get(&DrainDataKey::DrainSeq)
         .unwrap_or(0);
     let next = seq.checked_add(1).expect("drain sequence overflow");
-    e.storage()
-        .persistent()
-        .set(&DrainDataKey::DrainSeq, &next);
+    e.storage().persistent().set(&DrainDataKey::DrainSeq, &next);
     next
 }

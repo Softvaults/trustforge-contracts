@@ -3,7 +3,7 @@
 //! propose/approve/execute), fund source tracking, events, and security.
 //! Also tests emergency rescue functionality for stuck native tokens.
 
-use crate::{TrustForgeTreasury, TrustForgeTreasuryClient, CumulativeAmount, FundSource};
+use crate::{CumulativeAmount, FundSource, TrustForgeTreasury, TrustForgeTreasuryClient};
 use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::{Address, Env};
 

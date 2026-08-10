@@ -1,4 +1,4 @@
-﻿//! Regression guard for the canonical bond implementation.
+//! Regression guard for the canonical bond implementation.
 //!
 //! # What changed (see docs/bond-crate-layout.md)
 //! The previous harness ran four live fork contracts in lock-step and asserted
@@ -20,11 +20,11 @@
 
 use soroban_sdk::{
     testutils::{Address as _, Ledger as _},
-    Address, Env,
+    vec, Address, Bytes, Env,
 };
 
 use crate::test_helpers::{self, advance_ledger_sequence};
-use crate::{TrustForgeBond, TrustForgeBondClient, IdentityBond};
+use crate::{IdentityBond, TrustForgeBond, TrustForgeBondClient};
 
 // ---------------------------------------------------------------------------
 // Pinned state struct
@@ -132,7 +132,7 @@ fn scenario_full_bond_lifecycle() {
         },
     );
 
-    c.slash_bond(&admin, &200_i128);
+    c.slash_bond(&admin, &200_i128, &Bytes::new(&env));
     assert_pinned(
         "after_slash_bond",
         &c.get_identity_state(),
@@ -253,6 +253,7 @@ fn scenario_early_exit_and_penalty() {
     let token_id = env.register(crate::test_helpers::MockStellarAsset, ());
     let token_admin = soroban_sdk::token::StellarAssetClient::new(&env, &token_id);
     token_admin.mint(&identity, &20_000_i128); // Mint enough for bond + fees
+    c.set_accepted_tokens(&admin, &vec![&env, token_id.clone()]);
     c.set_token(&admin, &token_id);
     let token_client = soroban_sdk::token::Client::new(&env, &token_id);
     token_client.approve(&identity, &id, &20_000_i128, &99999);

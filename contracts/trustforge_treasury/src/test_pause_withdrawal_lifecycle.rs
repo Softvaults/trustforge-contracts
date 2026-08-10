@@ -3,7 +3,7 @@
 //! Asserts that pausing halts each stage of propose/approve/execute and
 //! unpause resumes cleanly with no partial state mutation.
 
-use crate::{TrustForgeTreasury, TrustForgeTreasuryClient, FundSource};
+use crate::{FundSource, TrustForgeTreasury, TrustForgeTreasuryClient};
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::{Address, Env};
 

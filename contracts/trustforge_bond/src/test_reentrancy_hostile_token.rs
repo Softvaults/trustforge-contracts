@@ -8,7 +8,7 @@ use crate::chaos_token::{ChaosToken, ChaosTokenClient};
 use crate::test_helpers;
 use crate::TrustForgeBondClient;
 use soroban_sdk::testutils::Ledger;
-use soroban_sdk::{Address, Env, Symbol, Vec};
+use soroban_sdk::{Address, Bytes, Env, Symbol, Vec};
 
 const INITIAL_BOND: i128 = 10_000;
 const OUTER_AMOUNT: i128 = 1_000;
@@ -40,7 +40,7 @@ fn setup_hostile_token_bond(e: &Env) -> HostileSetup<'_> {
     client.set_accepted_tokens(&admin, &accepted);
     client.set_token(&admin, &token_id);
 
-    client.create_bond(&identity, &INITIAL_BOND, &DURATION);
+    client.create_bond(&identity, &INITIAL_BOND, &DURATION, &false, &0_u64);
     assert_invariants(e, &contract_id);
 
     HostileSetup {
@@ -81,7 +81,10 @@ fn arm_attack(
 }
 
 fn assert_attack_rejected(setup: &HostileSetup<'_>) {
-    assert!(setup.token.attack_attempted(), "hostile token did not re-enter");
+    assert!(
+        setup.token.attack_attempted(),
+        "hostile token did not re-enter"
+    );
     assert!(
         setup.token.attack_rejected(),
         "reentrant bond call was not rejected"
@@ -100,8 +103,7 @@ fn hostile_token_reentry_into_withdraw_is_rejected() {
     });
     test_helpers::advance_ledger_sequence(&e);
 
-    let (before_identity, before_contract, _) =
-        arm_attack(&e, &setup, "withdraw", REENTER_AMOUNT);
+    let (before_identity, before_contract, _) = arm_attack(&e, &setup, "withdraw", REENTER_AMOUNT);
     setup.client.slash(&setup.admin, &OUTER_AMOUNT);
 
     assert_attack_rejected(&setup);
@@ -146,8 +148,7 @@ fn hostile_token_reentry_into_slash_is_rejected() {
     setup.client.set_slash_treasury(&setup.admin, &setup.admin);
     test_helpers::advance_ledger_sequence(&e);
 
-    let (_, before_contract, before_treasury) =
-        arm_attack(&e, &setup, "slash", REENTER_AMOUNT);
+    let (_, before_contract, before_treasury) = arm_attack(&e, &setup, "slash", REENTER_AMOUNT);
     setup.client.slash(&setup.admin, &OUTER_AMOUNT);
 
     assert_attack_rejected(&setup);
@@ -170,8 +171,7 @@ fn hostile_token_reentry_into_top_up_is_rejected() {
     let e = Env::default();
     let setup = setup_hostile_token_bond(&e);
 
-    let (before_identity, before_contract, _) =
-        arm_attack(&e, &setup, "top_up", REENTER_AMOUNT);
+    let (before_identity, before_contract, _) = arm_attack(&e, &setup, "top_up", REENTER_AMOUNT);
     setup.client.top_up(&setup.identity, &OUTER_AMOUNT);
 
     assert_attack_rejected(&setup);
@@ -207,5 +207,8 @@ fn hostile_token_reentry_into_collect_fees_is_rejected() {
         setup.token.balance(&setup.contract_id),
         before_contract - OUTER_AMOUNT
     );
-    assert_eq!(setup.client.collect_fees(&setup.admin), 500_i128);
+    assert_eq!(
+        setup.client.collect_fees(&setup.admin, &Bytes::new(&e)),
+        500_i128
+    );
 }

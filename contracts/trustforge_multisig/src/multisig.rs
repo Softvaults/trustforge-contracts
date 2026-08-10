@@ -5,11 +5,11 @@
 //! and execution at threshold. Can be used for any administrative action requiring
 //! multi-party approval.
 
-use trustforge_errors::ContractError;
 use soroban_sdk::{
     contract, contractimpl, contracttype, panic_with_error, Address, Bytes, BytesN, Env, String,
     Symbol, Vec,
 };
+use trustforge_errors::ContractError;
 
 /// Type of action that can be proposed and executed.
 #[contracttype]

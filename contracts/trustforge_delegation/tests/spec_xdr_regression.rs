@@ -22,7 +22,7 @@ const EXPECTED_SPEC_XDR_HEX: &str = include_str!("spec_xdr/trustforge_delegation
 
 /// `{CONTRACT_SPEC_VERSION}:{spec_xdr_hex}` — ties the snapshot to an explicit bump.
 const EXPECTED_VERSIONED_MANIFEST: &str =
-    concat!("1:", include_str!("spec_xdr/trustforge_delegation.v1.hex"));
+    concat!("2:", include_str!("spec_xdr/trustforge_delegation.v1.hex"));
 
 fn workspace_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..")
@@ -80,7 +80,10 @@ fn current_spec_xdr_hex() -> String {
 }
 
 fn versioned_manifest(spec_hex: &str) -> String {
-    format!("{}:{spec_hex}", trustforge_delegation::CONTRACT_SPEC_VERSION)
+    format!(
+        "{}:{spec_hex}",
+        trustforge_delegation::CONTRACT_SPEC_VERSION
+    )
 }
 
 #[test]

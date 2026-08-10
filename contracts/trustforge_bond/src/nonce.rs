@@ -3,9 +3,9 @@
 //! Safety buffer added on top of the nonce TTL.
 const MIN_NONCE_TTL: u32 = 518_400;
 
-use trustforge_errors::ContractError;
 use soroban_sdk::panic_with_error;
 use soroban_sdk::{Address, Env};
+use trustforge_errors::ContractError;
 
 use crate::DataKey;
 
@@ -67,9 +67,7 @@ pub fn get_grace_window(e: &Env) -> u64 {
 /// directly widens the replay/expiry attack surface.
 pub fn set_grace_window(e: &Env, grace: u64) -> u64 {
     let old = get_grace_window(e);
-    e.storage()
-        .instance()
-        .set(&DataKey::GraceWindow, &grace);
+    e.storage().instance().set(&DataKey::GraceWindow, &grace);
     bump_nonce_ttl(e, &DataKey::GraceWindow, 0);
     old
 }
@@ -105,6 +103,11 @@ pub fn require_not_expired(e: &Env, deadline: u64) {
 /// # Panics
 /// Panics with "domain mismatch" if `expected_contract` does not match the
 /// current contract address.
+///
+/// Only called from `testutils_helpers::validate_and_consume{,_with_grace}` below,
+/// which is off-chain-tooling-only (see docs/ORPHANED_MODULES.md) — no production
+/// entrypoint currently performs domain-separation checking on signed actions.
+#[allow(dead_code)]
 pub fn require_domain_match(e: &Env, expected_contract: &Address) {
     let current = e.current_contract_address();
     if current != *expected_contract {
@@ -124,39 +127,12 @@ fn bump_nonce_ttl(e: &Env, _key: &DataKey, _ttl: u32) {
 
 /// Grace-window helpers and composite validators are only needed for off-chain
 /// tooling, integration harnesses, and tests — not in the release WASM binary.
+/// No production entrypoint calls into this module (see docs/ORPHANED_MODULES.md);
+/// it's kept for external test/tooling consumers that link this crate as an rlib.
 #[cfg(any(test, feature = "testutils"))]
+#[allow(dead_code)]
 mod testutils_helpers {
     use super::*;
-
-    /// Returns the configured grace window in seconds (0 = strict enforcement).
-    ///
-    /// Grace is DISABLED by default. When non-zero, signatures are accepted for
-    /// up to `grace` seconds past their nominal deadline to absorb inclusion delays.
-    /// Nonces are still consumed on first use — grace does NOT weaken replay protection.
-    pub fn get_grace_window(e: &Env) -> u64 {
-        e.storage()
-            .instance()
-            .get(&DataKey::GraceWindow)
-            .unwrap_or(0)
-    }
-
-    /// Validates that the current ledger timestamp is within the allowed window.
-    ///
-    /// Accepted if: `now <= deadline + grace_window`
-    ///
-    /// With default grace = 0 this is strictly `now <= deadline`.
-    ///
-    /// # Panics
-    /// Panics with `ContractError::SignatureExpired` if the effective deadline has passed.
-    pub fn require_not_expired(e: &Env, deadline: u64) {
-        let now = e.ledger().timestamp();
-        let grace = get_grace_window(e);
-        // saturating_add prevents u64 overflow on pathological deadline values
-        let effective_deadline = deadline.saturating_add(grace);
-        if now > effective_deadline {
-            panic_with_error!(e, ContractError::SignatureExpired);
-        }
-    }
 
     /// Validate deadline (+ grace), domain, and consume nonce in one atomic call.
     ///
@@ -173,7 +149,7 @@ mod testutils_helpers {
         deadline: u64,
         nonce: u64,
     ) {
-        require_not_expired(e, deadline);
+        super::require_not_expired(e, deadline);
         super::require_domain_match(e, expected_contract);
         super::consume_nonce(e, identity, nonce);
     }
@@ -202,4 +178,5 @@ mod testutils_helpers {
 }
 
 #[cfg(any(test, feature = "testutils"))]
+#[allow(unused_imports)]
 pub use testutils_helpers::*;

@@ -21,7 +21,7 @@ use soroban_sdk::{Address, Env, FromVal, Symbol};
 /// Shared setup: rolling bond, duration = 86_400 s, notice = 3_600 s, amount = 1_000.
 fn setup_rolling(e: &Env) -> (crate::TrustForgeBondClient<'_>, soroban_sdk::Address) {
     let (client, _admin, identity, ..) = test_helpers::setup_with_token(e);
-    client.create_bond_with_rolling(&identity, &1_000_i128, &86_400_u64, &true, &3_600_u64);
+    client.create_bond(&identity, &1_000_i128, &86_400_u64, &true, &3_600_u64);
     (client, identity)
 }
 
@@ -152,7 +152,10 @@ fn test_renew_during_open_request_emits_no_bond_renewed() {
             .map(|v| Symbol::from_val(&e, &v) == Symbol::new(&e, "bond_renewed"))
             .unwrap_or(false)
     });
-    assert!(!renewed, "bond_renewed must not be emitted when withdrawal is pending");
+    assert!(
+        !renewed,
+        "bond_renewed must not be emitted when withdrawal is pending"
+    );
 }
 
 // ── 5. renew without open request advances the period and resets state ────────
@@ -190,7 +193,10 @@ fn test_renew_emits_bond_renewed_event() {
             .map(|v| Symbol::from_val(&e, &v) == Symbol::new(&e, "bond_renewed"))
             .unwrap_or(false)
     });
-    assert!(renewed, "bond_renewed event must be emitted on successful renewal");
+    assert!(
+        renewed,
+        "bond_renewed event must be emitted on successful renewal"
+    );
 }
 
 // ── 6. withdrawal_requested event fields ─────────────────────────────────────
@@ -239,7 +245,7 @@ fn test_same_ledger_request_and_settle_rejected() {
 
 /// A second `request_withdrawal` when one is already pending must panic.
 #[test]
-#[should_panic(expected = "withdrawal already requested")]
+#[should_panic(expected = "Error(Contract, #206)")]
 fn test_double_request_panics() {
     let e = Env::default();
     e.mock_all_auths();
@@ -302,7 +308,7 @@ fn test_request_then_full_slash_withdraw_fails() {
     e.mock_all_auths();
     e.ledger().with_mut(|l| l.timestamp = 1_000);
     let (client, admin, identity, ..) = test_helpers::setup_with_token(&e);
-    client.create_bond_with_rolling(&identity, &1_000_i128, &86_400_u64, &true, &3_600_u64);
+    client.create_bond(&identity, &1_000_i128, &86_400_u64, &true, &3_600_u64);
 
     test_helpers::advance_ledger_sequence(&e);
     client.request_withdrawal(&identity);

@@ -18,10 +18,13 @@
 
 #[cfg(test)]
 mod tests {
-    use crate::{TrustForgeTreasury, TrustForgeTreasuryClient, FundSource};
+    extern crate std;
+
+    use crate::{FundSource, TrustForgeTreasury, TrustForgeTreasuryClient};
     use proptest::prelude::*;
     use soroban_sdk::testutils::Address as _;
     use soroban_sdk::{Address, Env};
+    use std::{format, vec::Vec};
 
     /// Maximum deposit amount per operation to keep arithmetic tractable.
     const MAX_DEPOSIT: i128 = 1_000_000_000_i128;

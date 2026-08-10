@@ -14,8 +14,8 @@ fn setup(env: &Env) -> (Address, Address) {
 #[cfg(test)]
 mod suspension_tests {
     use super::*;
-    use trustforge_errors::Role;
     use soroban_sdk::testutils::Ledger;
+    use trustforge_errors::Role;
 
     // ── 1. suspend_admin succeeds ─────────────────────────────────────────────
 

@@ -52,18 +52,33 @@ the docs not contradicting reality.
 We rated this repo without being able to run `cargo build`/`cargo test` in this environment. Before
 investing in fixes, confirm what actually works today.
 
-- [ ] Run `cargo build --workspace` and `cargo test --workspace` clean, on the pinned toolchain
+- [x] Run `cargo build --workspace` and `cargo test --workspace` clean, on the pinned toolchain
       (`rust-toolchain.toml`). Fix anything that doesn't pass — do not skip failing tests.
-- [ ] Run `cargo clippy --workspace --all-targets --all-features -- -D warnings` clean.
-- [ ] Run `cargo geiger` and confirm the "no unsafe code" claim in the README is still true.
-- [ ] Run `bash scripts/check_wasm_size.sh` and confirm every deployable contract is under the
-      64KB budget.
-- [ ] Pull actual coverage numbers (`cargo tarpaulin --workspace`) instead of relying on "full test
+      Build was clean. Found and fixed one real pre-existing test failure (stale
+      `contractspecv0` XDR pin in `trustforge_delegation`). Two 10,000-case proptest files
+      make a literal full-suite run take ~2+ hours — see `VERIFICATION.md` §5; every test
+      that could be run to completion or at reduced cases passed.
+- [x] Run `cargo clippy --workspace --all-targets --all-features -- -D warnings` clean.
+      Fixed 33 dead-code/unused-import errors + several unrelated lint errors. Two of the
+      dead-code fixes surfaced real functional gaps (unused decimal normalization, unenforced
+      pause) — flagged in-code and in `VERIFICATION.md` §7, not silently fixed.
+- [x] Run `cargo geiger` and confirm the "no unsafe code" claim in the README is still true.
+      `cargo-geiger` itself wouldn't install in-session; verified by manual grep instead.
+      Zero unsafe code in the compiled surface — see `VERIFICATION.md` §8.
+- [x] Run `bash scripts/check_wasm_size.sh` and confirm every deployable contract is under the
+      64KB budget. **`trustforge_bond` fails: 137KB, over 2x the limit — not currently
+      deployable to any Stellar network.** 7/8 others pass. See `VERIFICATION.md` §9.
+- [x] Pull actual coverage numbers (`cargo tarpaulin --workspace`) instead of relying on "full test
       coverage" as an assertion. Record the real percentage in `STATUS.md`.
+      Used `cargo llvm-cov` (tarpaulin wouldn't install against the pinned toolchain, and
+      isn't actually what CI's `coverage.yml` uses anyway). `trustforge_bond` is at 70.64%,
+      below CI's 95% gate, with `upgrade_auth.rs` at a flat 0.00%. See `VERIFICATION.md` §10.
 - [ ] Confirm CI (`.github/workflows/*`) is green on `main` right now, not just configured.
 
-**Output of this phase:** a short `VERIFICATION.md` note (or a section in `STATUS.md`) recording
-what was actually run, when, and the result — so "it works" is a checked fact, not folklore.
+**Output of this phase:** see [`VERIFICATION.md`](VERIFICATION.md) for the full log of what was
+run, when, and the result, plus two findings big enough to get their own documents:
+[`docs/ORPHANED_MODULES.md`](docs/ORPHANED_MODULES.md) (~60 files never compiled into
+`trustforge_bond`) and the `trustforge_bond.wasm` 64KB-limit overshoot above.
 
 ---
 
@@ -96,6 +111,14 @@ protocol calling itself production-ready.
 
 Priority order (highest centralization/trust risk first):
 
+- [ ] **Restore or deliberately delete ~60 orphaned files in `trustforge_bond`**
+      (`access_control.rs`, `verifier.rs`, `governance_approval.rs`, `evidence.rs`,
+      `cooldown.rs`, `fees.rs`, `status_snapshot.rs`, the pause-multisig functions in
+      `pausable.rs`, and ~53 test files) — not declared as `mod` in `lib.rs`, so never
+      compiled into anything. Requires adding ~45 missing `#[contractimpl]` entrypoints
+      with real auth/error design, not a mechanical reconnect. See
+      [docs/ORPHANED_MODULES.md](docs/ORPHANED_MODULES.md) for the full finding
+      (discovered 2026-08-10 during Phase 2 verification).
 - [ ] **Arbitrator weights not stake-backed** (`trustforge_arbitration`) — currently pure
       admin-assigned integers, i.e. the admin key fully controls dispute outcomes. Derive weight
       from `trustforge_bond` balance via cross-contract call, or require arbitrators to stake into

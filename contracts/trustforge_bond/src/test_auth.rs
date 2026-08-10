@@ -293,7 +293,7 @@ fn top_up_rejected_when_stranger_calls() {
     let identity = Address::generate(&env);
     let stranger = Address::generate(&env);
     client.create_bond(&identity, &1000_i128, &86400_u64, &false, &0_u64);
-    client.top_up(&identity, &500_i128);
+    client.top_up(&stranger, &500_i128);
 }
 
 // ---------------------------------------------------------------------------
@@ -318,7 +318,7 @@ fn extend_duration_rejected_when_stranger_calls() {
     let identity = Address::generate(&env);
     let stranger = Address::generate(&env);
     client.create_bond(&identity, &1000_i128, &86400_u64, &false, &0_u64);
-    client.extend_duration(&identity, &3600_u64);
+    client.extend_duration(&stranger, &3600_u64);
 }
 
 // ---------------------------------------------------------------------------

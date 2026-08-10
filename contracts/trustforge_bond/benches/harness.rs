@@ -1,4 +1,4 @@
-﻿//! Shared cost-measurement harness for the `trustforge_bond` contract.
+//! Shared cost-measurement harness for the `trustforge_bond` contract.
 //!
 //! This module is compiled into both the `cost` bench ([cost.rs]) and the
 //! `update-cost-baseline` binary ([update_cost_baseline.rs]). It drives every
@@ -14,11 +14,11 @@
 
 use std::collections::BTreeMap;
 
-use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
 use soroban_sdk::{
     testutils::{Address as _, EnvTestConfig, Ledger as _},
-    Address, Env, String as SorobanString,
+    token, Address, Env, String as SorobanString,
 };
+use trustforge_bond::{TrustForgeBond, TrustForgeBondClient};
 
 /// Metered resources for a single top-level entrypoint invocation. Field names
 /// mirror `soroban_env_host::InvocationResources` so the JSON baseline reads the
@@ -85,7 +85,7 @@ fn measure(env: &Env) -> EntryCost {
 /// `cost_estimate().resources()` reports that call alone.
 pub fn measure_all() -> BTreeMap<String, EntryCost> {
     let mut out = BTreeMap::new();
-    
+
     // Use realistic bond amounts (minimum is 1e18)
     let bond_amount = 1_000_000_000_000_000_000i128; // 1e18
     let duration = 1_000_u64;
@@ -105,9 +105,7 @@ pub fn measure_all() -> BTreeMap<String, EntryCost> {
         let client = TrustForgeBondClient::new(&env, &env.register(TrustForgeBond, ()));
         let identity = Address::generate(&env);
         client.create_bond(&identity, &bond_amount, &duration, &false, &0_u64);
-        client.top_up(&(bond_amount / 2));
-        client.create_bond(&identity, &1_000_i128, &1_000_u64, &false, &0_u64);
-        client.top_up(&identity, &500_i128);
+        client.top_up(&identity, &(bond_amount / 2));
         out.insert("top_up".into(), measure(&env));
     }
 
@@ -119,12 +117,14 @@ pub fn measure_all() -> BTreeMap<String, EntryCost> {
         env.ledger().set_timestamp(0);
         client.create_bond(&identity, &bond_amount, &duration, &false, &0_u64);
         env.ledger().set_timestamp(2_000);
-        client.withdraw(&(bond_amount / 10));
-        client.withdraw(&identity, &100_i128);
+        client.withdraw(&identity, &(bond_amount / 10));
         out.insert("withdraw".into(), measure(&env));
     }
 
     // withdraw_early — bond exited before lock-up end, charging the penalty.
+    // Unlike create_bond/top_up/withdraw above, this pays the penalty to
+    // `treasury` via a real token transfer, so it needs an actual configured
+    // token with a minted balance and an allowance for the bond contract.
     {
         let env = fresh_env();
         let client = TrustForgeBondClient::new(&env, &env.register(TrustForgeBond, ()));
@@ -132,12 +132,27 @@ pub fn measure_all() -> BTreeMap<String, EntryCost> {
         let treasury = Address::generate(&env);
         let identity = Address::generate(&env);
         client.initialize(&admin, &None);
+
+        let token_admin = Address::generate(&env);
+        let token_id = env
+            .register_stellar_asset_contract_v2(token_admin)
+            .address();
+        let token_admin_client = token::StellarAssetClient::new(&env, &token_id);
+        token_admin_client.mint(&identity, &(bond_amount * 2));
+        client.set_accepted_tokens(&admin, &soroban_sdk::vec![&env, token_id.clone()]);
+        client.set_token(&admin, &token_id);
+        token::Client::new(&env, &token_id).approve(
+            &identity,
+            &client.address,
+            &(bond_amount * 2),
+            &99999,
+        );
+
         client.set_early_exit_config(&admin, &treasury, &500_u32);
         env.ledger().set_timestamp(0);
         client.create_bond(&identity, &bond_amount, &duration, &false, &0_u64);
         env.ledger().set_timestamp(100);
-        client.withdraw_early(&(bond_amount / 10));
-        client.withdraw_early(&identity, &100_i128);
+        client.withdraw_early(&identity, &(bond_amount / 10));
         out.insert("withdraw_early".into(), measure(&env));
     }
 
@@ -149,9 +164,7 @@ pub fn measure_all() -> BTreeMap<String, EntryCost> {
         let identity = Address::generate(&env);
         client.initialize(&admin, &None);
         client.create_bond(&identity, &bond_amount, &duration, &false, &0_u64);
-        client.slash_bond(&admin, &(bond_amount / 10));
-        client.create_bond(&identity, &1_000_i128, &1_000_u64, &false, &0_u64);
-        client.slash_bond(&admin, &100_i128);
+        client.slash_bond(&admin, &(bond_amount / 10), &soroban_sdk::Bytes::new(&env));
         out.insert("slash_bond".into(), measure(&env));
     }
 

@@ -22,8 +22,11 @@ pub fn apply_renewal(bond: &mut IdentityBond, new_start: u64) {
 // ============================================================================
 
 /// Convenience predicates used by tests and off-chain tooling. Excluded from
-/// the release WASM via `#[cfg(any(test, feature = "testutils"))]`.
+/// the release WASM via `#[cfg(any(test, feature = "testutils"))]`. No production
+/// caller today — its exerciser, test_rolling_bond.rs, is orphaned (see
+/// docs/ORPHANED_MODULES.md).
 #[cfg(any(test, feature = "testutils"))]
+#[allow(dead_code)]
 pub mod testutils {
     /// Returns true if a withdrawal was requested and the notice period has elapsed.
     #[must_use]

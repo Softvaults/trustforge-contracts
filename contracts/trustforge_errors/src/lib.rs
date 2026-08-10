@@ -655,7 +655,7 @@ impl ErrorExt for ContractError {
             | ContractError::InvalidNoticePeriod
             | ContractError::BondAlreadyExists
             | ContractError::UnauthorizedToken => ErrorCategory::Bond,
-            | ContractError::StorageCapReached
+            ContractError::StorageCapReached
             | ContractError::TreasuryNotConfigured
             | ContractError::CursorOutOfRange
             | ContractError::BatchTooLarge
@@ -701,9 +701,9 @@ impl ErrorExt for ContractError {
             | ContractError::ProposalExpired
             | ContractError::SlippageExceeded => ErrorCategory::Treasury,
 
-            ContractError::Overflow
-            | ContractError::Underflow
-            | ContractError::DivisionByZero => ErrorCategory::Arithmetic,
+            ContractError::Overflow | ContractError::Underflow | ContractError::DivisionByZero => {
+                ErrorCategory::Arithmetic
+            }
             ContractError::NoPendingAdmin
             | ContractError::InvalidAdminAddress
             | ContractError::AdminUnchanged

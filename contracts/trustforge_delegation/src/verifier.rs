@@ -15,8 +15,8 @@
 //! and encoded into signatures. Changing variant values after deployment will
 //! break existing signatures. When adding new schemes, append at the end only.
 
-use trustforge_errors::ContractError;
 use soroban_sdk::{contracttype, panic_with_error, Address, Bytes, Env, IntoVal, Symbol, Val, Vec};
+use trustforge_errors::ContractError;
 
 use crate::DataKey;
 

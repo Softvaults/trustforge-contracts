@@ -1,10 +1,8 @@
-#![cfg(test)]
 extern crate alloc;
 extern crate std;
-use crate::{TrustForgeBond, TrustForgeBondClient, DataKey};
+use crate::{DataKey, TrustForgeBond, TrustForgeBondClient};
 use soroban_sdk::testutils::Address as _;
-use soroban_sdk::{Address, Env, IntoVal, Val};
-use soroban_sdk::{Address, Env, IntoVal, Val, Vec};
+use soroban_sdk::{Address, Bytes, Env, IntoVal};
 
 fn setup(env: &Env) -> (TrustForgeBondClient<'_>, Address, Address, Address) {
     env.mock_all_auths();
@@ -30,7 +28,6 @@ fn invoke_transfer_admin(env: &Env, client: &TrustForgeBondClient<'_>, caller: &
     let new_admin = Address::generate(env);
     let args: soroban_sdk::Vec<soroban_sdk::Val> =
         (caller.clone(), new_admin.clone()).into_val(env);
-    let args: soroban_sdk::Vec<soroban_sdk::Val> = (caller.clone(), new_admin.clone()).into_val(env);
     env.mock_auths(&[
         soroban_sdk::testutils::MockAuth {
             address: caller,
@@ -158,11 +155,11 @@ fn get_privileged_cases() -> alloc::vec::Vec<PrivilegedCase> {
                     invoke: &soroban_sdk::testutils::MockAuthInvoke {
                         contract: &client.address,
                         fn_name: "slash_bond",
-                        args: (caller, 100_i128).into_val(env),
+                        args: (caller, 100_i128, Bytes::new(env)).into_val(env),
                         sub_invokes: &[],
                     },
                 }]);
-                client.slash_bond(caller, &100_i128);
+                client.slash_bond(caller, &100_i128, &Bytes::new(env));
             },
         },
         PrivilegedCase {
@@ -173,11 +170,11 @@ fn get_privileged_cases() -> alloc::vec::Vec<PrivilegedCase> {
                     invoke: &soroban_sdk::testutils::MockAuthInvoke {
                         contract: &client.address,
                         fn_name: "collect_fees",
-                        args: (caller,).into_val(env),
+                        args: (caller, Bytes::new(env)).into_val(env),
                         sub_invokes: &[],
                     },
                 }]);
-                client.collect_fees(caller);
+                client.collect_fees(caller, &Bytes::new(env));
             },
         },
         PrivilegedCase {
@@ -288,7 +285,6 @@ fn test_transfer_admin_rotates_admin_and_rejects_old_admin() {
 
     let args: soroban_sdk::Vec<soroban_sdk::Val> =
         (admin.clone(), new_admin.clone()).into_val(&env);
-    let args: soroban_sdk::Vec<soroban_sdk::Val> = (admin.clone(), new_admin.clone()).into_val(&env);
     env.mock_auths(&[
         soroban_sdk::testutils::MockAuth {
             address: &admin,

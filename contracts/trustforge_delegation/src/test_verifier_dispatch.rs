@@ -13,7 +13,7 @@ use soroban_sdk::{
 use crate::{
     domain::{DelegatedActionPayload, DomainTag},
     verifier::SchemeTag,
-    TrustForgeDelegation, TrustForgeDelegationClient, DelegationType,
+    DelegationType, TrustForgeDelegation, TrustForgeDelegationClient,
 };
 
 // ---------------------------------------------------------------------------

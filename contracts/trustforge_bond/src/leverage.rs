@@ -19,8 +19,8 @@
 //! ratio is always dimensionless and no price-oracle read is required.
 
 use crate::validation::MIN_BOND_AMOUNT;
-use trustforge_errors::ContractError;
 use soroban_sdk::{panic_with_error, Env};
+use trustforge_errors::ContractError;
 
 /// Division helper: returns `ContractError::Overflow` instead of panicking.
 #[inline]

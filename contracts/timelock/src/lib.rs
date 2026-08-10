@@ -1,9 +1,9 @@
 #![no_std]
 
-use trustforge_errors::ContractError;
 use soroban_sdk::{
     contract, contractimpl, contracttype, panic_with_error, Address, BytesN, Env, Symbol,
 };
+use trustforge_errors::ContractError;
 
 const STORAGE_TTL_EXTEND_TO: u32 = 31_536_000;
 
@@ -310,7 +310,7 @@ mod tests {
         client.execute_operation(&op_id);
 
         let err = client.try_execute_operation(&op_id).unwrap_err().unwrap();
-        assert_eq!(err, ContractError::ProposalAlreadyExecuted);
+        assert_eq!(err, ContractError::ProposalAlreadyExecuted.into());
     }
 
     #[test]
@@ -328,7 +328,7 @@ mod tests {
             .try_cancel_operation(&admin, &op_id)
             .unwrap_err()
             .unwrap();
-        assert_eq!(err, ContractError::ProposalAlreadyExecuted);
+        assert_eq!(err, ContractError::ProposalAlreadyExecuted.into());
     }
 
     #[test]
@@ -343,7 +343,7 @@ mod tests {
         env.ledger().with_mut(|li| li.timestamp = op.eta);
 
         let err = client.try_execute_operation(&op_id).unwrap_err().unwrap();
-        assert_eq!(err, ContractError::ProposalAlreadyExecuted);
+        assert_eq!(err, ContractError::ProposalAlreadyExecuted.into());
     }
 
     #[test]

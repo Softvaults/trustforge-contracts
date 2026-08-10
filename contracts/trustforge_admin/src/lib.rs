@@ -19,11 +19,11 @@ pub mod pausable;
 #[cfg(test)]
 mod test_ownership_transfer;
 
-use trustforge_errors::{ContractError, Role};
 use soroban_sdk::panic_with_error;
 use soroban_sdk::{
     contract, contractimpl, contracttype, Address, Env, IntoVal, String, Symbol, Vec,
 };
+use trustforge_errors::{ContractError, Role};
 
 /// Admin role hierarchy levels
 #[contracttype]

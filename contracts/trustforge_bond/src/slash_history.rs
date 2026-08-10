@@ -155,8 +155,11 @@ pub fn get_slash_record(e: &Env, identity: &Address, index: u32) -> SlashRecord 
 }
 
 /// Full-history read helpers. Only needed by tests and off-chain tooling;
-/// excluded from release WASM via `#[cfg(any(test, feature = "testutils"))]`.
+/// excluded from release WASM via `#[cfg(any(test, feature = "testutils"))]`. No
+/// production caller today — its exerciser is one of the orphaned test files (see
+/// docs/ORPHANED_MODULES.md).
 #[cfg(any(test, feature = "testutils"))]
+#[allow(dead_code)]
 pub mod testutils {
     use super::*;
 

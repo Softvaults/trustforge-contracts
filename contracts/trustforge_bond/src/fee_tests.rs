@@ -6,8 +6,6 @@
 //   mod fee_tests;
 // ============================================================================
 
-#![cfg(test)]
-
 use soroban_sdk::{
     testutils::{Address as _, Events},
     Address, Env, FromVal,
@@ -16,37 +14,34 @@ use soroban_sdk::{
 use crate::fee::{
     get_protocol_fee_bps, set_protocol_fee_bps, BPS_DENOMINATOR, DEFAULT_FEE_BPS, MAX_FEE_BPS,
 };
+use crate::TrustForgeBond;
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-/// Spin up a fresh test environment and return (env, admin_address).
-fn setup() -> (Env, Address) {
+/// Spin up a fresh test environment with a registered contract and return
+/// (env, contract_id, admin_address). `fee::*` touches instance storage, so
+/// callers must run it inside `env.as_contract(&contract_id, || ...)`.
+fn setup() -> (Env, Address, Address) {
     let env = Env::default();
     env.mock_all_auths();
+    let contract_id = env.register(TrustForgeBond, ());
     let admin = Address::generate(&env);
-    (env, admin)
+    (env, contract_id, admin)
 }
 
 // ---------------------------------------------------------------------------
 // Constants sanity
 // ---------------------------------------------------------------------------
 
-#[test]
-fn test_constants_are_consistent() {
-    // MAX_FEE_BPS must be strictly less than BPS_DENOMINATOR (100 %)
-    assert!(
-        MAX_FEE_BPS < BPS_DENOMINATOR,
-        "MAX_FEE_BPS ({MAX_FEE_BPS}) must be < BPS_DENOMINATOR ({BPS_DENOMINATOR})"
-    );
-
-    // DEFAULT_FEE_BPS must not exceed the cap
-    assert!(
-        DEFAULT_FEE_BPS <= MAX_FEE_BPS,
-        "DEFAULT_FEE_BPS ({DEFAULT_FEE_BPS}) must be <= MAX_FEE_BPS ({MAX_FEE_BPS})"
-    );
-}
+// MAX_FEE_BPS must be strictly less than BPS_DENOMINATOR (100 %), and
+// DEFAULT_FEE_BPS must not exceed the cap. Both sides are compile-time
+// constants, so clippy correctly flags a runtime `assert!` on them as
+// dead weight — a const-assertion catches a violation at compile time
+// instead, which is strictly earlier than `cargo test`.
+const _: () = assert!(MAX_FEE_BPS < BPS_DENOMINATOR);
+const _: () = assert!(DEFAULT_FEE_BPS <= MAX_FEE_BPS);
 
 // ---------------------------------------------------------------------------
 // Default / unset behaviour
@@ -54,8 +49,8 @@ fn test_constants_are_consistent() {
 
 #[test]
 fn test_get_fee_returns_default_when_unset() {
-    let (env, _admin) = setup();
-    let fee = get_protocol_fee_bps(&env);
+    let (env, contract_id, _admin) = setup();
+    let fee = env.as_contract(&contract_id, || get_protocol_fee_bps(&env));
     assert_eq!(
         fee, DEFAULT_FEE_BPS,
         "Unset fee should return DEFAULT_FEE_BPS ({DEFAULT_FEE_BPS} bps)"
@@ -68,51 +63,70 @@ fn test_get_fee_returns_default_when_unset() {
 
 #[test]
 fn test_set_fee_to_zero_bps() {
-    let (env, admin) = setup();
-    set_protocol_fee_bps(&env, &admin, 0);
-    assert_eq!(get_protocol_fee_bps(&env), 0, "Fee should be 0 bps");
+    let (env, contract_id, admin) = setup();
+    env.as_contract(&contract_id, || {
+        set_protocol_fee_bps(&env, &admin, 0);
+        assert_eq!(get_protocol_fee_bps(&env), 0, "Fee should be 0 bps");
+    });
 }
 
 #[test]
 fn test_set_fee_to_default_bps() {
-    let (env, admin) = setup();
-    set_protocol_fee_bps(&env, &admin, DEFAULT_FEE_BPS);
-    assert_eq!(
-        get_protocol_fee_bps(&env),
-        DEFAULT_FEE_BPS,
-        "Fee should equal DEFAULT_FEE_BPS"
-    );
+    let (env, contract_id, admin) = setup();
+    env.as_contract(&contract_id, || {
+        set_protocol_fee_bps(&env, &admin, DEFAULT_FEE_BPS);
+        assert_eq!(
+            get_protocol_fee_bps(&env),
+            DEFAULT_FEE_BPS,
+            "Fee should equal DEFAULT_FEE_BPS"
+        );
+    });
 }
 
 #[test]
 fn test_set_fee_to_exactly_max_bps() {
-    let (env, admin) = setup();
-    // MAX_FEE_BPS itself must be accepted (inclusive upper bound)
-    set_protocol_fee_bps(&env, &admin, MAX_FEE_BPS);
-    assert_eq!(
-        get_protocol_fee_bps(&env),
-        MAX_FEE_BPS,
-        "Fee equal to MAX_FEE_BPS ({MAX_FEE_BPS} bps) must be accepted"
-    );
+    let (env, contract_id, admin) = setup();
+    env.as_contract(&contract_id, || {
+        // MAX_FEE_BPS itself must be accepted (inclusive upper bound)
+        set_protocol_fee_bps(&env, &admin, MAX_FEE_BPS);
+        assert_eq!(
+            get_protocol_fee_bps(&env),
+            MAX_FEE_BPS,
+            "Fee equal to MAX_FEE_BPS ({MAX_FEE_BPS} bps) must be accepted"
+        );
+    });
 }
 
 #[test]
 fn test_set_fee_to_midrange_value() {
-    let (env, admin) = setup();
-    let mid = MAX_FEE_BPS / 2; // 500 bps = 5 %
-    set_protocol_fee_bps(&env, &admin, mid);
-    assert_eq!(get_protocol_fee_bps(&env), mid);
+    let (env, contract_id, admin) = setup();
+    env.as_contract(&contract_id, || {
+        let mid = MAX_FEE_BPS / 2; // 500 bps = 5 %
+        set_protocol_fee_bps(&env, &admin, mid);
+        assert_eq!(get_protocol_fee_bps(&env), mid);
+    });
 }
 
 #[test]
 fn test_fee_update_overwrites_previous_value() {
-    let (env, admin) = setup();
-    set_protocol_fee_bps(&env, &admin, 100);
-    assert_eq!(get_protocol_fee_bps(&env), 100);
-
-    set_protocol_fee_bps(&env, &admin, 300);
+    let (env, contract_id, admin) = setup();
+    // Each `set_protocol_fee_bps` call does its own `admin.require_auth()`; under
+    // `mock_all_auths()`, two such calls sharing one `as_contract` frame trip
+    // "frame is already authorized", so each call gets its own frame here —
+    // matching how the real client would invoke each entrypoint separately.
+    env.as_contract(&contract_id, || {
+        set_protocol_fee_bps(&env, &admin, 100);
+    });
     assert_eq!(
-        get_protocol_fee_bps(&env),
+        env.as_contract(&contract_id, || get_protocol_fee_bps(&env)),
+        100
+    );
+
+    env.as_contract(&contract_id, || {
+        set_protocol_fee_bps(&env, &admin, 300);
+    });
+    assert_eq!(
+        env.as_contract(&contract_id, || get_protocol_fee_bps(&env)),
         300,
         "Second write should overwrite first"
     );
@@ -125,32 +139,40 @@ fn test_fee_update_overwrites_previous_value() {
 #[test]
 #[should_panic]
 fn test_set_fee_one_bps_above_max_panics() {
-    let (env, admin) = setup();
+    let (env, contract_id, admin) = setup();
     // MAX_FEE_BPS + 1 must be rejected
-    set_protocol_fee_bps(&env, &admin, MAX_FEE_BPS + 1);
+    env.as_contract(&contract_id, || {
+        set_protocol_fee_bps(&env, &admin, MAX_FEE_BPS + 1);
+    });
 }
 
 #[test]
 #[should_panic]
 fn test_set_fee_to_half_bps_denominator_panics() {
-    let (env, admin) = setup();
+    let (env, contract_id, admin) = setup();
     // 50 % — well above the 10 % cap
-    set_protocol_fee_bps(&env, &admin, BPS_DENOMINATOR / 2);
+    env.as_contract(&contract_id, || {
+        set_protocol_fee_bps(&env, &admin, BPS_DENOMINATOR / 2);
+    });
 }
 
 #[test]
 #[should_panic]
 fn test_set_fee_to_full_bps_denominator_panics() {
-    let (env, admin) = setup();
+    let (env, contract_id, admin) = setup();
     // 100 % — confiscatory
-    set_protocol_fee_bps(&env, &admin, BPS_DENOMINATOR);
+    env.as_contract(&contract_id, || {
+        set_protocol_fee_bps(&env, &admin, BPS_DENOMINATOR);
+    });
 }
 
 #[test]
 #[should_panic]
 fn test_set_fee_to_u32_max_panics() {
-    let (env, admin) = setup();
-    set_protocol_fee_bps(&env, &admin, u32::MAX);
+    let (env, contract_id, admin) = setup();
+    env.as_contract(&contract_id, || {
+        set_protocol_fee_bps(&env, &admin, u32::MAX);
+    });
 }
 
 // ---------------------------------------------------------------------------
@@ -159,15 +181,19 @@ fn test_set_fee_to_u32_max_panics() {
 
 #[test]
 fn test_fee_update_emits_event_with_previous_and_new_values() {
-    let (env, admin) = setup();
+    let (env, contract_id, admin) = setup();
 
     // Establish a known initial state
-    set_protocol_fee_bps(&env, &admin, 100); // previous = 100 bps
+    env.as_contract(&contract_id, || {
+        set_protocol_fee_bps(&env, &admin, 100); // previous = 100 bps
+    });
 
     // Clear event log so we only see the second call
     env.events().all(); // drain
 
-    set_protocol_fee_bps(&env, &admin, 250); // new = 250 bps
+    env.as_contract(&contract_id, || {
+        set_protocol_fee_bps(&env, &admin, 250); // new = 250 bps
+    });
 
     let events = env.events().all();
     assert!(!events.is_empty(), "An event should have been emitted");
@@ -182,11 +208,13 @@ fn test_fee_update_emits_event_with_previous_and_new_values() {
 
 #[test]
 fn test_fee_update_from_default_emits_correct_previous() {
-    let (env, admin) = setup();
+    let (env, contract_id, admin) = setup();
 
-    // First ever set — previous should be DEFAULT_FEE_BPS
-    env.events().all(); // drain
-    set_protocol_fee_bps(&env, &admin, 500);
+    env.as_contract(&contract_id, || {
+        // First ever set — previous should be DEFAULT_FEE_BPS
+        env.events().all(); // drain
+        set_protocol_fee_bps(&env, &admin, 500);
+    });
 
     let events = env.events().all();
     let (_, _topics, data) = events.last().unwrap();

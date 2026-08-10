@@ -29,9 +29,9 @@
 //! }
 //! ```
 
-use trustforge_errors::ContractError;
 use soroban_sdk::xdr::ToXdr;
 use soroban_sdk::{panic_with_error, Address, Bytes, Env, Symbol};
+use trustforge_errors::ContractError;
 
 use crate::DataKey;
 
@@ -105,7 +105,12 @@ pub fn check_and_record(e: &Env, actor: &Address, operation: &Symbol, salt: &Byt
 ///
 /// # Returns
 /// `true` if the idempotency key has been used, `false` otherwise
+///
+/// No production entrypoint calls this (pre-flight checks are expected to be an
+/// off-chain tooling concern); its only current caller is this module's own
+/// `#[cfg(test)]` unit test, which the plain release-lib build correctly excludes.
 #[must_use]
+#[allow(dead_code)]
 pub fn is_used(e: &Env, actor: &Address, operation: &Symbol, salt: &Bytes) -> bool {
     let key = compute_key(e, actor, operation, salt);
     let storage_key = DataKey::IdempotencyKey(key);
@@ -114,6 +119,7 @@ pub fn is_used(e: &Env, actor: &Address, operation: &Symbol, salt: &Bytes) -> bo
 
 #[cfg(test)]
 mod tests {
+    extern crate std;
     use super::*;
     use soroban_sdk::testutils::Address as _;
 
@@ -175,40 +181,49 @@ mod tests {
     #[test]
     fn test_is_used_initially_false() {
         let e = Env::default();
+        let contract_id = e.register(crate::TrustForgeBond, ());
         let actor = Address::generate(&e);
         let operation = Symbol::new(&e, "test_op");
         let salt = Bytes::from_slice(&e, b"test_salt");
 
-        assert!(!is_used(&e, &actor, &operation, &salt));
+        e.as_contract(&contract_id, || {
+            assert!(!is_used(&e, &actor, &operation, &salt));
+        });
     }
 
     #[test]
     fn test_check_and_record_prevents_duplicate() {
         let e = Env::default();
+        let contract_id = e.register(crate::TrustForgeBond, ());
         let actor = Address::generate(&e);
         let operation = Symbol::new(&e, "test_op");
         let salt = Bytes::from_slice(&e, b"test_salt");
 
-        // First call should succeed
-        check_and_record(&e, &actor, &operation, &salt);
-
-        // Second call should panic
-        let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        e.as_contract(&contract_id, || {
+            // First call should succeed
             check_and_record(&e, &actor, &operation, &salt);
-        }));
-        assert!(result.is_err(), "Duplicate idempotency key should panic");
+
+            // Second call should panic
+            let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+                check_and_record(&e, &actor, &operation, &salt);
+            }));
+            assert!(result.is_err(), "Duplicate idempotency key should panic");
+        });
     }
 
     #[test]
     fn test_different_keys_dont_conflict() {
         let e = Env::default();
+        let contract_id = e.register(crate::TrustForgeBond, ());
         let actor = Address::generate(&e);
         let operation = Symbol::new(&e, "test_op");
         let salt1 = Bytes::from_slice(&e, b"salt1");
         let salt2 = Bytes::from_slice(&e, b"salt2");
 
-        // Both should succeed
-        check_and_record(&e, &actor, &operation, &salt1);
-        check_and_record(&e, &actor, &operation, &salt2);
+        e.as_contract(&contract_id, || {
+            // Both should succeed
+            check_and_record(&e, &actor, &operation, &salt1);
+            check_and_record(&e, &actor, &operation, &salt2);
+        });
     }
 }

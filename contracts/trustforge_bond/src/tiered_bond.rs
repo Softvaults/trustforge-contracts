@@ -34,8 +34,11 @@ pub fn get_tier_for_amount(e: &Env, amount: i128) -> BondTier {
 
 /// Comparator for [`BondTier`] values. Returns the rank (Bronze=0, Silver=1,
 /// Gold=2, Platinum=3). Used by the boundary/fuzz test suite to compare tier
-/// transitions in a single integer cell.
+/// transitions in a single integer cell. That suite (test_tier_boundary_fuzz.rs,
+/// fuzz/test_slashing_tier_invariants.rs) is currently orphaned (see
+/// docs/ORPHANED_MODULES.md).
 #[must_use]
+#[allow(dead_code)]
 pub(crate) fn tier_rank(t: &BondTier) -> u8 {
     match t {
         BondTier::Bronze => 0,
@@ -93,7 +96,10 @@ pub fn emit_tier_change_if_needed(
 
     // v2: indexed identity topic + (old_tier, new_tier, timestamp) data
     e.events().publish(
-        (soroban_sdk::Symbol::new(e, "tier_changed_v2"), identity.clone()),
+        (
+            soroban_sdk::Symbol::new(e, "tier_changed_v2"),
+            identity.clone(),
+        ),
         (old_tier, new_tier, e.ledger().timestamp()),
     );
 }

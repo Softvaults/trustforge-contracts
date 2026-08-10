@@ -1,6 +1,6 @@
 use crate::{BondTier, DataKey, IdentityBond};
-use trustforge_errors::ContractError;
 use soroban_sdk::{contract, contractimpl, contracttype, panic_with_error, Address, Env, String};
+use trustforge_errors::ContractError;
 
 /// Deliberately divergent fork: tier thresholds are shifted so that every amount >= 1 returns Gold.
 /// This is used by the differential harness to prove it can catch behavioural divergence.

@@ -16,31 +16,13 @@ pub fn get_admin(e: &Env) -> Option<Address> {
     e.storage().instance().get(&DataKey::Admin)
 }
 
-pub fn set_admin(e: &Env, admin: &Address) {
-    e.storage().instance().set(&DataKey::Admin, admin);
-}
-
-pub fn get_token(e: &Env) -> Address {
-    e.storage()
-        .instance()
-        .get(&DataKey::Token)
-        .expect("token not initialized")
-}
-
-pub fn set_token(e: &Env, token: &Address) {
-    e.storage().instance().set(&DataKey::Token, token);
-}
-
-pub fn is_locked(e: &Env) -> bool {
-    e.storage()
-        .instance()
-        .get(&DataKey::Locked)
-        .unwrap_or(false)
-}
-
-pub fn set_lock(e: &Env, locked: bool) {
-    e.storage().instance().set(&DataKey::Locked, &locked);
-}
+// `set_admin`, `get_token`, `set_token`, `is_locked`, and `set_lock` (formerly here)
+// were unused duplicates: `initialize()` sets DataKey::Admin directly, real token
+// storage goes through `token_integration::{get,set}_token`, and the reentrancy
+// lock lib.rs actually checks is a separate Symbol-keyed flag, not DataKey::Locked.
+// Removed 2026-08-10 rather than `#[allow(dead_code)]`d, since nothing referenced
+// them even transitively — see docs/ORPHANED_MODULES.md for the broader audit this
+// was found during.
 
 pub fn get_accepted_tokens(e: &Env) -> Vec<Address> {
     e.storage()

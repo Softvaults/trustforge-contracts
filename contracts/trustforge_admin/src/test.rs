@@ -4,8 +4,8 @@ use soroban_sdk::{Address, Env};
 #[cfg(test)]
 mod comprehensive_tests {
     use super::*;
-    use trustforge_errors::Role;
     use soroban_sdk::testutils::Address as _;
+    use trustforge_errors::Role;
 
     fn create_contract() -> AdminContract {
         AdminContract {}

@@ -1,6 +1,6 @@
 #![cfg(test)]
 
-use crate::{TrustForgeTreasury, TrustForgeTreasuryClient, FundSource};
+use crate::{FundSource, TrustForgeTreasury, TrustForgeTreasuryClient};
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::{contract, contractimpl, token, Address, Env, Symbol};
 

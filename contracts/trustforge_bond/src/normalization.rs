@@ -13,16 +13,27 @@
 //! - Maximum: 36 decimals (prevents overflow when scaling to i128)
 //! - Common: 6 (USDC), 8 (WBTC), 18 (ETH, DAI), 24 (some tokens)
 
-use trustforge_errors::ContractError;
 use soroban_sdk::token::TokenClient;
 use soroban_sdk::{panic_with_error, Address, Env};
+use trustforge_errors::ContractError;
 
+// NOTE: only `validate_supported_decimals` is called from production code today
+// (`token_integration::set_token`). `normalize`/`denormalize`/`get_scale_info`/
+// `can_normalize_safely` and the two constants below are exercised only by
+// `fuzz/test_normalization_invariant.rs` (cfg(test)) — nothing in the actual
+// deposit/withdraw path scales amounts by token decimals. A token configured
+// with fewer than 18 decimals (e.g. real USDC, 6 decimals) would currently have
+// its raw amount used as-is rather than scaled to the 18-decimal internal
+// accounting this module's own doc comment describes. Flagged for Phase 4/5
+// review rather than silently allowed away — see docs/ORPHANED_MODULES.md.
+#[allow(dead_code)]
 /// Target decimals for all internal accounting.
 pub const NORMALIZED_DECIMALS: u32 = 18;
 
 /// Maximum supported token decimals. Hardened to 18 to prevent overflow in 128-bit accounting.
 pub const MAX_SUPPORTED_DECIMALS: u32 = 18;
 
+#[allow(dead_code)]
 /// Minimum supported token decimals.
 pub const MIN_SUPPORTED_DECIMALS: u32 = 0;
 
@@ -34,11 +45,14 @@ pub const MIN_SUPPORTED_DECIMALS: u32 = 0;
 pub fn validate_supported_decimals(e: &Env, token: &Address) {
     let decimals = TokenClient::new(e, token).decimals();
 
-    if decimals < MIN_SUPPORTED_DECIMALS || decimals > MAX_SUPPORTED_DECIMALS {
+    // `decimals` is unsigned, so `MIN_SUPPORTED_DECIMALS` (0) can never be violated;
+    // only the upper bound is a real check.
+    if decimals > MAX_SUPPORTED_DECIMALS {
         panic_with_error!(e, ContractError::UnsupportedDecimals);
     }
 }
 
+#[allow(dead_code)]
 pub fn get_scale_info(e: &Env, token: &Address) -> (i128, bool) {
     let decimals = TokenClient::new(e, token).decimals();
     validate_supported_decimals(e, token);
@@ -65,6 +79,7 @@ pub fn get_scale_info(e: &Env, token: &Address) -> (i128, bool) {
 /// # Panics
 /// * If token decimals are outside supported range
 /// * If normalization causes overflow
+#[allow(dead_code)]
 pub fn normalize(e: &Env, token: &Address, amount: i128) -> i128 {
     if amount < 0 {
         panic!("bond amount cannot be negative");
@@ -95,6 +110,7 @@ pub fn normalize(e: &Env, token: &Address, amount: i128) -> i128 {
 /// # Panics
 /// * If token decimals are outside supported range
 /// * If denormalization causes overflow
+#[allow(dead_code)]
 pub fn denormalize(e: &Env, token: &Address, amount: i128) -> i128 {
     if amount < 0 {
         panic!("cannot denormalize negative amount");
@@ -122,6 +138,7 @@ pub fn denormalize(e: &Env, token: &Address, amount: i128) -> i128 {
 ///
 /// # Returns
 /// true if the amount can be safely normalized
+#[allow(dead_code)]
 pub fn can_normalize_safely(e: &Env, token: &Address, amount: i128) -> bool {
     if amount < 0 {
         return false;

@@ -26,18 +26,15 @@
 //! ### Backwards-compatibility
 //! - The original `get_subject_attestations` still returns all IDs unchanged.
 
-#![cfg(test)]
-
 extern crate std;
 
 use crate::{
     claims::{self, ClaimType},
     parameters::MAX_QUERY_LIMIT,
-    slash_history,
-    TrustForgeBond, TrustForgeBondClient,
+    slash_history, TrustForgeBond, TrustForgeBondClient,
 };
 use soroban_sdk::testutils::Address as _;
-use soroban_sdk::{Address, Env, String, Symbol, Vec};
+use soroban_sdk::{Address, Env, String, Symbol};
 
 // ============================================================================
 // Shared helpers
@@ -76,19 +73,43 @@ fn add_attestations(
     ids
 }
 
-/// Add `n` slash records directly via the internal module.
-fn add_slash_records(e: &Env, identity: &Address, n: u32) {
+/// Add `n` slash records directly via the internal module. `slash_history`
+/// touches contract storage, so this must run inside `e.as_contract(...)`.
+/// Each record gets its own `as_contract` frame — mirroring `n` separate
+/// contract calls — so the host budget resets between writes instead of
+/// accumulating across all `n` in a single metered frame.
+fn add_slash_records(e: &Env, contract_id: &Address, identity: &Address, n: u32) {
     for i in 0..n {
-        let reason = Symbol::new(e, "test");
-        slash_history::append_slash_history(e, identity, (i as i128) + 1, reason, (i as i128) + 1);
+        e.as_contract(contract_id, || {
+            let reason = Symbol::new(e, "test");
+            slash_history::append_slash_history(
+                e,
+                identity,
+                (i as i128) + 1,
+                reason,
+                (i as i128) + 1,
+            );
+        });
     }
 }
 
-/// Add `n` pending claims directly via the internal module.
-fn add_claims(e: &Env, user: &Address, n: u32) {
+/// Add `n` pending claims directly via the internal module. `claims` touches
+/// contract storage, so this must run inside `e.as_contract(...)`. Each claim
+/// gets its own `as_contract` frame for the same budget-reset reason as
+/// `add_slash_records` above.
+fn add_claims(e: &Env, contract_id: &Address, user: &Address, n: u32) {
     for i in 0..n {
-        let meta = Symbol::new(e, "m");
-        claims::add_pending_claim(e, user, ClaimType::VerifierReward, 100, i as u64, Some(meta));
+        e.as_contract(contract_id, || {
+            let meta = Symbol::new(e, "m");
+            claims::add_pending_claim(
+                e,
+                user,
+                ClaimType::VerifierReward,
+                100,
+                i as u64,
+                Some(meta),
+            );
+        });
     }
 }
 
@@ -176,7 +197,7 @@ fn test_attestations_page_limit_clamped_to_max_query_limit() {
 
     // Insert more items than MAX_QUERY_LIMIT to verify the cap is applied.
     // We can only call add_attestation MAX_ATTESTATIONS times, but 210 is fine.
-    let n = (MAX_QUERY_LIMIT + 10) as u32; // 210
+    let n = MAX_QUERY_LIMIT + 10; // 210
     add_attestations(&env, &client, &admin, &subject, n);
 
     // Passing a limit larger than MAX_QUERY_LIMIT must not return more than MAX_QUERY_LIMIT.
@@ -201,7 +222,7 @@ fn test_attestations_page_limit_zero_uses_max_query_limit() {
     let (client, admin) = setup(&env);
     let subject = Address::generate(&env);
 
-    let n = (MAX_QUERY_LIMIT + 5) as u32;
+    let n = MAX_QUERY_LIMIT + 5;
     add_attestations(&env, &client, &admin, &subject, n);
 
     // limit = 0 should behave the same as limit = MAX_QUERY_LIMIT
@@ -242,7 +263,7 @@ fn test_slash_history_page_single_page() {
     let (client, _admin) = setup(&env);
     let identity = Address::generate(&env);
 
-    add_slash_records(&env, &identity, 5);
+    add_slash_records(&env, &client.address, &identity, 5);
 
     let page = client.get_slash_history_page(&identity, &0, &10);
     assert_eq!(page.len(), 5, "all 5 records should fit in one page");
@@ -261,7 +282,7 @@ fn test_slash_history_page_multipage_walk() {
     let identity = Address::generate(&env);
 
     let n = 11u32;
-    add_slash_records(&env, &identity, n);
+    add_slash_records(&env, &client.address, &identity, n);
 
     let mut collected: std::vec::Vec<i128> = std::vec::Vec::new();
     let mut offset = 0u32;
@@ -293,7 +314,7 @@ fn test_slash_history_page_limit_clamped() {
 
     // Insert MAX_QUERY_LIMIT + 5 records
     let n = MAX_QUERY_LIMIT + 5;
-    add_slash_records(&env, &identity, n);
+    add_slash_records(&env, &client.address, &identity, n);
 
     let page = client.get_slash_history_page(&identity, &0, &(MAX_QUERY_LIMIT + 50));
     assert_eq!(
@@ -309,7 +330,7 @@ fn test_slash_history_page_offset_beyond_count_returns_empty() {
     let (client, _admin) = setup(&env);
     let identity = Address::generate(&env);
 
-    add_slash_records(&env, &identity, 3);
+    add_slash_records(&env, &client.address, &identity, 3);
 
     let page = client.get_slash_history_page(&identity, &3, &10);
     assert_eq!(page.len(), 0);
@@ -324,54 +345,70 @@ fn test_slash_history_page_offset_beyond_count_returns_empty() {
 #[test]
 fn test_claims_count_empty_user() {
     let env = Env::default();
+    let (client, _admin) = setup(&env);
 
     let user = Address::generate(&env);
-    let count = claims::get_pending_claims_count(&env, &user);
+    let count = env.as_contract(&client.address, || {
+        claims::get_pending_claims_count(&env, &user)
+    });
     assert_eq!(count, 0);
 }
 
 #[test]
 fn test_claims_count_matches_adds() {
     let env = Env::default();
+    let (client, _admin) = setup(&env);
     let user = Address::generate(&env);
 
-    add_claims(&env, &user, 7);
-    assert_eq!(claims::get_pending_claims_count(&env, &user), 7);
+    add_claims(&env, &client.address, &user, 7);
+    let count = env.as_contract(&client.address, || {
+        claims::get_pending_claims_count(&env, &user)
+    });
+    assert_eq!(count, 7);
 }
 
 #[test]
 fn test_claims_paginated_empty_user() {
     let env = Env::default();
+    let (client, _admin) = setup(&env);
     let user = Address::generate(&env);
 
-    let page = claims::get_pending_claims_paginated(&env, &user, 0, 10);
+    let page = env.as_contract(&client.address, || {
+        claims::get_pending_claims_paginated(&env, &user, 0, 10)
+    });
     assert_eq!(page.len(), 0);
 }
 
 #[test]
 fn test_claims_paginated_single_page() {
     let env = Env::default();
+    let (client, _admin) = setup(&env);
     let user = Address::generate(&env);
 
-    add_claims(&env, &user, 5);
+    add_claims(&env, &client.address, &user, 5);
 
-    let page = claims::get_pending_claims_paginated(&env, &user, 0, 10);
+    let page = env.as_contract(&client.address, || {
+        claims::get_pending_claims_paginated(&env, &user, 0, 10)
+    });
     assert_eq!(page.len(), 5);
 }
 
 #[test]
 fn test_claims_paginated_multipage_walk_no_gaps_no_duplicates() {
     let env = Env::default();
+    let (client, _admin) = setup(&env);
     let user = Address::generate(&env);
     let n = 22u32;
-    add_claims(&env, &user, n);
+    add_claims(&env, &client.address, &user, n);
 
     let mut collected: std::vec::Vec<u64> = std::vec::Vec::new();
     let mut offset = 0u32;
     let page_size = 7u32;
 
     loop {
-        let page = claims::get_pending_claims_paginated(&env, &user, offset, page_size);
+        let page = env.as_contract(&client.address, || {
+            claims::get_pending_claims_paginated(&env, &user, offset, page_size)
+        });
         if page.is_empty() {
             break;
         }
@@ -396,12 +433,15 @@ fn test_claims_paginated_multipage_walk_no_gaps_no_duplicates() {
 #[test]
 fn test_claims_paginated_limit_clamped_to_max_query_limit() {
     let env = Env::default();
+    let (client, _admin) = setup(&env);
     let user = Address::generate(&env);
 
     let n = MAX_QUERY_LIMIT + 10;
-    add_claims(&env, &user, n);
+    add_claims(&env, &client.address, &user, n);
 
-    let page = claims::get_pending_claims_paginated(&env, &user, 0, MAX_QUERY_LIMIT + 100);
+    let page = env.as_contract(&client.address, || {
+        claims::get_pending_claims_paginated(&env, &user, 0, MAX_QUERY_LIMIT + 100)
+    });
     assert_eq!(
         page.len(),
         MAX_QUERY_LIMIT,
@@ -412,25 +452,33 @@ fn test_claims_paginated_limit_clamped_to_max_query_limit() {
 #[test]
 fn test_claims_paginated_limit_zero_uses_max_query_limit() {
     let env = Env::default();
+    let (client, _admin) = setup(&env);
     let user = Address::generate(&env);
 
     let n = MAX_QUERY_LIMIT + 5;
-    add_claims(&env, &user, n);
+    add_claims(&env, &client.address, &user, n);
 
-    let page = claims::get_pending_claims_paginated(&env, &user, 0, 0);
+    let page = env.as_contract(&client.address, || {
+        claims::get_pending_claims_paginated(&env, &user, 0, 0)
+    });
     assert_eq!(page.len(), MAX_QUERY_LIMIT);
 }
 
 #[test]
 fn test_claims_paginated_offset_at_total_returns_empty() {
     let env = Env::default();
+    let (client, _admin) = setup(&env);
     let user = Address::generate(&env);
 
-    add_claims(&env, &user, 4);
+    add_claims(&env, &client.address, &user, 4);
 
-    let page = claims::get_pending_claims_paginated(&env, &user, 4, 10);
+    let page = env.as_contract(&client.address, || {
+        claims::get_pending_claims_paginated(&env, &user, 4, 10)
+    });
     assert_eq!(page.len(), 0);
-    let page = claims::get_pending_claims_paginated(&env, &user, 99, 10);
+    let page = env.as_contract(&client.address, || {
+        claims::get_pending_claims_paginated(&env, &user, 99, 10)
+    });
     assert_eq!(page.len(), 0);
 }
 
@@ -438,14 +486,21 @@ fn test_claims_paginated_offset_at_total_returns_empty() {
 fn test_claims_paginated_is_pure_read() {
     // get_pending_claims_paginated must not mutate the stored claims.
     let env = Env::default();
+    let (client, _admin) = setup(&env);
     let user = Address::generate(&env);
 
-    add_claims(&env, &user, 10);
+    add_claims(&env, &client.address, &user, 10);
 
-    let count_before = claims::get_pending_claims_count(&env, &user);
-    let _ = claims::get_pending_claims_paginated(&env, &user, 0, 5);
-    let _ = claims::get_pending_claims_paginated(&env, &user, 5, 5);
-    let count_after = claims::get_pending_claims_count(&env, &user);
+    let count_before = env.as_contract(&client.address, || {
+        claims::get_pending_claims_count(&env, &user)
+    });
+    env.as_contract(&client.address, || {
+        let _ = claims::get_pending_claims_paginated(&env, &user, 0, 5);
+        let _ = claims::get_pending_claims_paginated(&env, &user, 5, 5);
+    });
+    let count_after = env.as_contract(&client.address, || {
+        claims::get_pending_claims_count(&env, &user)
+    });
 
     assert_eq!(
         count_before, count_after,
