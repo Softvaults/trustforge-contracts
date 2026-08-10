@@ -1164,6 +1164,28 @@ mod tests {
             ContractError::TimelockNotReady => true, // wait for delay
             ContractError::EmergencyDrainNotPermitted => true, // wait for pause + timelock window
 
+            // Upgrade Authorization: same shape as Authorization above.
+            ContractError::UpgradeAuthAlreadyInitialized => true, // idempotent to observe
+            ContractError::UpgradeAuthNotInitialized => true,     // admin can initialize first
+            ContractError::AlreadyAuthorizedUpgrader => true,     // revoke first, or no-op
+            ContractError::CannotGrantHigherUpgradeRoleToSelf => true, // choose a lower role
+            ContractError::NotAuthorizedUpgrader => true,         // admin can grant, then retry
+            ContractError::CannotRevokeLastUpgrader => true,      // grant another upgrader first
+            ContractError::NotUpgradeAdmin => true,               // switch to the upgrade admin
+            ContractError::UnauthorizedUpgrade => true, // switch to an authorized upgrader
+            ContractError::UpgradeAuthorizationNotActive => true,
+            ContractError::UpgradeAuthorizationExpired => true, // admin can re-grant
+            ContractError::UpgradeProposalNotFound => true,     // supply a valid proposal id
+            ContractError::UpgradeProposalNotPending => true,
+            ContractError::AlreadyApprovedUpgradeProposal => true, // idempotent
+            ContractError::UpgradeProposalNotApproved => true,     // gather more approvals
+            ContractError::UpgradeImplementationMismatch => true, // pass the address on the proposal
+            ContractError::NoCurrentImplementation => true,       // admin can set one first
+            ContractError::SameImplementation => true,            // pass a different implementation
+            ContractError::NewUpgradeAdminMustDiffer => true,
+            ContractError::NoPendingUpgradeAdmin => true, // start a transfer first
+            ContractError::NotPendingUpgradeAdmin => true, // switch to the nominated address
+
             // Bond: state/caller fixes; fatal cases are security/drift/capacity.
             ContractError::BondNotFound => true,
             ContractError::BondNotActive => true,
@@ -1187,6 +1209,9 @@ mod tests {
             ContractError::InvalidBondDuration => true,
             ContractError::InvalidNoticePeriod => true,
             ContractError::BondAlreadyExists => true,
+            ContractError::WithdrawalNotRequested => true, // call request_withdrawal first
+            ContractError::NoticePeriodNotElapsed => true, // wait for the notice period
+            ContractError::BondNotEligibleForLiquidation => true, // wait for slash/lock-up expiry
             ContractError::InvariantViolation => false, // post-write drift
             ContractError::TreasuryNotConfigured => true, // admin can configure treasury then retry
             ContractError::DuplicateIdempotencyKey => true, // idempotent - safe to retry with same key
@@ -1203,6 +1228,7 @@ mod tests {
             ContractError::AttestationAlreadyRevoked => true,
             ContractError::InvalidAttestationWeight => true,
             ContractError::AttestationWeightExceedsMax => true,
+            ContractError::DuplicateAttesterInBatch => true, // drop the duplicate and retry
 
             // Registry: state fixes.
             ContractError::IdentityAlreadyRegistered => true,

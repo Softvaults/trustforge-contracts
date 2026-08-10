@@ -326,6 +326,28 @@ pub enum ContractError {
     /// Wire-stable: do not renumber this error code.
     DuplicateIdempotencyKey = 231,
 
+    /// A rolling-bond withdrawal was attempted before `request_withdrawal`
+    /// (or equivalent) was called to start the notice period.
+    /// Replaces: panic!("withdrawal not requested")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    WithdrawalNotRequested = 232,
+
+    /// A rolling-bond withdrawal was attempted before the notice period
+    /// (measured from the withdrawal request) has elapsed.
+    /// Replaces: panic!("notice period not elapsed")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    NoticePeriodNotElapsed = 233,
+
+    /// Bond does not meet either liquidation eligibility condition: it is
+    /// not fully slashed, and (for non-rolling bonds) its lock-up has not
+    /// expired without renewal.
+    /// Replaces: panic!("bond is not eligible for liquidation: ...")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    BondNotEligibleForLiquidation = 234,
+
     // --- Attestation (300-399) ---
     /// An attestation already exists from this attester for this bond.
     /// Replaces: panic!("duplicate attestation")
@@ -356,6 +378,13 @@ pub enum ContractError {
     /// Contracts: bond
     /// Wire-stable: do not renumber this error code.
     AttestationWeightExceedsMax = 304,
+
+    /// The same attester appears more than once within a single batch
+    /// submission.
+    /// Replaces: panic!("duplicate attester in batch")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    DuplicateAttesterInBatch = 305,
 
     // --- Registry (400-499) ---
     /// Identity has already been registered in the registry.
@@ -497,6 +526,120 @@ pub enum ContractError {
     /// Reassigned from a colliding 113 (originally shared with `AdminSuspended`)
     /// during the duplicate-discriminant cleanup; never deployed at 113.
     EmergencyDrainNotPermitted = 114,
+
+    // --- Upgrade Authorization (115-135) ---
+    // Distinct from the regular admin-transfer codes above (109-112): these
+    // govern the separate upgrade-admin/upgrader-role system in
+    // `trustforge_bond::upgrade_auth`, kept as its own error family so an
+    // off-chain consumer can tell "wrong admin for a normal admin action"
+    // apart from "wrong admin for an upgrade action."
+    /// Upgrade authorization has already been initialized for this contract.
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    UpgradeAuthAlreadyInitialized = 115,
+
+    /// Upgrade authorization has not been initialized for this contract.
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    UpgradeAuthNotInitialized = 116,
+
+    /// This address already holds an active upgrade authorization; revoke it
+    /// before granting a new one.
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    AlreadyAuthorizedUpgrader = 117,
+
+    /// An upgrade admin may not grant themselves a role equal to or higher
+    /// than their current one.
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    CannotGrantHigherUpgradeRoleToSelf = 118,
+
+    /// This address does not hold an upgrade authorization (or it was
+    /// already revoked/never granted).
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    NotAuthorizedUpgrader = 119,
+
+    /// Cannot revoke the last remaining address with the Upgrader role —
+    /// doing so would leave the contract with no path to authorize a future
+    /// upgrade.
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    CannotRevokeLastUpgrader = 120,
+
+    /// Caller is not the upgrade admin.
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    NotUpgradeAdmin = 121,
+
+    /// Caller is not authorized to perform an upgrade (not an active,
+    /// unexpired Upgrader).
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    UnauthorizedUpgrade = 122,
+
+    /// Caller's upgrade authorization exists but is not currently active.
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    UpgradeAuthorizationNotActive = 123,
+
+    /// Caller's upgrade authorization has expired.
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    UpgradeAuthorizationExpired = 124,
+
+    /// No upgrade proposal exists with the given ID.
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    UpgradeProposalNotFound = 125,
+
+    /// The upgrade proposal is not in `Pending` status (already approved,
+    /// executed, rejected, or expired).
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    UpgradeProposalNotPending = 126,
+
+    /// This address has already approved the upgrade proposal.
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    AlreadyApprovedUpgradeProposal = 127,
+
+    /// The upgrade proposal has not accumulated enough approvals to execute.
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    UpgradeProposalNotApproved = 128,
+
+    /// The implementation address passed to `execute_upgrade` does not match
+    /// the one recorded on its approved proposal.
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    UpgradeImplementationMismatch = 129,
+
+    /// No current implementation address is recorded for this contract.
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    NoCurrentImplementation = 130,
+
+    /// The proposed new implementation is identical to the current one.
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    SameImplementation = 131,
+
+    /// The new upgrade admin must differ from the current upgrade admin.
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    NewUpgradeAdminMustDiffer = 132,
+
+    /// No pending upgrade-admin transfer exists to accept.
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    NoPendingUpgradeAdmin = 133,
+
+    /// Caller is not the address nominated as the pending upgrade admin.
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    NotPendingUpgradeAdmin = 134,
 
     // --- Treasury (600-699) ---
     /// Amount argument must be strictly positive (> 0).
@@ -661,13 +804,17 @@ impl ErrorExt for ContractError {
             | ContractError::BatchTooLarge
             | ContractError::EmptyBatch
             | ContractError::DuplicateIdempotencyKey
-            | ContractError::InvariantViolation => ErrorCategory::Bond,
+            | ContractError::InvariantViolation
+            | ContractError::WithdrawalNotRequested
+            | ContractError::NoticePeriodNotElapsed
+            | ContractError::BondNotEligibleForLiquidation => ErrorCategory::Bond,
 
             ContractError::DuplicateAttestation
             | ContractError::AttestationNotFound
             | ContractError::AttestationAlreadyRevoked
             | ContractError::InvalidAttestationWeight
-            | ContractError::AttestationWeightExceedsMax => ErrorCategory::Attestation,
+            | ContractError::AttestationWeightExceedsMax
+            | ContractError::DuplicateAttesterInBatch => ErrorCategory::Attestation,
 
             ContractError::IdentityAlreadyRegistered
             | ContractError::BondContractAlreadyRegistered
@@ -708,7 +855,27 @@ impl ErrorExt for ContractError {
             | ContractError::InvalidAdminAddress
             | ContractError::AdminUnchanged
             | ContractError::TimelockNotReady
-            | ContractError::EmergencyDrainNotPermitted => ErrorCategory::Authorization,
+            | ContractError::EmergencyDrainNotPermitted
+            | ContractError::UpgradeAuthAlreadyInitialized
+            | ContractError::UpgradeAuthNotInitialized
+            | ContractError::AlreadyAuthorizedUpgrader
+            | ContractError::CannotGrantHigherUpgradeRoleToSelf
+            | ContractError::NotAuthorizedUpgrader
+            | ContractError::CannotRevokeLastUpgrader
+            | ContractError::NotUpgradeAdmin
+            | ContractError::UnauthorizedUpgrade
+            | ContractError::UpgradeAuthorizationNotActive
+            | ContractError::UpgradeAuthorizationExpired
+            | ContractError::UpgradeProposalNotFound
+            | ContractError::UpgradeProposalNotPending
+            | ContractError::AlreadyApprovedUpgradeProposal
+            | ContractError::UpgradeProposalNotApproved
+            | ContractError::UpgradeImplementationMismatch
+            | ContractError::NoCurrentImplementation
+            | ContractError::SameImplementation
+            | ContractError::NewUpgradeAdminMustDiffer
+            | ContractError::NoPendingUpgradeAdmin
+            | ContractError::NotPendingUpgradeAdmin => ErrorCategory::Authorization,
             ContractError::DomainMismatch
             | ContractError::OwnerMismatch
             | ContractError::TargetMismatch
@@ -766,10 +933,20 @@ impl ErrorExt for ContractError {
             ContractError::InvariantViolation => {
                 "Bond storage drift detected; bonded/slashed or attestation counters inconsistent"
             }
+            ContractError::WithdrawalNotRequested => {
+                "Rolling-bond withdrawal was not requested; call request_withdrawal first"
+            }
+            ContractError::NoticePeriodNotElapsed => "Rolling-bond notice period has not yet elapsed",
+            ContractError::BondNotEligibleForLiquidation => {
+                "Bond must be fully slashed, or expired and non-rolling, to be liquidated"
+            }
             ContractError::DuplicateAttestation => "Attestation already exists from this attester",
             ContractError::AttestationNotFound => "No attestation found for the given key",
             ContractError::AttestationAlreadyRevoked => "Attestation has already been revoked",
             ContractError::InvalidAttestationWeight => "Attestation weight must be positive",
+            ContractError::DuplicateAttesterInBatch => {
+                "The same attester appears more than once in this batch"
+            }
             ContractError::AttestationWeightExceedsMax => {
                 "Attestation weight exceeds the configured maximum"
             }
@@ -847,6 +1024,30 @@ impl ErrorExt for ContractError {
             ContractError::AdminUnchanged => "Proposed admin is the same as the current admin",
             ContractError::TimelockNotReady => "Timelock delay has not yet elapsed",
             ContractError::EmergencyDrainNotPermitted => "Emergency drain requires contract to be paused and timelock window to have elapsed",
+            ContractError::UpgradeAuthAlreadyInitialized => "Upgrade authorization has already been initialized",
+            ContractError::UpgradeAuthNotInitialized => "Upgrade authorization has not been initialized",
+            ContractError::AlreadyAuthorizedUpgrader => "Address already holds an active upgrade authorization",
+            ContractError::CannotGrantHigherUpgradeRoleToSelf => {
+                "Cannot grant an equal or higher upgrade role to self"
+            }
+            ContractError::NotAuthorizedUpgrader => "Address does not hold an upgrade authorization",
+            ContractError::CannotRevokeLastUpgrader => "Cannot revoke the last remaining upgrader",
+            ContractError::NotUpgradeAdmin => "Caller is not the upgrade admin",
+            ContractError::UnauthorizedUpgrade => "Caller is not authorized to perform an upgrade",
+            ContractError::UpgradeAuthorizationNotActive => "Caller's upgrade authorization is not active",
+            ContractError::UpgradeAuthorizationExpired => "Caller's upgrade authorization has expired",
+            ContractError::UpgradeProposalNotFound => "Upgrade proposal not found",
+            ContractError::UpgradeProposalNotPending => "Upgrade proposal is not pending",
+            ContractError::AlreadyApprovedUpgradeProposal => "Caller has already approved this upgrade proposal",
+            ContractError::UpgradeProposalNotApproved => "Upgrade proposal does not have enough approvals to execute",
+            ContractError::UpgradeImplementationMismatch => {
+                "Implementation address does not match the approved proposal"
+            }
+            ContractError::NoCurrentImplementation => "No current implementation address is recorded",
+            ContractError::SameImplementation => "New implementation is identical to the current one",
+            ContractError::NewUpgradeAdminMustDiffer => "New upgrade admin must differ from the current one",
+            ContractError::NoPendingUpgradeAdmin => "No pending upgrade-admin transfer exists",
+            ContractError::NotPendingUpgradeAdmin => "Caller is not the pending upgrade admin",
             ContractError::Underflow => "Integer underflow in checked arithmetic",
             ContractError::UnsupportedInterface => "Bond contract does not support required interface",
             ContractError::DivisionByZero => "Division by a zero denominator",
@@ -891,6 +1092,31 @@ impl ErrorExt for ContractError {
             | ContractError::TimelockNotReady
             | ContractError::EmergencyDrainNotPermitted => true, // wait for pause + timelock window
 
+            // --- Upgrade Authorization (115-134): same shape as the rest of
+            //     Authorization above — wrong signer, wrong state, wrong ID.
+            //     Caller-fixable by switching signer, waiting, or retrying
+            //     with correct arguments. ---
+            ContractError::UpgradeAuthAlreadyInitialized  // idempotent to observe
+            | ContractError::UpgradeAuthNotInitialized    // admin can initialize first
+            | ContractError::AlreadyAuthorizedUpgrader    // revoke first, or no-op
+            | ContractError::CannotGrantHigherUpgradeRoleToSelf // choose a lower role
+            | ContractError::NotAuthorizedUpgrader        // admin can grant, then retry
+            | ContractError::CannotRevokeLastUpgrader     // grant another upgrader first
+            | ContractError::NotUpgradeAdmin              // switch to the upgrade admin
+            | ContractError::UnauthorizedUpgrade          // switch to an authorized upgrader
+            | ContractError::UpgradeAuthorizationNotActive
+            | ContractError::UpgradeAuthorizationExpired  // admin can re-grant
+            | ContractError::UpgradeProposalNotFound      // supply a valid proposal id
+            | ContractError::UpgradeProposalNotPending
+            | ContractError::AlreadyApprovedUpgradeProposal // idempotent
+            | ContractError::UpgradeProposalNotApproved   // gather more approvals
+            | ContractError::UpgradeImplementationMismatch // pass the address on the proposal
+            | ContractError::NoCurrentImplementation      // admin can set one first
+            | ContractError::SameImplementation           // pass a different implementation
+            | ContractError::NewUpgradeAdminMustDiffer
+            | ContractError::NoPendingUpgradeAdmin        // start a transfer first
+            | ContractError::NotPendingUpgradeAdmin => true, // switch to the nominated address
+
             // --- Bond (200-299): most errors are caller-fixable. ---
             ContractError::BondNotFound                 // create_bond first
             | ContractError::BondNotActive
@@ -914,6 +1140,9 @@ impl ErrorExt for ContractError {
             | ContractError::BondAlreadyExists
             | ContractError::BatchTooLarge         // reduce batch size
             | ContractError::EmptyBatch            // supply at least one item
+            | ContractError::WithdrawalNotRequested // call request_withdrawal first
+            | ContractError::NoticePeriodNotElapsed // wait for the notice period
+            | ContractError::BondNotEligibleForLiquidation // wait for slash/lock-up expiry
             => true,
 
             // FATAL Bond: caller cannot directly fix any of these.
@@ -936,7 +1165,8 @@ impl ErrorExt for ContractError {
             | ContractError::AttestationNotFound
             | ContractError::AttestationAlreadyRevoked
             | ContractError::InvalidAttestationWeight
-            | ContractError::AttestationWeightExceedsMax => true,
+            | ContractError::AttestationWeightExceedsMax
+            | ContractError::DuplicateAttesterInBatch => true, // drop the duplicate and retry
 
             // --- Registry (400-499): all caller-fixable. ---
             ContractError::IdentityAlreadyRegistered
