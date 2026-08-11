@@ -1,4 +1,8 @@
 #![no_std]
+// Ceiling from the Phase 3 unwrap/expect/panic cleanup (see QUALITY_UPGRADE_ROADMAP.md):
+// the compiled non-test surface must not regress back to string panics. Scoped to
+// `not(test)` so `#[cfg(test)]` modules stay unaffected.
+#![cfg_attr(not(test), deny(clippy::unwrap_used, clippy::expect_used))]
 
 //! # TrustForge Registry Contract
 //!
@@ -472,7 +476,13 @@ impl TrustForgeRegistry {
 
         let mut result = Vec::new(&e);
         for i in start..end {
-            result.push_back(all_identities.get(i).unwrap());
+            // `end <= total_count == all_identities.len()`, so every `i` in this
+            // range is a valid index — `get` can never return `None` here.
+            result.push_back(
+                all_identities
+                    .get(i)
+                    .unwrap_or_else(|| unreachable!("index bounded by loop range above")),
+            );
         }
 
         result
