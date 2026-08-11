@@ -36,36 +36,43 @@ This table is generated from the `members` list in the root [`Cargo.toml`](../Ca
 
 **Internal modules:**
 
+Modules marked ⚠️ are **not** declared as `mod` in `lib.rs` and therefore never compile
+into anything — not the release WASM, not `cargo test`. They exist as complete,
+documented source files but are dead code today. See
+[docs/ORPHANED_MODULES.md](ORPHANED_MODULES.md) for how this happened and why
+restoring them isn't a mechanical fix.
+
 | Module | Role |
 |---|---|
-| `access_control` | Verifier role add/remove |
+| `access_control` ⚠️ orphaned | Verifier role add/remove |
 | `batch` | Atomic multi-bond creation |
 | `claims` | Pending verifier reward claims |
-| `cooldown` | Configurable withdrawal cooldown period |
+| `cooldown` ⚠️ orphaned | Configurable withdrawal cooldown period |
 | `early_exit_penalty` | Penalty calculation and treasury transfer |
 | `emergency` | Dual-auth emergency withdrawal with audit records |
 | `events` | All event emission helpers |
-| `evidence` | IPFS/hash evidence storage for slash proposals |
-| `fees` | Bond-creation fee calculation and accumulation |
-| `governance_approval` | Governor-based slash proposal voting |
+| `evidence` ⚠️ orphaned | IPFS/hash evidence storage for slash proposals |
+| `fees` ⚠️ orphaned | Bond-creation fee calculation and accumulation |
+| `governance_approval` ⚠️ orphaned | Governor-based slash proposal voting |
 | `leverage` | Max-leverage validation |
-| `liquidation_scanner` | Same-ledger collateral-increase guard |
+| `liquidation_scanner` ⚠️ orphaned | Same-ledger collateral-increase guard |
 | `math` | Internal arithmetic (wraps `trustforge_math`) |
 | `nonce` | Permit-style replay prevention |
 | `normalization` | Amount normalization utilities |
 | `parameters` | Configurable tier thresholds and max leverage |
-| `pausable` | Multi-sig pause mechanism |
+| `pausable` | Multi-sig pause mechanism (its threshold pause-signer proposal flow is compiled but has zero live callers — see ORPHANED_MODULES.md) |
 | `rolling_bond` | Notice-period withdrawal for rolling bonds |
 | `safe_token` | Token transfer helpers |
 | `same_ledger_liquidation_guard` | Prevents same-ledger collateral manipulation |
 | `slash_history` | Immutable slash history log |
 | `slashing` | Core slash logic |
+| `status_snapshot` ⚠️ orphaned | Read-only backend-friendly bond status snapshot |
 | `tiered_bond` | Bronze/Silver/Gold/Platinum tier derivation |
 | `token_integration` | USDC transfer with balance-delta verification |
 | `types` | Shared `Attestation` type |
 | `upgrade_auth` | Proposer/approver upgrade authorization |
 | `validation` | Amount and duration validation |
-| `verifier` | Verifier stake, reputation, and attestation tracking |
+| `verifier` ⚠️ orphaned | Verifier stake, reputation, and attestation tracking |
 | `weighted_attestation` | Weight computation from verifier stake |
 
 **State (instance storage):**
@@ -124,6 +131,32 @@ This table is generated from the `members` list in the root [`Cargo.toml`](../Ca
 - Poll `get_identity_state()` to read current bond state for a given contract instance.
 - Poll `get_total_supply()` / `get_supply_cap()` for market utilization metrics.
 - Index `emergency_withdrawal` for incident response and audit.
+
+**Design decision: single bond per contract instance.** The `Bond` storage key holds
+exactly one `IdentityBond` — there is no `Map<Address, IdentityBond>` serving many
+identities from one deployed contract. Each identity that wants a bond deploys its own
+`trustforge_bond` instance, and `trustforge_registry` maps identity → that instance's
+address.
+
+This is an intentional tradeoff, not an oversight:
+
+- **Why:** a per-instance model gives each identity's bond its own storage namespace by
+  construction. There is no shared map key an attacker or a bug could use to read or
+  corrupt another identity's balance — cross-identity storage leakage is structurally
+  impossible rather than something the contract logic has to get right. It also means a
+  single compromised or buggy identity's contract instance can't affect any other
+  identity's funds.
+- **Cost:** every identity pays the gas/resource cost of deploying its own contract
+  instance, and there is no single contract that can answer "give me all bonds" —
+  `trustforge_registry` is required for discovery, and cross-identity aggregation
+  (e.g. total system-wide bonded amount) requires iterating registry entries off-chain
+  rather than one query.
+- **Alternative considered:** a multi-bond contract with `Map<Address, IdentityBond>`
+  storage would let one deployment serve every identity, removing the per-identity
+  deployment cost and making the registry optional rather than required. This would
+  need careful review of the storage-isolation properties this model currently gets for
+  free — if per-identity deployment cost turns out to be a real adoption blocker, that
+  tradeoff is worth revisiting, but it hasn't been the case so far.
 
 ---
 

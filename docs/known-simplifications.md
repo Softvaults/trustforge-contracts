@@ -41,13 +41,18 @@ Proposals carry an `expires_at: u64` field (`0` = no expiration). `sign_proposal
 
 ## 2. Single-Bond-Per-Contract-Instance Storage Model
 
+**Status:** intentional design decision, not a gap — see
+[architecture.md](architecture.md#trustforge_bond) for the full rationale and the
+cost/alternative it was weighed against. Kept here for discoverability since it still
+shapes how the registry and backend integration work.
+
 **Where:** `contracts/trustforge_bond/src/lib.rs`
 
 **What:** The bond contract stores one bond per contract instance (keyed by a single storage slot), not a per-identity map. Each identity that wants a bond deploys its own contract instance.
 
 **Impact:** This simplifies the storage model and avoids cross-identity data leakage, but it means the registry contract (`trustforge_registry`) is required to track which contract instance belongs to which identity. Batch operations across identities require iterating registry entries off-chain.
 
-**Production path:** A multi-bond contract with a `Map<Address, IdentityBond>` storage layout would allow a single contract to serve many identities. The registry would still be useful for discovery but would not be strictly required for storage. See [registry.md](registry.md).
+**If per-identity deployment cost becomes a real adoption blocker:** A multi-bond contract with a `Map<Address, IdentityBond>` storage layout would allow a single contract to serve many identities. The registry would still be useful for discovery but would not be strictly required for storage. See [registry.md](registry.md).
 
 ## 9. Arbitration Voting Weights Are Not Stake-Backed
 
@@ -66,7 +71,7 @@ Proposals carry an `expires_at: u64` field (`0` = no expiration). `sign_proposal
 | # | Simplification | Contract | Production Path |
 |---|---------------|----------|-----------------|
 | 1 | Token transfer stubbed in tests | trustforge_bond | Configure live USDC via `set_usdc_token` |
-| 2 | Single-bond-per-contract-instance | trustforge_bond | Multi-bond map storage |
+| 2 | Single-bond-per-contract-instance | trustforge_bond | Intentional — see [architecture.md](architecture.md#trustforge_bond) |
 | 3 | Treasury is pure accounting, no token custody | trustforge_treasury | Add real token transfers on withdrawal |
 | 4 | ~~Slashed funds not swept to treasury~~ | trustforge_bond | **Resolved** — see above |
 | 6 | Early-exit penalty dropped if no treasury | trustforge_bond | Require treasury before `withdraw_early` |
