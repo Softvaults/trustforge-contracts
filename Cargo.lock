@@ -2916,7 +2916,9 @@ name = "trustforge_arbitration"
 version = "1.0.0"
 dependencies = [
  "soroban-sdk",
+ "trustforge_bond",
  "trustforge_errors",
+ "trustforge_registry",
 ]
 
 [[package]]

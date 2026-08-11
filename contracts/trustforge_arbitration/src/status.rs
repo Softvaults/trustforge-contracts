@@ -45,6 +45,14 @@ pub enum ArbitrationError {
     NotAuthorized = 12,
     ReasonTooLong = 14,
     QuorumNotMet = 13,
+    /// `set_registry_contract` has not been called — weight derivation has
+    /// nowhere to look up an arbitrator's bond contract.
+    RegistryNotConfigured = 15,
+    /// The arbitrator has no active, discoverable bonded stake: either the
+    /// `trustforge_registry` cross-contract lookup failed (not registered, or
+    /// the registry entry is deactivated), or the resolved bond contract's
+    /// cross-contract call failed or returned an inactive bond.
+    ArbitratorNotBonded = 16,
 }
 
 /// Assert a status transition is valid, returning ArbitrationError::InvalidTransition otherwise.

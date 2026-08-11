@@ -6,7 +6,13 @@ license = "Apache-2.0"
 description = "TrustForge registry contract — maps identities to bond contracts"
 
 [lib]
-crate-type = ["cdylib"]
+# `rlib` is added alongside `cdylib` so trustforge_arbitration's tests (a
+# dev-dependency only — see its Cargo.toml) can link this contract as a normal
+# Rust dependency to deploy real registry fixtures. Dev-dependencies never
+# reach the release build, so this doesn't risk the WASM export-symbol
+# collision a regular dependency would cause. The `cdylib` artifact used for
+# the on-chain wasm is unaffected.
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 soroban-sdk = "22.0"

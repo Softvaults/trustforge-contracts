@@ -17,3 +17,10 @@ trustforge_errors = { path = "../trustforge_errors" }
 
 [dev-dependencies]
 soroban-sdk = { version = "22.0", features = ["testutils"] }
+# Test-only: deploy real bond/registry contracts to build realistic weight-derivation
+# fixtures. Dev-dependencies never ship in the release WASM (unlike a regular
+# dependency, which would collide at the WASM export level — both crates define
+# entrypoints named `initialize`/`pause`/`version`; see lib.rs's BondRegistryEntry
+# doc comment), so this is safe even though the production code path can't use it.
+trustforge_bond = { path = "../trustforge_bond", features = ["testutils"] }
+trustforge_registry = { path = "../trustforge_registry" }

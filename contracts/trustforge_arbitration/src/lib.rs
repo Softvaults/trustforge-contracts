@@ -15,7 +15,8 @@
 )]
 
 use soroban_sdk::{
-    contract, contractimpl, contracttype, panic_with_error, Address, Env, Map, String, Symbol, Vec,
+    contract, contractimpl, contracttype, panic_with_error, Address, Env, IntoVal, Map, String,
+    Symbol, Vec,
 };
 use trustforge_errors::ContractError;
 
@@ -62,9 +63,120 @@ pub enum DataKey {
     ArbitratorRegistry,
     MinTotalWeight,
     MinVoters,
+    /// `trustforge_registry` contract address used to resolve an arbitrator's
+    /// bond contract for live weight derivation. See `set_registry_contract`.
+    RegistryContract,
+}
+
+/// Structural mirror of `trustforge_registry::RegistryEntry`, decoded from a
+/// cross-contract call via the named-field map encoding all `#[contracttype]`
+/// structs share. Deliberately *not* a Cargo dependency on `trustforge_registry`
+/// itself: pulling in its `#[contractimpl]` block would collide at the WASM
+/// export level, since both crates define entrypoints with the same names
+/// (`initialize`, `pause`, `version`, ...) and Soroban's contract macros emit
+/// those as flat, unmangled symbols — linking two contracts' compiled code into
+/// one WASM binary fails with duplicate-symbol errors.
+///
+/// Must declare *every* field of the remote struct, not just the ones this
+/// contract reads: the generated decoder (`env.map_unpack_to_slice`) requires
+/// the incoming map's length to exactly match this struct's field count, and
+/// errors (`Error(Object, UnexpectedSize)`) rather than ignoring extras. Field
+/// names and types must stay in sync with `trustforge_registry::RegistryEntry`
+/// — see `docs/arbitration.md`.
+#[contracttype]
+#[derive(Clone)]
+struct BondRegistryEntry {
+    identity: Address,
+    bond_contract: Address,
+    registered_at: u64,
+    active: bool,
+}
+
+/// Structural mirror of `trustforge_bond::IdentityBond` — see
+/// [`BondRegistryEntry`] for why this must list every field instead of
+/// depending on the crate directly.
+#[contracttype]
+#[derive(Clone)]
+struct BondIdentityState {
+    identity: Address,
+    bonded_amount: i128,
+    bond_start: u64,
+    bond_duration: u64,
+    slashed_amount: i128,
+    active: bool,
+    is_rolling: bool,
+    withdrawal_requested_at: u64,
+    notice_period_duration: u64,
 }
 
 const STORAGE_TTL_EXTEND_TO: u32 = 31_536_000;
+
+/// Derive an arbitrator's current voting weight from their bonded stake.
+///
+/// `arbitrator` must (a) already be a permitted arbitrator (checked by callers via
+/// `DataKey::Arbitrator`), (b) have an active entry in the configured
+/// `trustforge_registry` pointing at their bond contract, and (c) have a
+/// positive `bonded_amount - slashed_amount` in that bond's active state.
+///
+/// Both cross-contract calls use `try_invoke_contract` rather than the generated
+/// clients so a failure (unregistered identity, deactivated entry, or any
+/// callee-side error) surfaces as a typed `ArbitratorNotBonded` instead of
+/// propagating the callee's panic into this contract's transaction.
+///
+/// Called fresh on every `vote()` (not cached at registration), so a vote's
+/// recorded weight is a snapshot of stake *at the moment it was cast* — later
+/// top-ups or slashes do not retroactively change already-cast votes, since
+/// only the aggregated tally (not a per-voter weight) is stored after this
+/// point.
+fn derive_arbitrator_weight(e: &Env, arbitrator: &Address) -> Result<i128, ArbitrationError> {
+    let registry: Address = e
+        .storage()
+        .instance()
+        .get(&DataKey::RegistryContract)
+        .ok_or(ArbitrationError::RegistryNotConfigured)?;
+
+    let entry: BondRegistryEntry = e
+        .try_invoke_contract::<BondRegistryEntry, soroban_sdk::Error>(
+            &registry,
+            &Symbol::new(e, "get_bond_contract"),
+            soroban_sdk::vec![e, arbitrator.into_val(e)],
+        )
+        .ok()
+        .and_then(Result::ok)
+        .ok_or(ArbitrationError::ArbitratorNotBonded)?;
+
+    if !entry.active {
+        return Err(ArbitrationError::ArbitratorNotBonded);
+    }
+
+    let state: BondIdentityState = e
+        .try_invoke_contract::<BondIdentityState, soroban_sdk::Error>(
+            &entry.bond_contract,
+            &Symbol::new(e, "get_identity_state"),
+            soroban_sdk::vec![e],
+        )
+        .ok()
+        .and_then(Result::ok)
+        .ok_or(ArbitrationError::ArbitratorNotBonded)?;
+
+    if !state.active {
+        return Err(ArbitrationError::ArbitratorNotBonded);
+    }
+
+    // Invariant enforced by trustforge_bond itself: slashed_amount <= bonded_amount,
+    // so this subtraction cannot underflow in practice — checked defensively anyway
+    // rather than trusting a cross-contract callee's invariant blindly.
+    let weight = state
+        .bonded_amount
+        .checked_sub(state.slashed_amount)
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
+
+    if weight <= 0 {
+        return Err(ArbitrationError::WeightNotPositive);
+    }
+
+    Ok(weight)
+}
 
 fn bump_instance_ttl(e: &Env) {
     e.storage()
@@ -95,12 +207,50 @@ impl TrustForgeArbitration {
         Ok(())
     }
 
-    /// Register or update an arbitrator with a specific voting weight.
-    pub fn register_arbitrator(
+    /// Configure the `trustforge_registry` contract used to resolve an
+    /// arbitrator's bond contract for weight derivation. Admin-only.
+    pub fn set_registry_contract(
         e: Env,
-        arbitrator: Address,
-        weight: i128,
+        admin: Address,
+        registry: Address,
     ) -> Result<(), ArbitrationError> {
+        bump_instance_ttl(&e);
+        pausable::require_not_paused(&e);
+        let stored_admin: Address = e
+            .storage()
+            .instance()
+            .get(&DataKey::Admin)
+            .ok_or(ArbitrationError::NotInitialized)?;
+        admin.require_auth();
+        if admin != stored_admin {
+            return Err(ArbitrationError::NotAdmin);
+        }
+
+        e.storage()
+            .instance()
+            .set(&DataKey::RegistryContract, &registry);
+
+        e.events()
+            .publish((Symbol::new(&e, "registry_contract_set"),), registry);
+        Ok(())
+    }
+
+    /// Return the configured `trustforge_registry` contract address.
+    pub fn get_registry_contract(e: Env) -> Result<Address, ArbitrationError> {
+        e.storage()
+            .instance()
+            .get(&DataKey::RegistryContract)
+            .ok_or(ArbitrationError::RegistryNotConfigured)
+    }
+
+    /// Grant `arbitrator` permission to vote in disputes. Admin-only.
+    ///
+    /// Voting *weight* is not set here — it is derived live, at vote time,
+    /// from the arbitrator's bonded stake (see `set_registry_contract` and
+    /// [`derive_arbitrator_weight`]). This makes weight economically backed
+    /// rather than an arbitrary admin-assigned number: the admin still
+    /// controls *who* may participate, but not how much their vote counts.
+    pub fn register_arbitrator(e: Env, arbitrator: Address) -> Result<(), ArbitrationError> {
         bump_instance_ttl(&e);
         pausable::require_not_paused(&e);
         let admin: Address = e
@@ -110,13 +260,9 @@ impl TrustForgeArbitration {
             .ok_or(ArbitrationError::NotInitialized)?;
         admin.require_auth();
 
-        if weight <= 0 {
-            return Err(ArbitrationError::WeightNotPositive);
-        }
-
         e.storage()
             .instance()
-            .set(&DataKey::Arbitrator(arbitrator.clone()), &weight);
+            .set(&DataKey::Arbitrator(arbitrator.clone()), &true);
 
         // Update the arbitrator registry list
         let mut registry: Vec<Address> = e
@@ -139,10 +285,8 @@ impl TrustForgeArbitration {
                 .set(&DataKey::ArbitratorRegistry, &registry);
         }
 
-        e.events().publish(
-            (Symbol::new(&e, "arbitrator_registered"), arbitrator),
-            weight,
-        );
+        e.events()
+            .publish((Symbol::new(&e, "arbitrator_registered"), arbitrator), ());
         Ok(())
     }
 
@@ -310,11 +454,14 @@ impl TrustForgeArbitration {
             return Err(ArbitrationError::InvalidOutcome);
         }
 
-        let weight: i128 = e
+        if !e
             .storage()
             .instance()
-            .get(&DataKey::Arbitrator(voter.clone()))
-            .ok_or(ArbitrationError::NotArbitrator)?;
+            .has(&DataKey::Arbitrator(voter.clone()))
+        {
+            return Err(ArbitrationError::NotArbitrator);
+        }
+        let weight = derive_arbitrator_weight(&e, &voter)?;
 
         let dispute: Dispute = e
             .storage()
@@ -586,15 +733,22 @@ impl TrustForgeArbitration {
     /// * `arbitrator` - The address of the arbitrator.
     ///
     /// # Returns
-    /// The arbitrator's weight as `u32` if registered, or `Error::NotArbitrator` if not.
-    pub fn get_arbitrator_weight(e: Env, arbitrator: Address) -> Result<u32, Error> {
+    /// The arbitrator's current derived weight (bonded_amount - slashed_amount from
+    /// their registered bond) as `i128`, or an error if not registered / not bonded.
+    ///
+    /// `i128`, not `u32`: weight is a raw token amount (typically 18-decimal), which
+    /// routinely exceeds `u32::MAX` for realistic bonded amounts — a `u32` return
+    /// here would silently truncate.
+    pub fn get_arbitrator_weight(e: Env, arbitrator: Address) -> Result<i128, Error> {
         bump_instance_ttl(&e);
-        let weight: i128 = e
+        if !e
             .storage()
             .instance()
-            .get(&DataKey::Arbitrator(arbitrator))
-            .ok_or(Error::NotArbitrator)?;
-        Ok(weight as u32)
+            .has(&DataKey::Arbitrator(arbitrator.clone()))
+        {
+            return Err(Error::NotArbitrator);
+        }
+        derive_arbitrator_weight(&e, &arbitrator)
     }
 
     /// Check if a voter has already casted a vote for a specific dispute.
@@ -695,6 +849,9 @@ impl TrustForgeArbitration {
         pausable::execute_pause_proposal(&e, proposal_id)
     }
 }
+
+#[cfg(test)]
+mod test_support;
 
 #[cfg(test)]
 mod test;
