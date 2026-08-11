@@ -49,6 +49,7 @@ fn fingerprints(env: &Env) -> Vec<(&'static str, String)> {
         ("ArbitratorRegistry", fp(DataKey::ArbitratorRegistry)),
         ("MinTotalWeight", fp(DataKey::MinTotalWeight)),
         ("MinVoters", fp(DataKey::MinVoters)),
+        ("RegistryContract", fp(DataKey::RegistryContract)),
     ]
 }
 
@@ -73,6 +74,11 @@ fn render(fps: &[(&'static str, String)]) -> String {
 /// out of sync with harmless byte-count differences (no variant shape
 /// changed). Safe to update because no contracts are deployed anywhere yet
 /// (see STATUS.md) — there is no live ledger state to orphan.
+///
+/// Regenerated 2026-08-11: added `RegistryContract` (stake-derived arbitrator
+/// weight — see QUALITY_UPGRADE_ROADMAP.md Phase 4). Purely additive: every
+/// pre-existing variant's fingerprint is unchanged, only the new line was
+/// appended.
 const EXPECTED: &str = "\
 Admin = 0000001000000001000000010000000f0000000541646d696e000000
 Paused = 0000001000000001000000010000000f000000065061757365640000
@@ -92,6 +98,7 @@ VoterCounter = 0000001000000001000000020000000f0000000c566f746572436f756e7465720
 ArbitratorRegistry = 0000001000000001000000010000000f0000001241726269747261746f7252656769737472790000
 MinTotalWeight = 0000001000000001000000010000000f0000000e4d696e546f74616c5765696768740000
 MinVoters = 0000001000000001000000010000000f000000094d696e566f74657273000000
+RegistryContract = 0000001000000001000000010000000f000000105265676973747279436f6e7472616374
 ";
 
 #[test]
