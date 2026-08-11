@@ -13,6 +13,11 @@
     clippy::cargo,
     clippy::restriction
 )]
+// Ceiling from the Phase 3 unwrap/expect/panic cleanup (see QUALITY_UPGRADE_ROADMAP.md):
+// the compiled non-test surface must not regress back to string panics. Scoped to
+// `not(test)` so `#[cfg(test)]` modules stay unaffected. Explicit here because the
+// blanket `clippy::restriction` allow above would otherwise also allow these two.
+#![cfg_attr(not(test), deny(clippy::unwrap_used, clippy::expect_used))]
 
 use soroban_sdk::{contracterror, contracttype};
 /// Project-wide version constant.
