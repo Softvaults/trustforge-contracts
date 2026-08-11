@@ -750,7 +750,11 @@ pub fn get_pending_claims_paginated(
     };
 
     let end = (offset + effective_limit).min(total);
-    for item in all.iter().skip(offset as usize).take((end - offset) as usize) {
+    for item in all
+        .iter()
+        .skip(offset as usize)
+        .take((end - offset) as usize)
+    {
         page.push_back(item);
     }
     page

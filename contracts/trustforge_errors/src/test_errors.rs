@@ -1213,13 +1213,13 @@ mod tests {
             ContractError::NoticePeriodNotElapsed => true, // wait for the notice period
             ContractError::BondNotEligibleForLiquidation => true, // wait for slash/lock-up expiry
             ContractError::ClaimAmountMustBePositive => true, // supply amount > 0
-            ContractError::NoPendingClaims => true,           // wait for claims to accrue
-            ContractError::NoValidClaimsToProcess => true,    // wait, or adjust the type filter
-            ContractError::ClaimNotFound => true,             // supply a valid claim id
+            ContractError::NoPendingClaims => true,        // wait for claims to accrue
+            ContractError::NoValidClaimsToProcess => true, // wait, or adjust the type filter
+            ContractError::ClaimNotFound => true,          // supply a valid claim id
             ContractError::BondTokenNotConfigured => true, // admin can configure the token then retry
-            ContractError::ParameterOutOfBounds => true, // supply a value within bounds
+            ContractError::ParameterOutOfBounds => true,   // supply a value within bounds
             ContractError::GovernanceApproverMismatch => true, // sign with the correct approver
-            ContractError::GovernanceApprovalExpired => true,  // obtain a fresh approval
+            ContractError::GovernanceApprovalExpired => true, // obtain a fresh approval
             ContractError::GovernanceApprovalCategoryMismatch => true, // use the matching category
             ContractError::UnsupportedNetwork => true,     // pass "mainnet" or "testnet"
             ContractError::NegativeTransferAmount => true, // supply amount >= 0
@@ -1228,7 +1228,7 @@ mod tests {
             ContractError::NegativeSlashAmount => true, // supply amount >= 0
             ContractError::UnslashExceedsSlashedAmount => true, // reduce the unslash amount
             ContractError::PauseThresholdExceedsSignerCount => true, // lower the threshold
-            ContractError::NotPauseSigner => true, // switch to an enabled pause signer
+            ContractError::NotPauseSigner => true,      // switch to an enabled pause signer
             ContractError::PauseProposalNotFound => true, // supply a valid proposal id
             ContractError::InvariantViolation => false, // post-write drift
             ContractError::TreasuryNotConfigured => true, // admin can configure treasury then retry
