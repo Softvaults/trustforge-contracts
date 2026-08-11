@@ -89,17 +89,36 @@ biggest concrete code-quality gap. In Soroban a panic aborts the transaction rat
 state, so this isn't a fund-safety emergency — but it's sloppy for a contract handling staked value,
 and each one is a spot where a malformed input produces an opaque abort instead of a typed error.
 
-- [ ] Audit every `unwrap()`/`expect()`/`panic!()` in `contracts/*/src/` (excluding test files).
+- [x] Audit every `unwrap()`/`expect()`/`panic!()` in `contracts/*/src/` (excluding test files).
       Categorize each as: (a) provably unreachable (add a comment explaining why, or convert to
       `unreachable!()` with justification), or (b) a real failure mode that should return a typed
       error via `trustforge_errors`.
-- [ ] Start with `trustforge_bond` (240 instances) since it's the core value-custody contract, then
+      Done for `trustforge_bond`, `trustforge_errors`, `trustforge_registry`, and `templates` —
+      their compiled non-test surfaces are now at zero, CI-enforced (see below). Three
+      documented, provably-dead-code exceptions remain in `trustforge_bond`
+      (`validation.rs`'s `validate_recipient`/`validate_bond_duration`, `slashing.rs`'s
+      `get_available_balance` — all `Env`-less, no production caller, see
+      `docs/ORPHANED_MODULES.md`). `trustforge_math`'s ~10 legacy `panic!`-based checked-math
+      helpers (`mul_i128`, `div_i128`, etc.) are intentionally untouched: they have no `Env`
+      parameter so can't call `panic_with_error!`, and typed `Result`-returning counterparts
+      (`div_checked_i128`, `ceil_div_checked_i128`) already exist for the two hottest paths —
+      fully eliminating the rest means threading `Env` (or `Result`) through ~24+ call sites
+      across `trustforge_bond`, deferred as a separate, larger decision.
+- [x] Start with `trustforge_bond` (240 instances) since it's the core value-custody contract, then
       `trustforge_errors` itself (56 — ironic, given its job) and `trustforge_arbitration` (19).
-- [ ] Add a workspace-level clippy lint (`#![deny(clippy::unwrap_used, clippy::expect_used)]` at the
+      All three are at zero in their compiled non-test surface.
+- [x] Add a workspace-level clippy lint (`#![deny(clippy::unwrap_used, clippy::expect_used)]` at the
       crate root, with a narrow `#[allow]` at each justified call site) so regressions fail CI
       instead of accumulating silently again.
-- [ ] Re-run the unwrap/expect/panic count from this conversation's audit as a CI-enforced ceiling
+      Added to `trustforge_bond`, `trustforge_errors`, `trustforge_registry`, and `templates`,
+      scoped `cfg_attr(not(test), deny(...))` so it only bites the compiled surface, not
+      `#[cfg(test)]` modules. Verified live (a deliberately-injected `.unwrap()` was confirmed to
+      fail `cargo clippy`) and clean under CI's exact
+      `cargo clippy --workspace --all-targets --all-features -- -D warnings`.
+- [x] Re-run the unwrap/expect/panic count from this conversation's audit as a CI-enforced ceiling
       (start by pinning today's count as the max, then ratchet it down per PR).
+      The ceiling is the clippy `deny` above, not a separate count script — a regression fails
+      the build immediately rather than needing a periodic re-count.
 
 ---
 
