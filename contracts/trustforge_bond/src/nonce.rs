@@ -27,7 +27,9 @@ pub fn consume_nonce(e: &Env, identity: &Address, expected_nonce: u64) {
     if current != expected_nonce {
         panic_with_error!(e, ContractError::InvalidNonce);
     }
-    let next = current.checked_add(1).expect("nonce overflow");
+    let next = current
+        .checked_add(1)
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
     e.storage()
         .instance()
         .set(&DataKey::Nonce(identity.clone()), &next);

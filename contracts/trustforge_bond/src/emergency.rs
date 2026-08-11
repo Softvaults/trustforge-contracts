@@ -3,7 +3,8 @@
 //! Enables governance-approved withdrawals in crisis scenarios with mandatory
 //! fee application, event emission, and immutable audit records.
 
-use soroban_sdk::{contracttype, Address, Env, Symbol};
+use soroban_sdk::{contracttype, panic_with_error, Address, Env, Symbol};
+use trustforge_errors::ContractError;
 
 use crate::math;
 
@@ -72,7 +73,7 @@ pub fn set_config(
     enabled: bool,
 ) {
     if emergency_fee_bps > math::BPS_DENOMINATOR as u32 {
-        panic!("emergency fee bps must be <= {}", math::BPS_DENOMINATOR);
+        panic_with_error!(e, ContractError::EmergencyFeeExceedsMaximum);
     }
     let cfg = EmergencyConfig {
         governance,
@@ -91,7 +92,7 @@ pub fn get_config(e: &Env) -> EmergencyConfig {
     e.storage()
         .instance()
         .get::<_, EmergencyConfig>(&Symbol::new(e, KEY_EMERGENCY_CONFIG))
-        .unwrap_or_else(|| panic!("emergency config not set"))
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::EmergencyConfigNotSet))
 }
 
 /// @notice Update emergency enabled state with full audit trail.
@@ -156,7 +157,7 @@ pub fn get_record(e: &Env, id: u64) -> EmergencyWithdrawalRecord {
         .storage()
         .persistent()
         .get(&key)
-        .unwrap_or_else(|| panic!("record not found"));
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::EmergencyRecordNotFound));
     e.storage().persistent().extend_ttl(
         &key,
         crate::PERSISTENT_TTL_MAX / 2,
@@ -179,7 +180,7 @@ pub fn get_transition(e: &Env, id: u64) -> EmergencyModeTransition {
         .storage()
         .persistent()
         .get(&key)
-        .unwrap_or_else(|| panic!("transition not found"));
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::EmergencyTransitionNotFound));
     e.storage().persistent().extend_ttl(
         &key,
         crate::PERSISTENT_TTL_MAX / 2,
@@ -229,7 +230,9 @@ pub fn store_record(
 /// @notice Internal sequence incrementer.
 fn increment_seq(e: &Env, key: EmergencyDataKey) -> u64 {
     let seq: u64 = e.storage().persistent().get(&key).unwrap_or(0);
-    let next = seq.checked_add(1).expect("sequence overflow");
+    let next = seq
+        .checked_add(1)
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
     e.storage().persistent().set(&key, &next);
     e.storage().persistent().extend_ttl(
         &key,

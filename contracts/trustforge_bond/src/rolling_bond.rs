@@ -4,9 +4,13 @@
 //! Tracks withdrawal request and notice period for scoring.
 
 use crate::IdentityBond;
+use soroban_sdk::{panic_with_error, Env};
+use trustforge_errors::ContractError;
 
-pub fn is_period_ended(now: u64, bond_start: u64, bond_duration: u64) -> bool {
-    let end = bond_start.checked_add(bond_duration).expect("overflow");
+pub fn is_period_ended(e: &Env, now: u64, bond_start: u64, bond_duration: u64) -> bool {
+    let end = bond_start
+        .checked_add(bond_duration)
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
     now >= end
 }
 

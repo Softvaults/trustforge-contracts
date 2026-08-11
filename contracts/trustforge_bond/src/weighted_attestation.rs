@@ -46,7 +46,8 @@
 //! - `stake` is converted to `u128` before basis-point multiplication and split into
 //!   quotient/remainder terms, so max-range stake inputs cannot overflow before the cap.
 
-use soroban_sdk::Env;
+use soroban_sdk::{panic_with_error, Env};
+use trustforge_errors::ContractError;
 
 use crate::math;
 use crate::types::attestation::MAX_ATTESTATION_WEIGHT;
@@ -100,7 +101,7 @@ pub fn get_attester_stake(e: &Env, attester: &soroban_sdk::Address) -> i128 {
 /// Panics if amount < 0.
 pub fn set_attester_stake(e: &Env, attester: &soroban_sdk::Address, amount: i128) {
     if amount < 0 {
-        panic!("attester stake cannot be negative");
+        panic_with_error!(e, ContractError::NegativeStake);
     }
     e.storage()
         .instance()

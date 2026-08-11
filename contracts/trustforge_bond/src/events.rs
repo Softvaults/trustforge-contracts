@@ -1,4 +1,5 @@
-use soroban_sdk::{Address, Env, String, Symbol};
+use soroban_sdk::{panic_with_error, Address, Env, String, Symbol};
+use trustforge_errors::ContractError;
 
 /// Emitted when a new bond is created.
 ///
@@ -38,7 +39,7 @@ pub fn emit_bond_created_v2(
     );
     let end_timestamp = start_timestamp
         .checked_add(duration)
-        .expect("timestamp overflow");
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
     let data = (duration, is_rolling, end_timestamp);
     e.events().publish(topics, data);
 }

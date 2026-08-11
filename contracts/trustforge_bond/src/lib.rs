@@ -639,7 +639,7 @@ impl TrustForgeBond {
             .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
 
         // Validate inputs
-        validation::validate_bond_amount(amount);
+        validation::validate_bond_amount(&e, amount);
         let max_leverage = parameters::get_max_leverage(&e);
         leverage::validate_leverage(&e, amount, max_leverage);
 
@@ -773,7 +773,7 @@ impl TrustForgeBond {
         e.storage().instance().set(&counter_key, &next_id);
 
         let weight = weighted_attestation::compute_weight(&e, &attester);
-        types::Attestation::validate_weight(weight);
+        types::Attestation::validate_weight(&e, weight);
 
         let attestation = types::Attestation {
             id,
@@ -875,7 +875,7 @@ impl TrustForgeBond {
         let mut weights = Vec::new(&e);
         for item in items.iter() {
             let weight = weighted_attestation::compute_weight(&e, &item.attester);
-            types::Attestation::validate_weight(weight);
+            types::Attestation::validate_weight(&e, weight);
             total_weight = total_weight
                 .checked_add(weight as u64)
                 .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
@@ -1535,7 +1535,7 @@ impl TrustForgeBond {
             return bond;
         }
         let now = e.ledger().timestamp();
-        if !rolling_bond::is_period_ended(now, bond.bond_start, bond.bond_duration) {
+        if !rolling_bond::is_period_ended(&e, now, bond.bond_start, bond.bond_duration) {
             return bond;
         }
         rolling_bond::apply_renewal(&mut bond, now);
@@ -1600,7 +1600,7 @@ impl TrustForgeBond {
         let old_tier = tiered_bond::get_tier_for_amount(&e, old_available);
 
         // Validate the new total amount
-        validation::validate_bond_amount(new_bonded_amount);
+        validation::validate_bond_amount(&e, new_bonded_amount);
         let max_leverage = parameters::get_max_leverage(&e);
         leverage::validate_leverage(&e, new_bonded_amount, max_leverage);
 
@@ -2321,8 +2321,8 @@ impl TrustForgeBond {
     /// - `ContractError::NotAdmin` — caller is not admin.
     /// - `ContractError::EmergencyDrainNotPermitted` — not paused, or no ETA scheduled.
     /// - `ContractError::TimelockNotReady` — ETA not yet reached.
-    /// - Panics with `"amount must be positive"` — `amount <= 0`.
-    /// - Panics with `"recipient must be treasury"` — wrong recipient.
+    /// - `ContractError::AmountMustBePositive` — `amount <= 0`.
+    /// - `ContractError::DrainRecipientMustBeTreasury` — wrong recipient.
     pub fn emergency_drain_to_treasury(
         e: Env,
         admin: Address,

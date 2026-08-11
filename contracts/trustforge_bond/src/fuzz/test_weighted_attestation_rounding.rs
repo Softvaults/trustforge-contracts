@@ -81,7 +81,7 @@ fn default_config_and_missing_stake_use_documented_floors() {
 }
 
 #[test]
-#[should_panic(expected = "attester stake cannot be negative")]
+#[should_panic(expected = "Error(Contract, #209)")] // NegativeStake
 fn negative_attester_stake_is_rejected() {
     let e = Env::default();
     let (_client, _admin, attester, contract_id) = setup(&e);

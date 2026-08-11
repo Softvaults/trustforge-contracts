@@ -4,7 +4,8 @@
 //! subject (identity), timestamp, weight. Supports serialization via ContractType
 //! and validation methods for storage efficiency and safety.
 
-use soroban_sdk::{contracttype, Address, String};
+use soroban_sdk::{contracttype, panic_with_error, Address, Env, String};
+use trustforge_errors::ContractError;
 
 /// Maximum allowed attestation weight (prevents overflow and caps influence).
 pub const MAX_ATTESTATION_WEIGHT: u32 = 1_000_000;
@@ -47,12 +48,12 @@ impl Attestation {
     /// # Errors
     /// Panics if `weight` is zero or exceeds `MAX_ATTESTATION_WEIGHT`.
     #[inline]
-    pub fn validate_weight(weight: u32) {
+    pub fn validate_weight(e: &Env, weight: u32) {
         if weight == 0 {
-            panic!("attestation weight must be positive");
+            panic_with_error!(e, ContractError::InvalidAttestationWeight);
         }
         if weight > MAX_ATTESTATION_WEIGHT {
-            panic!("attestation weight exceeds maximum");
+            panic_with_error!(e, ContractError::AttestationWeightExceedsMax);
         }
     }
 
@@ -64,10 +65,10 @@ impl Attestation {
     /// # Errors
     /// Panics if `data` exceeds `MAX_ATTESTATION_DATA_LENGTH`.
     #[inline]
-    pub fn validate_data(data: &String) {
+    pub fn validate_data(e: &Env, data: &String) {
         let len = data.len();
         if len > MAX_ATTESTATION_DATA_LENGTH {
-            panic!("attestation data exceeds maximum length");
+            panic_with_error!(e, ContractError::AttestationDataTooLong);
         }
     }
 
@@ -76,9 +77,9 @@ impl Attestation {
     /// # Errors
     /// Panics if weight or data are invalid.
     #[inline]
-    pub fn validate(&self) {
-        Self::validate_weight(self.weight);
-        Self::validate_data(&self.attestation_data);
+    pub fn validate(&self, e: &Env) {
+        Self::validate_weight(e, self.weight);
+        Self::validate_data(e, &self.attestation_data);
     }
 
     /// Returns true if this attestation is currently active (not revoked).

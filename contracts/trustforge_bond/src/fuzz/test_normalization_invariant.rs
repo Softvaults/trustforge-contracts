@@ -77,7 +77,7 @@ proptest! {
 }
 
 #[test]
-#[should_panic(expected = "bond amount cannot be negative")]
+#[should_panic(expected = "Error(Contract, #214)")] // InvalidBondAmount
 fn test_normalize_rejects_negative() {
     let e = Env::default();
     let token = setup_token(&e, 6);
@@ -85,7 +85,7 @@ fn test_normalize_rejects_negative() {
 }
 
 #[test]
-#[should_panic(expected = "cannot denormalize negative amount")]
+#[should_panic(expected = "Error(Contract, #214)")] // InvalidBondAmount
 fn test_denormalize_rejects_negative() {
     let e = Env::default();
     let token = setup_token(&e, 6);
@@ -119,7 +119,7 @@ fn test_zero_decimals_boundary_roundtrip() {
 }
 
 #[test]
-#[should_panic(expected = "normalization overflow")]
+#[should_panic(expected = "Error(Contract, #700)")] // Overflow
 fn test_overflow_panics_in_normalize() {
     let e = Env::default();
     let token = setup_token(&e, 0);

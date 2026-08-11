@@ -12,7 +12,8 @@
 //! does not limit attestations, withdrawals, or unrelated accounts.
 
 use crate::DataKey;
-use soroban_sdk::Env;
+use soroban_sdk::{panic_with_error, Env};
+use trustforge_errors::ContractError;
 
 /// Panics if the last collateral increase happened in the current ledger.
 ///
@@ -26,7 +27,7 @@ pub fn require_slash_allowed_after_collateral_increase(e: &Env) {
         .get::<_, u32>(&DataKey::LastCollateralIncreaseLedger)
     {
         if last == current {
-            panic!("slash blocked: collateral increased in this ledger");
+            panic_with_error!(e, ContractError::SlashBlockedAfterCollateralIncrease);
         }
     }
 }

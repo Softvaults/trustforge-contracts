@@ -1230,6 +1230,17 @@ mod tests {
             ContractError::PauseThresholdExceedsSignerCount => true, // lower the threshold
             ContractError::NotPauseSigner => true,      // switch to an enabled pause signer
             ContractError::PauseProposalNotFound => true, // supply a valid proposal id
+            ContractError::FeeExceedsMaximum => true,   // propose a fee within bounds
+            ContractError::SlashBlockedAfterCollateralIncrease => true, // retry next ledger
+            ContractError::EmergencyFeeExceedsMaximum => true, // propose a fee within bounds
+            ContractError::EmergencyConfigNotSet => true, // admin can configure then retry
+            ContractError::EmergencyRecordNotFound => true, // supply a valid record id
+            ContractError::EmergencyTransitionNotFound => true, // supply a valid transition id
+            ContractError::DrainRecipientMustBeTreasury => true, // supply the treasury address
+            ContractError::DrainRecordNotFound => true, // supply a valid drain record id
+            ContractError::SlashRecordNotFound => true, // supply a valid index
+            ContractError::RecordNotFound => true,      // supply a key with a stored record
+            ContractError::AttestationDataTooLong => true, // shorten the payload
             ContractError::InvariantViolation => false, // post-write drift
             ContractError::TreasuryNotConfigured => true, // admin can configure treasury then retry
             ContractError::DuplicateIdempotencyKey => true, // idempotent - safe to retry with same key
@@ -1392,10 +1403,24 @@ mod tests {
             ContractError::CursorOutOfRange,
             ContractError::Overflow,
             ContractError::Underflow,
+            ContractError::PauseThresholdExceedsSignerCount,
+            ContractError::NotPauseSigner,
+            ContractError::PauseProposalNotFound,
+            ContractError::FeeExceedsMaximum,
+            ContractError::SlashBlockedAfterCollateralIncrease,
+            ContractError::EmergencyFeeExceedsMaximum,
+            ContractError::EmergencyConfigNotSet,
+            ContractError::EmergencyRecordNotFound,
+            ContractError::EmergencyTransitionNotFound,
+            ContractError::DrainRecipientMustBeTreasury,
+            ContractError::DrainRecordNotFound,
+            ContractError::SlashRecordNotFound,
+            ContractError::RecordNotFound,
+            ContractError::AttestationDataTooLong,
         ];
         assert_eq!(
             cases.len(),
-            84,
+            98,
             "Add the new variant to ALL THREE places: \
              (1) lib.rs is_recoverable() match, \
              (2) expected_is_recoverable() below, \

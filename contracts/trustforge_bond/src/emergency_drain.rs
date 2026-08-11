@@ -16,7 +16,7 @@
 //!    transaction.
 //! 4. **Treasury recipient** — the `recipient` argument must equal the treasury
 //!    address stored in the emergency config; any other recipient is rejected
-//!    with a descriptive panic.
+//!    with [`ContractError::DrainRecipientMustBeTreasury`].
 //!
 //! ## Immutable audit record
 //!
@@ -152,9 +152,9 @@ pub fn cancel_drain(e: &Env, admin: &Address) {
 /// # Errors
 /// - `ContractError::EmergencyDrainNotPermitted` — not paused or no ETA scheduled.
 /// - `ContractError::TimelockNotReady` — ETA has not yet been reached.
-/// - Panics with "not admin" — caller is not the stored admin.
-/// - Panics with "recipient must be treasury" — `recipient != treasury`.
-/// - Panics with "amount must be positive" — `amount <= 0`.
+/// - `ContractError::NotAdmin` — caller is not the stored admin.
+/// - `ContractError::DrainRecipientMustBeTreasury` — `recipient != treasury`.
+/// - `ContractError::AmountMustBePositive` — `amount <= 0`.
 #[allow(clippy::too_many_arguments)]
 pub fn execute_drain(
     e: &Env,
@@ -182,12 +182,12 @@ pub fn execute_drain(
 
     // Gate 3: amount must be positive.
     if amount <= 0 {
-        panic!("amount must be positive");
+        panic_with_error!(e, ContractError::AmountMustBePositive);
     }
 
     // Gate 4: recipient must be treasury.
     if recipient != treasury {
-        panic!("recipient must be treasury");
+        panic_with_error!(e, ContractError::DrainRecipientMustBeTreasury);
     }
 
     // Execute token transfer.
@@ -238,7 +238,7 @@ pub fn get_drain_record(e: &Env, id: u64) -> DrainRecord {
     e.storage()
         .persistent()
         .get(&DrainDataKey::DrainRecord(id))
-        .unwrap_or_else(|| panic!("drain record not found"))
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::DrainRecordNotFound))
 }
 
 // ---------------------------------------------------------------------------
@@ -251,7 +251,9 @@ fn increment_drain_seq(e: &Env) -> u64 {
         .persistent()
         .get(&DrainDataKey::DrainSeq)
         .unwrap_or(0);
-    let next = seq.checked_add(1).expect("drain sequence overflow");
+    let next = seq
+        .checked_add(1)
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
     e.storage().persistent().set(&DrainDataKey::DrainSeq, &next);
     next
 }

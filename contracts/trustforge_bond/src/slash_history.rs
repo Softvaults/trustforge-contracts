@@ -1,4 +1,5 @@
-use soroban_sdk::{contracttype, Address, Env, Symbol, Vec};
+use soroban_sdk::{contracttype, panic_with_error, Address, Env, Symbol, Vec};
+use trustforge_errors::ContractError;
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -145,7 +146,7 @@ pub fn get_slash_record(e: &Env, identity: &Address, index: u32) -> SlashRecord 
         .storage()
         .persistent()
         .get(&key)
-        .unwrap_or_else(|| panic!("slash record not found"));
+        .unwrap_or_else(|| panic_with_error!(e, ContractError::SlashRecordNotFound));
     e.storage().persistent().extend_ttl(
         &key,
         crate::PERSISTENT_TTL_MAX / 2,

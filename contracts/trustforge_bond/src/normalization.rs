@@ -82,18 +82,18 @@ pub fn get_scale_info(e: &Env, token: &Address) -> (i128, bool) {
 #[allow(dead_code)]
 pub fn normalize(e: &Env, token: &Address, amount: i128) -> i128 {
     if amount < 0 {
-        panic!("bond amount cannot be negative");
+        panic_with_error!(e, ContractError::InvalidBondAmount);
     }
 
     let (scale, is_multiplier) = get_scale_info(e, token);
     if is_multiplier {
         amount
             .checked_mul(scale)
-            .expect("normalization overflow: amount * scale exceeds i128")
+            .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow))
     } else {
         amount
             .checked_div(scale)
-            .expect("normalization error: division by zero")
+            .unwrap_or_else(|| panic_with_error!(e, ContractError::DivisionByZero))
     }
 }
 
@@ -113,18 +113,18 @@ pub fn normalize(e: &Env, token: &Address, amount: i128) -> i128 {
 #[allow(dead_code)]
 pub fn denormalize(e: &Env, token: &Address, amount: i128) -> i128 {
     if amount < 0 {
-        panic!("cannot denormalize negative amount");
+        panic_with_error!(e, ContractError::InvalidBondAmount);
     }
 
     let (scale, is_multiplier) = get_scale_info(e, token);
     if is_multiplier {
         amount
             .checked_div(scale)
-            .expect("denormalization error: division by zero")
+            .unwrap_or_else(|| panic_with_error!(e, ContractError::DivisionByZero))
     } else {
         amount
             .checked_mul(scale)
-            .expect("denormalization overflow: amount * scale exceeds i128")
+            .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow))
     }
 }
 

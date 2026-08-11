@@ -8,7 +8,8 @@
 // All fee-related constants and the validated setter live here.
 // ============================================================================
 
-use soroban_sdk::{contracttype, symbol_short, Address, Env};
+use soroban_sdk::{contracttype, panic_with_error, symbol_short, Address, Env};
+use trustforge_errors::ContractError;
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -35,26 +36,6 @@ pub enum FeeKey {
 }
 
 // ---------------------------------------------------------------------------
-// Error
-// ---------------------------------------------------------------------------
-
-/// Dedicated error code returned when a proposed fee exceeds MAX_FEE_BPS.
-/// Wire this into your contract's top-level error enum with a unique discriminant.
-///
-/// Example in errors.rs / your existing error type:
-///
-/// ```rust
-/// #[contracterror]
-/// #[derive(Copy, Clone, Debug, Eq, PartialEq)]
-/// #[repr(u32)]
-/// pub enum TrustForgeError {
-///     // … existing variants …
-///     FeeBpsExceedsMaximum = 42,   // pick an unused discriminant
-/// }
-/// ```
-pub const FEE_EXCEEDS_MAX_ERROR_CODE: u32 = 42;
-
-// ---------------------------------------------------------------------------
 // Read helper
 // ---------------------------------------------------------------------------
 
@@ -79,8 +60,8 @@ pub fn get_protocol_fee_bps(env: &Env) -> u32 {
 /// Emits a `fee_updated` event containing `(previous_bps, new_bps)` so
 /// off-chain indexers can track every change without re-reading storage.
 ///
-/// # Panics
-/// Panics with `FEE_EXCEEDS_MAX_ERROR_CODE` if `new_fee_bps > MAX_FEE_BPS`.
+/// # Errors
+/// Panics with `ContractError::FeeExceedsMaximum` if `new_fee_bps > MAX_FEE_BPS`.
 ///
 /// # Units
 /// Both `previous_bps` and `new_bps` are in **basis points** (bps).
@@ -91,10 +72,7 @@ pub fn set_protocol_fee_bps(env: &Env, admin: &Address, new_fee_bps: u32) {
 
     // ── Range check ──────────────────────────────────────────────────────
     if new_fee_bps > MAX_FEE_BPS {
-        panic!(
-            "TrustForgeError::FeeBpsExceedsMaximum ({}): proposed {} bps > max {} bps",
-            FEE_EXCEEDS_MAX_ERROR_CODE, new_fee_bps, MAX_FEE_BPS
-        );
+        panic_with_error!(env, ContractError::FeeExceedsMaximum);
     }
 
     // ── Read previous value before overwrite ──────────────────────────────

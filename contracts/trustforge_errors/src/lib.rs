@@ -471,6 +471,70 @@ pub enum ContractError {
     /// Wire-stable: do not renumber this error code.
     PauseProposalNotFound = 252,
 
+    /// Proposed protocol fee exceeds the hard-coded maximum (`fee::MAX_FEE_BPS`).
+    /// Replaces: panic!("TrustForgeError::FeeBpsExceedsMaximum (...): proposed {} bps > max {} bps")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    FeeExceedsMaximum = 253,
+
+    /// A slash was attempted in the same ledger as a collateral increase on the
+    /// same bond, which the same-ledger guard blocks to prevent sandwich-like
+    /// slash/top-up ordering games.
+    /// Replaces: panic!("slash blocked: collateral increased in this ledger")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    SlashBlockedAfterCollateralIncrease = 254,
+
+    /// Proposed emergency-withdrawal fee exceeds `math::BPS_DENOMINATOR` (100%).
+    /// Replaces: panic!("emergency fee bps must be <= {}", math::BPS_DENOMINATOR)
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    EmergencyFeeExceedsMaximum = 255,
+
+    /// Emergency-mode configuration has not been set yet.
+    /// Replaces: panic!("emergency config not set")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    EmergencyConfigNotSet = 256,
+
+    /// No emergency-withdrawal audit record exists with the given ID.
+    /// Replaces: panic!("record not found")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    EmergencyRecordNotFound = 257,
+
+    /// No emergency-mode transition audit record exists with the given ID.
+    /// Replaces: panic!("transition not found")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    EmergencyTransitionNotFound = 258,
+
+    /// `emergency_drain_to_treasury`'s recipient argument did not match the
+    /// treasury address stored in the emergency config.
+    /// Replaces: panic!("recipient must be treasury")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    DrainRecipientMustBeTreasury = 259,
+
+    /// No emergency-drain audit record exists with the given ID.
+    /// Replaces: panic!("drain record not found")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    DrainRecordNotFound = 260,
+
+    /// No slash-history record exists at the given index for this identity.
+    /// Replaces: panic!("slash record not found")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    SlashRecordNotFound = 261,
+
+    /// Generic "no record found for this key" error for simple key-value
+    /// contract patterns.
+    /// Replaces: panic!("record not found")
+    /// Contracts: templates
+    /// Wire-stable: do not renumber this error code.
+    RecordNotFound = 262,
+
     // --- Attestation (300-399) ---
     /// An attestation already exists from this attester for this bond.
     /// Replaces: panic!("duplicate attestation")
@@ -508,6 +572,12 @@ pub enum ContractError {
     /// Contracts: bond
     /// Wire-stable: do not renumber this error code.
     DuplicateAttesterInBatch = 305,
+
+    /// Attestation payload data exceeds `MAX_ATTESTATION_DATA_LENGTH`.
+    /// Replaces: panic!("attestation data exceeds maximum length")
+    /// Contracts: bond
+    /// Wire-stable: do not renumber this error code.
+    AttestationDataTooLong = 306,
 
     // --- Registry (400-499) ---
     /// Identity has already been registered in the registry.
@@ -767,7 +837,7 @@ pub enum ContractError {
     // --- Treasury (600-699) ---
     /// Amount argument must be strictly positive (> 0).
     /// Replaces: panic!("amount must be positive")
-    /// Contracts: treasury
+    /// Contracts: treasury, bond (emergency_drain_to_treasury)
     /// Wire-stable: do not renumber this error code.
     AmountMustBePositive = 600,
 
@@ -948,14 +1018,25 @@ impl ErrorExt for ContractError {
             | ContractError::UnslashExceedsSlashedAmount
             | ContractError::PauseThresholdExceedsSignerCount
             | ContractError::NotPauseSigner
-            | ContractError::PauseProposalNotFound => ErrorCategory::Bond,
+            | ContractError::PauseProposalNotFound
+            | ContractError::FeeExceedsMaximum
+            | ContractError::SlashBlockedAfterCollateralIncrease
+            | ContractError::EmergencyFeeExceedsMaximum
+            | ContractError::EmergencyConfigNotSet
+            | ContractError::EmergencyRecordNotFound
+            | ContractError::EmergencyTransitionNotFound
+            | ContractError::DrainRecipientMustBeTreasury
+            | ContractError::DrainRecordNotFound
+            | ContractError::SlashRecordNotFound
+            | ContractError::RecordNotFound => ErrorCategory::Bond,
 
             ContractError::DuplicateAttestation
             | ContractError::AttestationNotFound
             | ContractError::AttestationAlreadyRevoked
             | ContractError::InvalidAttestationWeight
             | ContractError::AttestationWeightExceedsMax
-            | ContractError::DuplicateAttesterInBatch => ErrorCategory::Attestation,
+            | ContractError::DuplicateAttesterInBatch
+            | ContractError::AttestationDataTooLong => ErrorCategory::Attestation,
 
             ContractError::IdentityAlreadyRegistered
             | ContractError::BondContractAlreadyRegistered
@@ -1115,12 +1196,37 @@ impl ErrorExt for ContractError {
             }
             ContractError::NotPauseSigner => "Caller is not an enabled multisig pause signer",
             ContractError::PauseProposalNotFound => "No pause proposal exists with the given ID",
+            ContractError::FeeExceedsMaximum => "Proposed protocol fee exceeds the maximum allowed basis points",
+            ContractError::SlashBlockedAfterCollateralIncrease => {
+                "Slash blocked: collateral was increased on this bond in the current ledger"
+            }
+            ContractError::EmergencyFeeExceedsMaximum => {
+                "Proposed emergency-withdrawal fee exceeds 100% (BPS_DENOMINATOR)"
+            }
+            ContractError::EmergencyConfigNotSet => "Emergency-mode configuration has not been set",
+            ContractError::EmergencyRecordNotFound => {
+                "No emergency-withdrawal record exists with the given ID"
+            }
+            ContractError::EmergencyTransitionNotFound => {
+                "No emergency-mode transition record exists with the given ID"
+            }
+            ContractError::DrainRecipientMustBeTreasury => {
+                "Emergency drain recipient must equal the configured treasury address"
+            }
+            ContractError::DrainRecordNotFound => "No emergency-drain record exists with the given ID",
+            ContractError::SlashRecordNotFound => {
+                "No slash-history record exists at the given index for this identity"
+            }
+            ContractError::RecordNotFound => "No record exists for the given key",
             ContractError::DuplicateAttestation => "Attestation already exists from this attester",
             ContractError::AttestationNotFound => "No attestation found for the given key",
             ContractError::AttestationAlreadyRevoked => "Attestation has already been revoked",
             ContractError::InvalidAttestationWeight => "Attestation weight must be positive",
             ContractError::DuplicateAttesterInBatch => {
                 "The same attester appears more than once in this batch"
+            }
+            ContractError::AttestationDataTooLong => {
+                "Attestation data exceeds the maximum allowed length"
             }
             ContractError::AttestationWeightExceedsMax => {
                 "Attestation weight exceeds the configured maximum"
@@ -1336,6 +1442,16 @@ impl ErrorExt for ContractError {
             | ContractError::PauseThresholdExceedsSignerCount // lower the threshold
             | ContractError::NotPauseSigner            // switch to an enabled pause signer
             | ContractError::PauseProposalNotFound     // supply a valid proposal id
+            | ContractError::FeeExceedsMaximum         // propose a fee within bounds
+            | ContractError::SlashBlockedAfterCollateralIncrease // retry next ledger
+            | ContractError::EmergencyFeeExceedsMaximum // propose a fee within bounds
+            | ContractError::EmergencyConfigNotSet     // admin can configure then retry
+            | ContractError::EmergencyRecordNotFound   // supply a valid record id
+            | ContractError::EmergencyTransitionNotFound // supply a valid transition id
+            | ContractError::DrainRecipientMustBeTreasury // supply the treasury address
+            | ContractError::DrainRecordNotFound       // supply a valid drain record id
+            | ContractError::SlashRecordNotFound       // supply a valid index
+            | ContractError::RecordNotFound            // supply a key with a stored record
             => true,
 
             // FATAL Bond: caller cannot directly fix any of these.
@@ -1360,6 +1476,7 @@ impl ErrorExt for ContractError {
             | ContractError::InvalidAttestationWeight
             | ContractError::AttestationWeightExceedsMax
             | ContractError::DuplicateAttesterInBatch => true, // drop the duplicate and retry
+            ContractError::AttestationDataTooLong => true, // shorten the payload
 
             // --- Registry (400-499): all caller-fixable. ---
             ContractError::IdentityAlreadyRegistered

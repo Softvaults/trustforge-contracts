@@ -10,7 +10,8 @@
 
 #![allow(dead_code)]
 
-use soroban_sdk::Address;
+use soroban_sdk::{panic_with_error, Address, Env};
+use trustforge_errors::ContractError;
 
 // ─── Address Validation ─────────────────────────────────────────────────────
 
@@ -21,7 +22,9 @@ use soroban_sdk::Address;
 /// * `contract` - The contract's own address (to prevent self-transfers)
 ///
 /// # Panics
-/// * `"recipient cannot be the contract itself"` if recipient equals the contract
+/// Plain `panic!`, not a typed `ContractError`: this helper has no production
+/// caller today (see `docs/ORPHANED_MODULES.md`) — only its own test exercises
+/// it, so there's no real caller that would benefit from a typed error here.
 ///
 /// # Security Note
 /// Transferring tokens to an invalid or inappropriate recipient can result in
@@ -75,23 +78,17 @@ pub const MAX_BOND_AMOUNT: i128 = 100_000_000_000_000;
 /// * If amount is less than MIN_BOND_AMOUNT
 /// * If amount is greater than MAX_BOND_AMOUNT
 /// * If amount is negative
-pub fn validate_bond_amount(amount: i128) {
+pub fn validate_bond_amount(e: &Env, amount: i128) {
     if amount < 0 {
-        panic!("bond amount cannot be negative");
+        panic_with_error!(e, ContractError::InvalidBondAmount);
     }
 
     if amount < MIN_BOND_AMOUNT {
-        panic!(
-            "bond amount below minimum required: {} (minimum: {})",
-            amount, MIN_BOND_AMOUNT
-        );
+        panic_with_error!(e, ContractError::InvalidBondAmount);
     }
 
     if amount > MAX_BOND_AMOUNT {
-        panic!(
-            "bond amount exceeds maximum allowed: {} (maximum: {})",
-            amount, MAX_BOND_AMOUNT
-        );
+        panic_with_error!(e, ContractError::InvalidBondAmount);
     }
 }
 
@@ -118,8 +115,9 @@ pub const MAX_BOND_DURATION: u64 = 31_536_000;
 /// * `duration` - The bond duration in seconds to validate.
 ///
 /// # Panics
-/// * `"bond duration too short: minimum is 86400 seconds (1 day)"` if `duration` < `MIN_BOND_DURATION`
-/// * `"bond duration too long: maximum is 31536000 seconds (365 days)"` if `duration` > `MAX_BOND_DURATION`
+/// Plain `panic!`, not a typed `ContractError`: this helper has no production
+/// caller today (see `docs/ORPHANED_MODULES.md`) — only its own tests exercise
+/// it, so there's no real caller that would benefit from a typed error here.
 pub fn validate_bond_duration(duration: u64) {
     if duration < MIN_BOND_DURATION {
         panic!("bond duration too short: minimum is 86400 seconds (1 day)");
@@ -137,34 +135,39 @@ mod tests {
 
     #[test]
     fn test_validate_bond_amount_valid() {
+        let env = Env::default();
         // Test valid amounts within range
-        validate_bond_amount(MIN_BOND_AMOUNT);
-        validate_bond_amount(MAX_BOND_AMOUNT);
-        validate_bond_amount((MIN_BOND_AMOUNT + MAX_BOND_AMOUNT) / 2);
+        validate_bond_amount(&env, MIN_BOND_AMOUNT);
+        validate_bond_amount(&env, MAX_BOND_AMOUNT);
+        validate_bond_amount(&env, (MIN_BOND_AMOUNT + MAX_BOND_AMOUNT) / 2);
     }
 
     #[test]
-    #[should_panic(expected = "bond amount below minimum required")]
+    #[should_panic(expected = "Error(Contract, #214)")] // InvalidBondAmount
     fn test_validate_bond_amount_below_minimum() {
-        validate_bond_amount(MIN_BOND_AMOUNT - 1);
+        let env = Env::default();
+        validate_bond_amount(&env, MIN_BOND_AMOUNT - 1);
     }
 
     #[test]
-    #[should_panic(expected = "bond amount below minimum required")]
+    #[should_panic(expected = "Error(Contract, #214)")] // InvalidBondAmount
     fn test_validate_bond_amount_zero() {
-        validate_bond_amount(0);
+        let env = Env::default();
+        validate_bond_amount(&env, 0);
     }
 
     #[test]
-    #[should_panic(expected = "bond amount cannot be negative")]
+    #[should_panic(expected = "Error(Contract, #214)")] // InvalidBondAmount
     fn test_validate_bond_amount_negative() {
-        validate_bond_amount(-1);
+        let env = Env::default();
+        validate_bond_amount(&env, -1);
     }
 
     #[test]
-    #[should_panic(expected = "bond amount exceeds maximum allowed")]
+    #[should_panic(expected = "Error(Contract, #214)")] // InvalidBondAmount
     fn test_validate_bond_amount_above_maximum() {
-        validate_bond_amount(MAX_BOND_AMOUNT + 1);
+        let env = Env::default();
+        validate_bond_amount(&env, MAX_BOND_AMOUNT + 1);
     }
 
     // ─── Address Validation Tests ─────────────────────────────────────────

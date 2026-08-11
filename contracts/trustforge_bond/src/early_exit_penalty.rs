@@ -1,4 +1,4 @@
-use soroban_sdk::{contracttype, Address, Env, Symbol};
+use soroban_sdk::{contracttype, panic_with_error, Address, Env, Symbol};
 use trustforge_errors::ContractError;
 
 use crate::DataKey;
@@ -15,7 +15,7 @@ const PENALTY_BASIS_POINTS_DENOMINATOR: i128 = 10_000;
 
 pub fn set_config(e: &Env, treasury: Address, penalty_bps: u32) {
     if penalty_bps > MAX_PENALTY_BPS {
-        panic!("penalty_bps must be <= 10000");
+        panic_with_error!(e, ContractError::InvalidPenaltyBps);
     }
     let key = DataKey::EarlyExitConfig;
     e.storage().instance().set(
