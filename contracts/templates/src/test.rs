@@ -131,7 +131,7 @@ fn test_has_record_true_after_set() {
 }
 
 #[test]
-#[should_panic(expected = "record not found")]
+#[should_panic(expected = "Error(Contract, #262)")]
 fn test_get_record_panics_when_missing() {
     let e = Env::default();
     e.mock_all_auths();
@@ -176,7 +176,7 @@ fn test_remove_nonexistent_record_is_noop() {
 // ---------------------------------------------------------------------------
 
 #[test]
-#[should_panic(expected = "not initialized")]
+#[should_panic(expected = "Error(Contract, #1)")]
 fn test_get_admin_panics_before_init() {
     let e = Env::default();
     e.mock_all_auths();

@@ -28,6 +28,11 @@
 //! Copy this crate, rename the package and struct, then extend.
 
 #![no_std]
+// Ceiling from the Phase 3 unwrap/expect/panic cleanup (see QUALITY_UPGRADE_ROADMAP.md):
+// the compiled non-test surface must not regress back to string panics. Scoped to
+// `not(test)` so `#[cfg(test)]` modules stay unaffected. Explicit here because the
+// blanket `clippy::restriction` allow above would otherwise also allow these two.
+#![cfg_attr(not(test), deny(clippy::unwrap_used, clippy::expect_used))]
 
 use soroban_sdk::{contract, contractimpl, contracttype, panic_with_error, Address, Env, Symbol};
 use trustforge_errors::ContractError;
@@ -92,7 +97,7 @@ impl TemplateContract {
             .storage()
             .instance()
             .get(&DataKey::Admin)
-            .expect("not initialized");
+            .unwrap_or_else(|| panic_with_error!(&e, ContractError::NotInitialized));
         admin.require_auth();
 
         let record = Record {
@@ -114,7 +119,7 @@ impl TemplateContract {
             .storage()
             .instance()
             .get(&DataKey::Admin)
-            .expect("not initialized");
+            .unwrap_or_else(|| panic_with_error!(&e, ContractError::NotInitialized));
         admin.require_auth();
 
         e.storage()
@@ -135,7 +140,7 @@ impl TemplateContract {
             .storage()
             .instance()
             .get(&DataKey::Record(owner.clone()))
-            .expect("record not found");
+            .unwrap_or_else(|| panic_with_error!(&e, ContractError::RecordNotFound));
 
         // Reference expiry pattern: reject and purge on read if expired
         if record.expires_at != 0 && e.ledger().timestamp() >= record.expires_at {
@@ -180,7 +185,7 @@ impl TemplateContract {
         e.storage()
             .instance()
             .get(&DataKey::Admin)
-            .expect("not initialized")
+            .unwrap_or_else(|| panic_with_error!(&e, ContractError::NotInitialized))
     }
 }
 
