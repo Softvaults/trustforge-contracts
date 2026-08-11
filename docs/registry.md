@@ -56,6 +56,25 @@ Reverse lookup. Panics `#403` if not registered.
 
 Returns `true` only if the entry exists **and** `active = true`.
 
+### `get_identities_page(offset, limit) → Vec<Address>`
+
+Bounded, paginated read of registered identity addresses, in insertion order. `limit` is
+capped at `MAX_IDENTITIES_PAGE_SIZE` (200) regardless of the requested value. `offset >=`
+the current identity count returns an empty vec rather than panicking, so callers can page
+until they see fewer than `limit` results without a separate count check.
+
+```
+get_identities_page(0, 50)    → first 50 identities
+get_identities_page(50, 50)   → next 50
+```
+
+### `get_all_identities() → Vec<Address>` (deprecated)
+
+Returns every registered identity in one unbounded call. `#[deprecated]` since it will
+eventually exceed Soroban's per-transaction resource limits as the registry grows — use
+`get_identities_page` for bounded reads, or listen for `identity_registered` events for
+off-chain, event-based discovery instead of polling either call.
+
 ## Remove / Reinsert Semantics
 
 ```
@@ -83,7 +102,7 @@ Part of the TrustForge protocol contracts.
 
 ## Known Simplifications
 
-- `get_all_identities()` is unbounded and has no pagination.
 - There is no cross-contract binding between bond and registry at initialization.
 
-See [known-simplifications.md](known-simplifications.md#7-get_all_identities-has-no-pagination) for details and production paths.
+`get_all_identities()`'s lack of pagination is resolved — see `get_identities_page` above.
+See [known-simplifications.md](known-simplifications.md) for the full list and other contracts' production paths.

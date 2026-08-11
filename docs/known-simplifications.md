@@ -17,6 +17,14 @@
 
 Slashed funds are now transferred to the configured slash treasury on every `slash()` call via `token_integration::transfer_from_contract`. Slashing reverts with `ContractError::TreasuryNotConfigured` if no treasury has been set via `set_slash_treasury(admin, treasury)`.
 
+### 7. get_all_identities() Now Has a Paginated Alternative
+
+`get_identities_page(offset, limit)` was added, bounded to `MAX_IDENTITIES_PAGE_SIZE` (200) regardless of the requested `limit`. `get_all_identities()` is now `#[deprecated(note = "Use get_identities_page for bounded pagination")]` rather than removed, so existing off-chain callers keep working while migrating. See [registry.md](registry.md).
+
+### 11. Multisig Proposals Now Expire
+
+Proposals carry an `expires_at: u64` field (`0` = no expiration). `sign_proposal` and `execute_proposal` both reject once `expires_at > 0 && now >= expires_at`, and the permissionless, bounded `prune_expired_proposals(start_id, max_iter)` reclaims storage for expired proposals and their signature keys. See [multisig.md](multisig.md).
+
 ---
 
 ## 1. Token Transfer is Stubbed in trustforge_bond
@@ -41,16 +49,6 @@ Slashed funds are now transferred to the configured slash treasury on every `sla
 
 **Production path:** A multi-bond contract with a `Map<Address, IdentityBond>` storage layout would allow a single contract to serve many identities. The registry would still be useful for discovery but would not be strictly required for storage. See [registry.md](registry.md).
 
-## 7. get_all_identities() Has No Pagination
-
-**Where:** `contracts/trustforge_registry/src/lib.rs`
-
-**What:** `get_all_identities()` returns the full list of registered identity addresses in a single call. There is no pagination, cursor, or limit parameter.
-
-**Impact:** As the registry grows, this call will consume increasing amounts of ledger read budget and may eventually exceed Soroban's per-transaction resource limits.
-
-**Production path:** Add a `get_identities_page(offset: u32, limit: u32)` function and deprecate the unbounded variant. Off-chain indexers should use event-based discovery (`identity_registered` events) rather than polling `get_all_identities()`. See [registry.md](registry.md).
-
 ## 9. Arbitration Voting Weights Are Not Stake-Backed
 
 **Where:** `contracts/trustforge_arbitration/src/lib.rs`
@@ -63,20 +61,6 @@ Slashed funds are now transferred to the configured slash treasury on every `sla
 
 ---
 
-## 11. Multisig Proposals Have No Expiry
-
-**Where:** `contracts/trustforge_multisig/src/multisig.rs`
-
-**What:** Multisig proposals remain open indefinitely once created. There is no deadline after which a proposal automatically fails or can be cancelled.
-
-**Impact:** Stale proposals accumulate in storage. A proposal created months ago could be approved and executed long after the intended context has changed.
-
-**Production path:** Add an `expires_at` field to proposals and reject approval or execution of expired proposals. See [multisig.md](multisig.md).
-
----
-
----
-
 ## Summary Table
 
 | # | Simplification | Contract | Production Path |
@@ -84,7 +68,8 @@ Slashed funds are now transferred to the configured slash treasury on every `sla
 | 1 | Token transfer stubbed in tests | trustforge_bond | Configure live USDC via `set_usdc_token` |
 | 2 | Single-bond-per-contract-instance | trustforge_bond | Multi-bond map storage |
 | 3 | Treasury is pure accounting, no token custody | trustforge_treasury | Add real token transfers on withdrawal |
+| 4 | ~~Slashed funds not swept to treasury~~ | trustforge_bond | **Resolved** — see above |
 | 6 | Early-exit penalty dropped if no treasury | trustforge_bond | Require treasury before `withdraw_early` |
-| 7 | `get_all_identities()` unbounded | trustforge_registry | Add pagination; use event-based indexing |
+| 7 | ~~`get_all_identities()` unbounded~~ | trustforge_registry | **Resolved** — `get_identities_page` added |
 | 9 | Arbitrator weights not stake-backed | trustforge_arbitration | Derive weight from bond balance |
-| 11 | Multisig proposals have no expiry | trustforge_multisig | Add `expires_at` to proposals |
+| 11 | ~~Multisig proposals have no expiry~~ | trustforge_multisig | **Resolved** — `expires_at` added |
