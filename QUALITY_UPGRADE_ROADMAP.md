@@ -143,21 +143,30 @@ Priority order (highest centralization/trust risk first):
       from `trustforge_bond` balance via cross-contract call, or require arbitrators to stake into
       the arbitration contract directly. This is the highest-priority item — it undermines the
       "decentralized" claim in the README's very first line.
-- [ ] **Multisig proposals never expire** (`trustforge_multisig`) — add `expires_at` and reject
+- [x] **Multisig proposals never expire** (`trustforge_multisig`) — add `expires_at` and reject
       approval/execution past it. Low effort, real risk (stale proposal executed in a changed
       context).
-- [ ] **`get_all_identities()` is unbounded** (`trustforge_registry`) — add
+      Already implemented in code (`expires_at` field, `prune_expired_proposals`, expiry checks
+      in `sign_proposal`/`execute_proposal`) and in `docs/multisig.md` — only
+      `known-simplifications.md` still described it as open. Moved to Resolved.
+- [x] **`get_all_identities()` is unbounded** (`trustforge_registry`) — add
       `get_identities_page(offset, limit)`, deprecate the unbounded call, and update any internal
       caller (including the future backend indexer — see Phase 7) to use event-based discovery
       instead of polling.
-- [ ] **Single-bond-per-contract-instance model** — this is a legitimate design choice, not just a
+      Already implemented in code (`get_identities_page`, `#[deprecated]` on
+      `get_all_identities`) but never documented in `registry.md` and still listed as open in
+      `known-simplifications.md`. Added the missing operation docs, moved to Resolved.
+- [x] **Single-bond-per-contract-instance model** — this is a legitimate design choice, not just a
       simplification, but it should be a documented decision with a stated reason (avoids
       cross-identity storage leakage) rather than filed under "limitations." Either promote it to
       `docs/architecture.md` as an intentional tradeoff with its cost (per-identity deployment gas)
       spelled out, or build the `Map<Address, IdentityBond>` alternative if per-identity deployment
       cost turns out to be a real adoption blocker.
-- [ ] Re-run `docs/known-simplifications.md` after each fix — items should move from "Current
+      Promoted to `docs/architecture.md` with the rationale, cost, and alternative spelled out;
+      `known-simplifications.md`'s item #2 now points there instead of framing it as an open gap.
+- [x] Re-run `docs/known-simplifications.md` after each fix — items should move from "Current
       Limitations" to "Resolved" with the date and PR, matching the existing pattern for item #4.
+      Done for the two items resolved above.
 
 ---
 
