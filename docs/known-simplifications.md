@@ -25,6 +25,10 @@ Slashed funds are now transferred to the configured slash treasury on every `sla
 
 Proposals carry an `expires_at: u64` field (`0` = no expiration). `sign_proposal` and `execute_proposal` both reject once `expires_at > 0 && now >= expires_at`, and the permissionless, bounded `prune_expired_proposals(start_id, max_iter)` reclaims storage for expired proposals and their signature keys. See [multisig.md](multisig.md).
 
+### 9. Arbitration Voting Weights Are Now Stake-Backed
+
+`register_arbitrator` no longer takes a weight argument — it only grants voting permission. Voting weight is derived live, at `vote()` time, from the arbitrator's bonded stake: a cross-contract lookup through a configured `trustforge_registry` (`set_registry_contract`) resolves the arbitrator's bond contract, whose `bonded_amount - slashed_amount` becomes the weight. An arbitrator with no discoverable active bond gets `ArbitratorNotBonded`; a fully-slashed one gets `WeightNotPositive`. A cast vote's weight is a snapshot — later top-ups or slashes don't retroactively change already-cast votes. See [arbitration.md](arbitration.md).
+
 ---
 
 ## 1. Token Transfer is Stubbed in trustforge_bond
@@ -54,18 +58,6 @@ shapes how the registry and backend integration work.
 
 **If per-identity deployment cost becomes a real adoption blocker:** A multi-bond contract with a `Map<Address, IdentityBond>` storage layout would allow a single contract to serve many identities. The registry would still be useful for discovery but would not be strictly required for storage. See [registry.md](registry.md).
 
-## 9. Arbitration Voting Weights Are Not Stake-Backed
-
-**Where:** `contracts/trustforge_arbitration/src/lib.rs`
-
-**What:** Arbitrator voting weights are set by the admin via `register_arbitrator(arbitrator, weight)` as arbitrary integers. They are not derived from or backed by any on-chain stake or bond balance.
-
-**Impact:** The admin can assign any weight to any address, making the voting system fully centralized. There is no economic cost to being an arbitrator and no slashing risk for bad votes.
-
-**Production path:** Derive arbitrator weight from the arbitrator's bond balance (queried from `trustforge_bond` via cross-contract call), or require arbitrators to stake tokens into the arbitration contract. This creates economic alignment and makes the system permissionless. See [arbitration.md](arbitration.md).
-
----
-
 ## Summary Table
 
 | # | Simplification | Contract | Production Path |
@@ -76,5 +68,5 @@ shapes how the registry and backend integration work.
 | 4 | ~~Slashed funds not swept to treasury~~ | trustforge_bond | **Resolved** — see above |
 | 6 | Early-exit penalty dropped if no treasury | trustforge_bond | Require treasury before `withdraw_early` |
 | 7 | ~~`get_all_identities()` unbounded~~ | trustforge_registry | **Resolved** — `get_identities_page` added |
-| 9 | Arbitrator weights not stake-backed | trustforge_arbitration | Derive weight from bond balance |
+| 9 | ~~Arbitrator weights not stake-backed~~ | trustforge_arbitration | **Resolved** — weight derived from bond balance |
 | 11 | ~~Multisig proposals have no expiry~~ | trustforge_multisig | **Resolved** — `expires_at` added |

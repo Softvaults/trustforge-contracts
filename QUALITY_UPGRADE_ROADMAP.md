@@ -138,11 +138,27 @@ Priority order (highest centralization/trust risk first):
       with real auth/error design, not a mechanical reconnect. See
       [docs/ORPHANED_MODULES.md](docs/ORPHANED_MODULES.md) for the full finding
       (discovered 2026-08-10 during Phase 2 verification).
-- [ ] **Arbitrator weights not stake-backed** (`trustforge_arbitration`) — currently pure
+- [x] **Arbitrator weights not stake-backed** (`trustforge_arbitration`) — currently pure
       admin-assigned integers, i.e. the admin key fully controls dispute outcomes. Derive weight
       from `trustforge_bond` balance via cross-contract call, or require arbitrators to stake into
       the arbitration contract directly. This is the highest-priority item — it undermines the
       "decentralized" claim in the README's very first line.
+      Implemented the cross-contract-derivation option: `register_arbitrator` no longer takes a
+      weight — it only grants voting permission. `vote()`/`get_arbitrator_weight()` derive weight
+      live via `trustforge_registry.get_bond_contract()` → that bond's `get_identity_state()`
+      (`bonded_amount - slashed_amount`), configured through a new `set_registry_contract`
+      admin call. Discovered mid-implementation that a real Cargo dependency on
+      `trustforge_bond`/`trustforge_registry` collides at the WASM export level (both crates'
+      `#[contractimpl]` blocks define same-named entrypoints like `initialize`/`pause`, which
+      Soroban's macros emit as flat unmangled symbols) — worked around with a local structural
+      mirror type (`BondRegistryEntry`/`BondIdentityState` in `lib.rs`) decoded via
+      `try_invoke_contract`, and `trustforge_bond`/`trustforge_registry` as dev-dependencies only
+      (for building real bonded-arbitrator fixtures in tests, which never reach the release WASM).
+      Verified: `trustforge_arbitration`'s WASM stayed within budget (45KB, unchanged order of
+      magnitude), full test suite green (57 lib tests + 6 new behavioral tests in
+      `tests/test_weight_derivation.rs` covering snapshot-immutability, zero-weight rejection,
+      and overflow-checked aggregation), `datakey_fingerprint.rs` regenerated for the new
+      `RegistryContract` storage key.
 - [x] **Multisig proposals never expire** (`trustforge_multisig`) — add `expires_at` and reject
       approval/execution past it. Low effort, real risk (stale proposal executed in a changed
       context).

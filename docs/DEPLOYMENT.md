@@ -202,7 +202,19 @@ soroban contract invoke \
   --admin "$DEPLOY_ADMIN"
 ```
 
-Register each arbitrator immediately after init. `weight` must be `> 0`; weights are admin-assigned integers, not derived from on-chain stake (see [known-simplifications.md #9](known-simplifications.md)).
+Point arbitration at the deployed `trustforge_registry` instance — required before any `vote()` will succeed, since voting weight is derived from each arbitrator's bonded stake via that registry (see [docs/arbitration.md](arbitration.md)).
+
+```bash
+soroban contract invoke \
+  --id "$ARBITRATION_CONTRACT_ID" \
+  --source "$ADMIN_KEY" \
+  --network "$NETWORK" \
+  -- set_registry_contract \
+  --admin "$DEPLOY_ADMIN" \
+  --registry "$REGISTRY_CONTRACT_ID"
+```
+
+Register each arbitrator immediately after init. `register_arbitrator` only grants voting *permission* — it takes no weight argument. The arbitrator must already have a bonded identity registered in `trustforge_registry` (via that contract's own `register` call) before they can cast a vote; an admin-registered-but-unbonded arbitrator will fail `vote()` with `ArbitratorNotBonded`.
 
 ```bash
 soroban contract invoke \
@@ -210,8 +222,7 @@ soroban contract invoke \
   --source "$ADMIN_KEY" \
   --network "$NETWORK" \
   -- register_arbitrator \
-  --arbitrator "<ARBITRATOR_ADDRESS>" \
-  --weight 100
+  --arbitrator "<ARBITRATOR_ADDRESS>"
 ```
 
 Repeat for each arbitrator.
@@ -381,11 +392,14 @@ soroban contract invoke \
 
 With all contracts deployed, the following wiring calls bind the suite together. Calls in rows 2–4 were issued during Step 3 as part of per-contract configuration; they are listed here again as the canonical wiring record and to confirm ordering.
 
+**Note:** `trustforge_registry` deployment isn't yet a numbered step in this guide (Step 3a–3g doesn't include it), but `arbitration.set_registry_contract` below requires a deployed registry instance — deploy and initialize one (same pattern as the other admin-owned contracts) before Step 3d's wiring call.
+
 | Wiring call | Caller | Target address argument | Must happen after |
 |---|---|---|---|
 | `treasury.add_depositor(bond_id)` | admin | `$BOND_CONTRACT_ID` | bond deployed (Step 3f) |
 | `bond.set_early_exit_config(admin, treasury_id, penalty_bps)` | admin | `$TREASURY_CONTRACT_ID` | treasury deployed (Step 3e) |
-| `arbitration.register_arbitrator(addr, weight)` | admin | each arbitrator address | arbitration init (Step 3d) |
+| `arbitration.set_registry_contract(admin, registry_id)` | admin | `$REGISTRY_CONTRACT_ID` | registry deployed |
+| `arbitration.register_arbitrator(addr)` | admin | each arbitrator address | arbitration init (Step 3d) |
 | `bond.set_weight_config(admin, multiplier_bps, max_weight)` *(optional)* | admin | — | bond init (Step 3f) |
 
 The delegation and timelock contracts have no inbound cross-contract wiring required at deploy time.
@@ -530,7 +544,7 @@ Keep `deploy_addresses.env` in a secure location. It is the source of truth for 
 Step 3a  deploy + init   admin
 Step 3b  deploy + init   timelock
 Step 3c  deploy + init   trustforge_multisig  (signers + threshold at init)
-Step 3d  deploy + init   trustforge_arbitration  (+register_arbitrator calls)
+Step 3d  deploy + init   trustforge_arbitration  (+set_registry_contract, +register_arbitrator calls)
 Step 3e  deploy + init   trustforge_treasury  (+add_signer, set_threshold)
 Step 3f  deploy + init   trustforge_bond  (+set_early_exit_config, set_weight_config, register_attester)
 Step 3g  deploy + init   trustforge_delegation  (+register_verifier optional)

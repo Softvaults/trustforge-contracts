@@ -6,6 +6,15 @@ The `TrustForgeArbitration` contract provides a weighted voting mechanism for di
 
 Disputes are created with a specific duration. During this time, registered arbitrators can cast weighted votes for different outcomes. Once the voting period ends, the dispute can be resolved, and the outcome with the highest total weight is declared the winner.
 
+**Voting weight is derived from bonded stake, not admin-assigned.** `register_arbitrator` only grants voting *permission* — it takes no weight argument. A vote's weight is resolved live, at the moment `vote()` is called, via a cross-contract lookup: `trustforge_registry.get_bond_contract(voter)` finds the arbitrator's bond contract, then that contract's `get_identity_state()` supplies `bonded_amount - slashed_amount` as the weight. This means:
+
+- The admin controls *who* may vote, not *how much* their vote counts — voting power is backed by real, slashable stake.
+- An arbitrator must have an active registry entry pointing at an active bond with positive available balance to vote at all; otherwise `vote()` rejects with `ArbitratorNotBonded` (unregistered/deactivated entry or bond) or `WeightNotPositive` (bond fully slashed).
+- A cast vote's weight is a **snapshot at cast time** — later top-ups or slashes of an arbitrator's bond do not retroactively change already-cast votes, since only the aggregated per-outcome tally (not a per-voter weight) is stored afterward.
+- The arbitration contract must be pointed at a `trustforge_registry` instance via `set_registry_contract` before any vote can succeed.
+
+See [`docs/known-simplifications.md`](known-simplifications.md) item 9 for the design history, and `contracts/trustforge_arbitration/tests/test_weight_derivation.rs` for the behavioral test coverage.
+
 ## Dispute Status Machine
 
 Disputes follow a canonical status machine with enforced transitions:
@@ -68,8 +77,12 @@ All other transitions are rejected with `ArbitrationError::InvalidTransition`.
 | VotingNotEnded     | 8    | Voting period has not ended yet          |
 | DisputeNotFound    | 9    | Dispute ID does not exist                |
 | InvalidOutcome     | 10   | Outcome must be > 0                      |
-| WeightNotPositive  | 11   | Arbitrator weight must be positive       |
+| WeightNotPositive  | 11   | Arbitrator's derived weight (bonded_amount - slashed_amount) is not positive |
 | NotAuthorized      | 12   | Caller not authorized for this action    |
+| ReasonTooLong      | 14   | Cancellation reason exceeds the length limit |
+| QuorumNotMet       | 13   | Resolution attempted before the configured weight/voter quorum is met |
+| RegistryNotConfigured | 15 | `set_registry_contract` has not been called yet |
+| ArbitratorNotBonded | 16  | No active, discoverable bonded stake for this arbitrator (unregistered/deactivated registry entry, or inactive/unreachable bond contract) |
 
 ## Contract Functions
 
@@ -77,9 +90,17 @@ All other transitions are rejected with `ArbitrationError::InvalidTransition`.
 
 Sets the contract administrator. Can only be called once.
 
-### `register_arbitrator(arbitrator: Address, weight: i128) -> Result<(), ArbitrationError>`
+### `set_registry_contract(admin: Address, registry: Address) -> Result<(), ArbitrationError>`
 
-Registers or updates an arbitrator with a specific voting weight. Requires admin authorization. Weight must be positive.
+Configures the `trustforge_registry` contract used to resolve an arbitrator's bond contract for weight derivation. Requires admin authorization. Must be called before any `vote()` can succeed.
+
+### `get_registry_contract() -> Result<Address, ArbitrationError>`
+
+Returns the configured `trustforge_registry` address, or `RegistryNotConfigured` if unset.
+
+### `register_arbitrator(arbitrator: Address) -> Result<(), ArbitrationError>`
+
+Grants `arbitrator` permission to vote. Requires admin authorization. Does **not** set a weight — voting weight is derived live from bonded stake at `vote()` time (see [Overview](#overview)).
 
 ### `unregister_arbitrator(arbitrator: Address) -> Result<(), ArbitrationError>`
 
@@ -95,7 +116,7 @@ Cancels a dispute. Only the creator or admin may cancel. Valid from `Open` or `V
 
 ### `vote(voter: Address, dispute_id: u64, outcome: u32) -> Result<(), ArbitrationError>`
 
-Casts a weighted vote for an outcome. Requires voter authorization. Voter must be a registered arbitrator. Dispute must be in `Voting` status.
+Casts a weighted vote for an outcome. Requires voter authorization. Voter must be a registered arbitrator with a positive derived weight (see [Overview](#overview)). Dispute must be in `Voting` status.
 
 ### `resolve_dispute(dispute_id: u64) -> Result<u32, ArbitrationError>`
 
@@ -108,6 +129,10 @@ Retrieves the details of a specific dispute.
 ### `get_tally(dispute_id: u64, outcome: u32) -> i128`
 
 Returns the current total weight for a specific outcome.
+
+### `get_arbitrator_weight(arbitrator: Address) -> Result<i128, ArbitrationError>`
+
+Returns `arbitrator`'s current derived weight (`bonded_amount - slashed_amount` from their registered bond), or `NotArbitrator`/`RegistryNotConfigured`/`ArbitratorNotBonded` if it can't be resolved. `i128`, not `u32`: weight is a raw token amount (typically 18-decimal), which routinely exceeds `u32::MAX` for realistic bonded amounts.
 
 ## Events
 
@@ -122,7 +147,8 @@ Returns the current total weight for a specific outcome.
 
 ## Security
 
-- Admin-only functions for arbitrator management
+- Admin-only functions for arbitrator management and registry configuration
+- Voting weight is derived from bonded stake via cross-contract lookup, not admin-assigned — see [Overview](#overview)
 - Authorization required for creating disputes and casting votes
 - Double-voting prevention
 - Time-bound voting periods
@@ -140,7 +166,8 @@ The contract includes comprehensive test coverage:
 - Unauthorized voter rejection
 - All valid status transitions
 - All invalid status transitions (regression tests)
-- Edge cases (zero/negative weights, outcome validation, etc.)
+- Edge cases (outcome validation, quorum boundaries, etc.)
+- Stake-derived weight behavior (`tests/test_weight_derivation.rs`): weight tracks bonded amount rather than an admin-set number, unbonded arbitrators can't vote, a cast vote's weight snapshot survives later top-ups/slashes, and the tally's overflow guard
 
 Run tests:
 

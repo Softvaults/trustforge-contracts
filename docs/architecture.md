@@ -240,7 +240,8 @@ This is an intentional tradeoff, not an oversight:
 | Key | Type | Description |
 |---|---|---|
 | `Admin` | `Address` | Contract administrator |
-| `Arbitrator(addr)` | `i128` | Arbitrator voting weight |
+| `RegistryContract` | `Address` | `trustforge_registry` instance used to resolve an arbitrator's bond contract for weight derivation |
+| `Arbitrator(addr)` | `bool` | Voting *permission* flag — no weight stored here; weight is derived live at vote time from bonded stake |
 | `Dispute(u64)` | `Dispute` | Dispute record by ID |
 | `DisputeCounter` | `u64` | Auto-incrementing dispute ID |
 | `DisputeVotes(u64)` | `Map<u32, i128>` | Outcome → total weight |
@@ -252,17 +253,18 @@ This is an intentional tradeoff, not an oversight:
 |---|---|---|
 | `dispute_created` | `(id, creator)` | Dispute opened |
 | `status_transition` | `(from, to)` | Any status change |
-| `vote_cast` | `(dispute_id, voter, outcome, weight)` | Vote recorded |
+| `vote_cast` | `(dispute_id, voter, outcome, weight)` | Vote recorded — `weight` here is the derived stake snapshot at cast time |
 | `dispute_cancelled` | `(id, caller)` | Dispute cancelled |
 | `dispute_resolved` | `(id, winning_outcome)` | Dispute resolved |
-| `arbitrator_registered` | `(arbitrator, weight)` | Arbitrator added |
+| `arbitrator_registered` | `arbitrator` | Arbitrator granted voting permission (no weight payload) |
 | `arbitrator_unregistered` | `arbitrator` | Arbitrator removed |
+| `registry_contract_set` | `registry` | `trustforge_registry` address configured |
 
 **Backend consumption points:**
 
 - Index `status_transition` to track dispute lifecycle.
 - Index `dispute_resolved` to feed outcomes back to the reputation engine.
-- Note: arbitrator weights are admin-assigned integers, not stake-backed (see [known-simplifications.md](known-simplifications.md#9-arbitration-voting-weights-are-not-stake-backed)).
+- Arbitrator voting weight is now stake-backed, derived from bonded amount via `trustforge_registry` — see [known-simplifications.md](known-simplifications.md) item 9 and [arbitration.md](arbitration.md).
 
 ---
 
@@ -358,6 +360,16 @@ trustforge_bond
 
 trustforge_registry
   └── uses trustforge_errors      (ContractError variants)
+
+trustforge_arbitration
+  ├── uses trustforge_errors      (error types, indirectly via panic)
+  └── cross-contract calls trustforge_registry.get_bond_contract(), then
+      that entry's bond_contract.get_identity_state() — to derive an
+      arbitrator's voting weight from bonded stake (vote()/get_arbitrator_weight()).
+      No Cargo dependency on either crate in the production build: both
+      responses are decoded via a local structural mirror type instead
+      (see trustforge_arbitration::BondRegistryEntry's doc comment for why —
+      a real dependency would collide at the WASM export level).
 
 All contracts
   └── share pausable module pattern (copy per crate, not a shared lib)
