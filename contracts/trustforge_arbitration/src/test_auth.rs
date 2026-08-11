@@ -11,6 +11,7 @@ use super::*;
 use soroban_sdk::testutils::Address as _;
 use soroban_sdk::{Address, Env, String};
 use status::ArbitrationError;
+use test_support::{bond_units, deploy_registry, setup_registered_arbitrator};
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -19,6 +20,7 @@ use status::ArbitrationError;
 struct Setup {
     env: Env,
     admin: Address,
+    registry: Address,
     arb: Address,
     creator: Address,
     contract_id: Address,
@@ -28,15 +30,18 @@ fn setup() -> Setup {
     let env = Env::default();
     env.mock_all_auths();
     let admin = Address::generate(&env);
-    let arb = Address::generate(&env);
     let creator = Address::generate(&env);
     let contract_id = env.register(TrustForgeArbitration, ());
     let client = TrustForgeArbitrationClient::new(&env, &contract_id);
     client.initialize(&admin);
-    client.register_arbitrator(&arb, &10_i128);
+    let registry = deploy_registry(&env, &admin);
+    client.set_registry_contract(&admin, &registry);
+    let arb = setup_registered_arbitrator(&env, &registry, bond_units(10));
+    client.register_arbitrator(&arb);
     Setup {
         env,
         admin,
+        registry,
         arb,
         creator,
         contract_id,
@@ -55,40 +60,18 @@ fn open_dispute(env: &Env, contract_id: &Address, creator: &Address) -> u64 {
 
 /// register_arbitrator fetches the stored admin and calls admin.require_auth().
 /// Happy path: admin's auth is present (mock_all_auths), call succeeds.
+///
+/// Weight-boundary cases (unbonded arbitrator, zero/negative derived weight)
+/// are no longer a `register_arbitrator` concern — registration only grants
+/// voting *permission* now, weight is derived live at vote time. See
+/// `tests/test_weight_derivation.rs` for that coverage.
 #[test]
 fn register_arbitrator_succeeds_when_admin_authorizes() {
     let s = setup();
     let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
-    let new_arb = Address::generate(&s.env);
-    client.register_arbitrator(&new_arb, &5_i128);
-    assert_eq!(client.get_arbitrator_weight(&new_arb), 5_u32);
-}
-
-/// Sad path: weight ≤ 0 is rejected before any state write, even when auth
-/// is valid.  Guards the boundary that weight validation is enforced.
-#[test]
-fn register_arbitrator_rejected_when_weight_is_zero() {
-    let s = setup();
-    let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
-    let new_arb = Address::generate(&s.env);
-    let err = client
-        .try_register_arbitrator(&new_arb, &0_i128)
-        .unwrap_err()
-        .unwrap();
-    assert_eq!(err, ArbitrationError::WeightNotPositive);
-}
-
-/// Sad path: negative weight is also rejected.
-#[test]
-fn register_arbitrator_rejected_when_weight_is_negative() {
-    let s = setup();
-    let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
-    let new_arb = Address::generate(&s.env);
-    let err = client
-        .try_register_arbitrator(&new_arb, &-1_i128)
-        .unwrap_err()
-        .unwrap();
-    assert_eq!(err, ArbitrationError::WeightNotPositive);
+    let new_arb = setup_registered_arbitrator(&s.env, &s.registry, bond_units(5));
+    client.register_arbitrator(&new_arb);
+    assert_eq!(client.get_arbitrator_weight(&new_arb), bond_units(5));
 }
 
 // ---------------------------------------------------------------------------
@@ -180,7 +163,7 @@ fn vote_succeeds_when_registered_arbitrator_authorizes() {
     let client = TrustForgeArbitrationClient::new(&s.env, &s.contract_id);
     let id = open_dispute(&s.env, &s.contract_id, &s.creator);
     client.vote(&s.arb, &id, &1_u32);
-    assert_eq!(client.get_tally(&id, &1_u32), 10_i128);
+    assert_eq!(client.get_tally(&id, &1_u32), bond_units(10));
 }
 
 /// Sad path: a stranger that was never registered as an arbitrator is rejected.

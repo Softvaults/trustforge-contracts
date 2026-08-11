@@ -1,6 +1,7 @@
 use super::*;
 use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::{Env, String};
+use test_support::{bond_units, deploy_registry, setup_registered_arbitrator};
 
 fn advance(e: &Env, secs: u64) {
     e.ledger().set(soroban_sdk::testutils::LedgerInfo {
@@ -21,16 +22,18 @@ fn test_arbitration_flow() {
     e.mock_all_auths();
 
     let admin = Address::generate(&e);
-    let arb1 = Address::generate(&e);
-    let arb2 = Address::generate(&e);
     let creator = Address::generate(&e);
 
     let contract_id = e.register(TrustForgeArbitration, ());
     let client = TrustForgeArbitrationClient::new(&e, &contract_id);
 
     client.initialize(&admin);
-    client.register_arbitrator(&arb1, &10);
-    client.register_arbitrator(&arb2, &5);
+    let registry = deploy_registry(&e, &admin);
+    client.set_registry_contract(&admin, &registry);
+    let arb1 = setup_registered_arbitrator(&e, &registry, bond_units(10));
+    let arb2 = setup_registered_arbitrator(&e, &registry, bond_units(5));
+    client.register_arbitrator(&arb1);
+    client.register_arbitrator(&arb2);
 
     let description = String::from_str(&e, "Dispute #1");
     let dispute_id = client.create_dispute(&creator, &description, &3600);
@@ -42,8 +45,8 @@ fn test_arbitration_flow() {
     client.vote(&arb1, &dispute_id, &1);
     client.vote(&arb2, &dispute_id, &2);
 
-    assert_eq!(client.get_tally(&dispute_id, &1), 10);
-    assert_eq!(client.get_tally(&dispute_id, &2), 5);
+    assert_eq!(client.get_tally(&dispute_id, &1), bond_units(10));
+    assert_eq!(client.get_tally(&dispute_id, &2), bond_units(5));
 
     advance(&e, 3601);
 
@@ -61,16 +64,18 @@ fn test_tie_scenario() {
     e.mock_all_auths();
 
     let admin = Address::generate(&e);
-    let arb1 = Address::generate(&e);
-    let arb2 = Address::generate(&e);
     let creator = Address::generate(&e);
 
     let contract_id = e.register(TrustForgeArbitration, ());
     let client = TrustForgeArbitrationClient::new(&e, &contract_id);
 
     client.initialize(&admin);
-    client.register_arbitrator(&arb1, &10);
-    client.register_arbitrator(&arb2, &10);
+    let registry = deploy_registry(&e, &admin);
+    client.set_registry_contract(&admin, &registry);
+    let arb1 = setup_registered_arbitrator(&e, &registry, bond_units(10));
+    let arb2 = setup_registered_arbitrator(&e, &registry, bond_units(10));
+    client.register_arbitrator(&arb1);
+    client.register_arbitrator(&arb2);
 
     let description = String::from_str(&e, "Tie Test");
     let dispute_id = client.create_dispute(&creator, &description, &3600);
@@ -90,14 +95,16 @@ fn test_double_voting_prevention() {
     e.mock_all_auths();
 
     let admin = Address::generate(&e);
-    let arb = Address::generate(&e);
     let creator = Address::generate(&e);
 
     let contract_id = e.register(TrustForgeArbitration, ());
     let client = TrustForgeArbitrationClient::new(&e, &contract_id);
 
     client.initialize(&admin);
-    client.register_arbitrator(&arb, &10);
+    let registry = deploy_registry(&e, &admin);
+    client.set_registry_contract(&admin, &registry);
+    let arb = setup_registered_arbitrator(&e, &registry, bond_units(10));
+    client.register_arbitrator(&arb);
 
     let description = String::from_str(&e, "Double Vote");
     let dispute_id = client.create_dispute(&creator, &description, &3600);
@@ -137,23 +144,25 @@ fn test_get_arbitrator_weight() {
     e.mock_all_auths();
 
     let admin = Address::generate(&e);
-    let arb = Address::generate(&e);
 
     let contract_id = e.register(TrustForgeArbitration, ());
     let client = TrustForgeArbitrationClient::new(&e, &contract_id);
 
     client.initialize(&admin);
+    let registry = deploy_registry(&e, &admin);
+    client.set_registry_contract(&admin, &registry);
+    let arb = setup_registered_arbitrator(&e, &registry, bond_units(15));
 
     // returns NotArbitrator before registration
     let err = client.try_get_arbitrator_weight(&arb).unwrap_err().unwrap();
     assert_eq!(err, status::ArbitrationError::NotArbitrator);
 
     // register
-    client.register_arbitrator(&arb, &15);
+    client.register_arbitrator(&arb);
 
-    // weight success case
+    // weight success case — derived live from the bonded amount, not admin-set
     let weight = client.get_arbitrator_weight(&arb);
-    assert_eq!(weight, 15);
+    assert_eq!(weight, bond_units(15));
 
     // unregister
     client.unregister_arbitrator(&arb);
@@ -167,14 +176,16 @@ fn test_has_voted() {
     e.mock_all_auths();
 
     let admin = Address::generate(&e);
-    let arb = Address::generate(&e);
     let creator = Address::generate(&e);
 
     let contract_id = e.register(TrustForgeArbitration, ());
     let client = TrustForgeArbitrationClient::new(&e, &contract_id);
 
     client.initialize(&admin);
-    client.register_arbitrator(&arb, &10);
+    let registry = deploy_registry(&e, &admin);
+    client.set_registry_contract(&admin, &registry);
+    let arb = setup_registered_arbitrator(&e, &registry, bond_units(10));
+    client.register_arbitrator(&arb);
 
     let description = String::from_str(&e, "Vote check");
     let dispute_id = client.create_dispute(&creator, &description, &3600);
@@ -188,6 +199,10 @@ fn test_has_voted() {
     assert_eq!(client.has_voted(&dispute_id, &arb), true);
 }
 
+/// Registry-list bookkeeping (pagination, dedup, unregister/re-register) is
+/// orthogonal to weight derivation — `register_arbitrator` only grants voting
+/// *permission*, it never touches a bond or the registry contract, so these
+/// arbitrators are deliberately left unbonded.
 #[test]
 fn test_arbitrator_registry_and_pagination() {
     let e = Env::default();
@@ -212,9 +227,9 @@ fn test_arbitrator_registry_and_pagination() {
 
     // registry creation & duplicate registration protection
     for arb in arbs.iter() {
-        client.register_arbitrator(&arb, &10);
+        client.register_arbitrator(&arb);
         // duplicate register shouldn't add duplicate keys in registry list
-        client.register_arbitrator(&arb, &20);
+        client.register_arbitrator(&arb);
     }
 
     // check deterministic ordering & length
@@ -249,7 +264,7 @@ fn test_arbitrator_registry_and_pagination() {
     // Register 205 arbitrators to exceed cap (200)
     for _ in 0..205 {
         let arb = Address::generate(&e);
-        client.register_arbitrator(&arb, &10);
+        client.register_arbitrator(&arb);
     }
 
     let (page_cap, cursor_cap) = client.get_arbitrators_page(&0, &250);
@@ -282,7 +297,7 @@ fn test_arbitrator_registry_and_pagination() {
     assert_eq!(found, false);
 
     // Re-register test_arb and check consistency
-    client.register_arbitrator(&test_arb, &30);
+    client.register_arbitrator(&test_arb);
     let mut found_again = false;
     let mut cursor = 0;
     loop {
@@ -299,7 +314,14 @@ fn test_arbitrator_registry_and_pagination() {
         }
     }
     assert_eq!(found_again, true);
-    assert_eq!(client.get_arbitrator_weight(&test_arb), 30);
+    // Never bonded/registered in a trustforge_registry — permitted to vote, but
+    // weight derivation has nowhere to look up a bond, so it errors rather than
+    // returning a stale admin-set number.
+    let err = client
+        .try_get_arbitrator_weight(&test_arb)
+        .unwrap_err()
+        .unwrap();
+    assert_eq!(err, status::ArbitrationError::RegistryNotConfigured);
 }
 
 #[test]
@@ -332,12 +354,14 @@ fn test_quorum_single_voter_under_min_voters() {
     let e = Env::default();
     e.mock_all_auths();
     let admin = Address::generate(&e);
-    let arb = Address::generate(&e);
     let creator = Address::generate(&e);
     let contract_id = e.register(TrustForgeArbitration, ());
     let client = TrustForgeArbitrationClient::new(&e, &contract_id);
     client.initialize(&admin);
-    client.register_arbitrator(&arb, &10);
+    let registry = deploy_registry(&e, &admin);
+    client.set_registry_contract(&admin, &registry);
+    let arb = setup_registered_arbitrator(&e, &registry, bond_units(10));
+    client.register_arbitrator(&arb);
     client.set_quorum(&admin, &0, &2);
 
     let dispute_id = client.create_dispute(&creator, &String::from_str(&e, "Q1"), &3600);

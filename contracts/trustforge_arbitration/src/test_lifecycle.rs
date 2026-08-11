@@ -9,6 +9,7 @@ use super::*;
 use soroban_sdk::testutils::{Address as _, Ledger};
 use soroban_sdk::{Address, Env, String};
 use status::{ArbitrationError, DisputeStatus};
+use test_support::{bond_units, deploy_registry, setup_registered_arbitrator};
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -28,6 +29,7 @@ fn advance(e: &Env, secs: u64) {
 struct Setup<'a> {
     env: Env,
     admin: Address,
+    registry: Address,
     arb: Address,
     creator: Address,
     client: TrustForgeArbitrationClient<'a>,
@@ -37,15 +39,18 @@ fn setup() -> Setup<'static> {
     let env = Env::default();
     env.mock_all_auths();
     let admin = Address::generate(&env);
-    let arb = Address::generate(&env);
     let creator = Address::generate(&env);
     let contract_id = env.register(TrustForgeArbitration, ());
     let client = TrustForgeArbitrationClient::new(&env, &contract_id);
     client.initialize(&admin);
-    client.register_arbitrator(&arb, &10);
+    let registry = deploy_registry(&env, &admin);
+    client.set_registry_contract(&admin, &registry);
+    let arb = setup_registered_arbitrator(&env, &registry, bond_units(10));
+    client.register_arbitrator(&arb);
     Setup {
         env,
         admin,
+        registry,
         arb,
         creator,
         client,
@@ -224,29 +229,10 @@ fn test_invalid_double_initialize() {
     assert_eq!(err, ArbitrationError::AlreadyInitialized);
 }
 
-#[test]
-fn test_invalid_register_zero_weight() {
-    let s = setup();
-    let arb2 = Address::generate(&s.env);
-    let err = s
-        .client
-        .try_register_arbitrator(&arb2, &0)
-        .unwrap_err()
-        .unwrap();
-    assert_eq!(err, ArbitrationError::WeightNotPositive);
-}
-
-#[test]
-fn test_invalid_register_negative_weight() {
-    let s = setup();
-    let arb2 = Address::generate(&s.env);
-    let err = s
-        .client
-        .try_register_arbitrator(&arb2, &-1)
-        .unwrap_err()
-        .unwrap();
-    assert_eq!(err, ArbitrationError::WeightNotPositive);
-}
+// register_arbitrator no longer takes a weight (see the `register_arbitrator`
+// doc comment in lib.rs) — the old zero/negative-weight rejection tests moved
+// to tests/test_weight_derivation.rs, which now covers the equivalent
+// unbonded/zero-derived-weight cases at vote() time instead.
 
 // ── quorum tests ──────────────────────────────────────────────────────────────
 
@@ -254,8 +240,8 @@ fn test_invalid_register_negative_weight() {
 fn test_resolve_fails_when_weight_quorum_not_met() {
     let s = setup();
     let id = open_dispute(&s);
-    s.client.vote(&s.arb, &id, &1); // weight = 10
-    s.client.set_quorum(&s.admin, &100, &0); // need weight ≥ 100
+    s.client.vote(&s.arb, &id, &1); // weight = bond_units(10)
+    s.client.set_quorum(&s.admin, &bond_units(100), &0); // need weight ≥ bond_units(100)
     advance(&s.env, 3601);
     let err = s.client.try_resolve_dispute(&id).unwrap_err().unwrap();
     assert_eq!(err, ArbitrationError::QuorumNotMet);
@@ -277,15 +263,15 @@ fn test_resolve_fails_when_voter_quorum_not_met() {
 #[test]
 fn test_resolve_succeeds_when_both_quorum_conditions_met() {
     let s = setup();
-    let arb2 = Address::generate(&s.env);
-    s.client.register_arbitrator(&arb2, &5);
+    let arb2 = setup_registered_arbitrator(&s.env, &s.registry, bond_units(5));
+    s.client.register_arbitrator(&arb2);
     let id = open_dispute(&s);
-    s.client.vote(&s.arb, &id, &1); // weight 10, 1 voter
-    s.client.vote(&arb2, &id, &2); // weight 5,  2 voters
-    s.client.set_quorum(&s.admin, &10, &2); // need weight ≥ 10 AND voters ≥ 2
+    s.client.vote(&s.arb, &id, &1); // weight bond_units(10), 1 voter
+    s.client.vote(&arb2, &id, &2); // weight bond_units(5),  2 voters
+    s.client.set_quorum(&s.admin, &bond_units(10), &2); // need weight ≥ bond_units(10) AND voters ≥ 2
     advance(&s.env, 3601);
     let outcome = s.client.resolve_dispute(&id);
-    assert_eq!(outcome, 1); // outcome 1 has weight 10 > weight 5
+    assert_eq!(outcome, 1); // outcome 1 has weight bond_units(10) > weight bond_units(5)
     assert_eq!(s.client.get_dispute(&id).status, DisputeStatus::Resolved);
 }
 
@@ -293,8 +279,8 @@ fn test_resolve_succeeds_when_both_quorum_conditions_met() {
 fn test_resolve_with_weight_quorum_met_but_voter_quorum_not() {
     let s = setup();
     let id = open_dispute(&s);
-    s.client.vote(&s.arb, &id, &1); // weight 10, 1 voter
-    s.client.set_quorum(&s.admin, &10, &2); // weight OK (10≥10), voters NOT (1<2)
+    s.client.vote(&s.arb, &id, &1); // weight bond_units(10), 1 voter
+    s.client.set_quorum(&s.admin, &bond_units(10), &2); // weight OK (10≥10), voters NOT (1<2)
     advance(&s.env, 3601);
     let err = s.client.try_resolve_dispute(&id).unwrap_err().unwrap();
     assert_eq!(err, ArbitrationError::QuorumNotMet);
@@ -303,12 +289,12 @@ fn test_resolve_with_weight_quorum_met_but_voter_quorum_not() {
 #[test]
 fn test_resolve_with_voter_quorum_met_but_weight_quorum_not() {
     let s = setup();
-    let arb2 = Address::generate(&s.env);
-    s.client.register_arbitrator(&arb2, &5);
+    let arb2 = setup_registered_arbitrator(&s.env, &s.registry, bond_units(5));
+    s.client.register_arbitrator(&arb2);
     let id = open_dispute(&s);
-    s.client.vote(&s.arb, &id, &1); // weight 10, 1 voter
-    s.client.vote(&arb2, &id, &2); // weight 5,  2 voters
-    s.client.set_quorum(&s.admin, &20, &2); // weight NOT (15<20), voters OK (2≥2)
+    s.client.vote(&s.arb, &id, &1); // weight bond_units(10), 1 voter
+    s.client.vote(&arb2, &id, &2); // weight bond_units(5),  2 voters
+    s.client.set_quorum(&s.admin, &bond_units(20), &2); // weight NOT (15<20), voters OK (2≥2)
     advance(&s.env, 3601);
     let err = s.client.try_resolve_dispute(&id).unwrap_err().unwrap();
     assert_eq!(err, ArbitrationError::QuorumNotMet);
@@ -431,15 +417,15 @@ fn test_cancel_reason_too_long() {
 #[test]
 fn test_tie_two_outcomes_equal_weight() {
     let s = setup();
-    let arb2 = Address::generate(&s.env);
-    s.client.register_arbitrator(&arb2, &10); // Same weight as arb1
+    let arb2 = setup_registered_arbitrator(&s.env, &s.registry, bond_units(10));
+    s.client.register_arbitrator(&arb2); // Same weight as arb1
 
     let id = open_dispute(&s);
-    s.client.vote(&s.arb, &id, &1); // outcome 1, weight 10
-    s.client.vote(&arb2, &id, &2); // outcome 2, weight 10 (tie)
+    s.client.vote(&s.arb, &id, &1); // outcome 1, weight bond_units(10)
+    s.client.vote(&arb2, &id, &2); // outcome 2, weight bond_units(10) (tie)
 
-    assert_eq!(s.client.get_tally(&id, &1), 10);
-    assert_eq!(s.client.get_tally(&id, &2), 10);
+    assert_eq!(s.client.get_tally(&id, &1), bond_units(10));
+    assert_eq!(s.client.get_tally(&id, &2), bond_units(10));
 
     advance(&s.env, 3601);
     let outcome = s.client.resolve_dispute(&id);
@@ -453,15 +439,15 @@ fn test_tie_two_outcomes_equal_weight() {
 #[test]
 fn test_tie_three_outcomes_equal_weight() {
     let s = setup();
-    let arb2 = Address::generate(&s.env);
-    let arb3 = Address::generate(&s.env);
-    s.client.register_arbitrator(&arb2, &10);
-    s.client.register_arbitrator(&arb3, &10);
+    let arb2 = setup_registered_arbitrator(&s.env, &s.registry, bond_units(10));
+    let arb3 = setup_registered_arbitrator(&s.env, &s.registry, bond_units(10));
+    s.client.register_arbitrator(&arb2);
+    s.client.register_arbitrator(&arb3);
 
     let id = open_dispute(&s);
-    s.client.vote(&s.arb, &id, &1); // outcome 1, weight 10 → tie
-    s.client.vote(&arb2, &id, &2); // outcome 2, weight 10 → tie
-    s.client.vote(&arb3, &id, &3); // outcome 3, weight 10 → tie
+    s.client.vote(&s.arb, &id, &1); // outcome 1, weight bond_units(10) → tie
+    s.client.vote(&arb2, &id, &2); // outcome 2, weight bond_units(10) → tie
+    s.client.vote(&arb3, &id, &3); // outcome 3, weight bond_units(10) → tie
 
     advance(&s.env, 3601);
     let outcome = s.client.resolve_dispute(&id);
@@ -474,15 +460,15 @@ fn test_tie_three_outcomes_equal_weight() {
 #[test]
 fn test_tie_multiple_votes_same_outcome_then_tie() {
     let s = setup();
-    let arb2 = Address::generate(&s.env);
-    let arb3 = Address::generate(&s.env);
-    s.client.register_arbitrator(&arb2, &5);
-    s.client.register_arbitrator(&arb3, &10);
+    let arb2 = setup_registered_arbitrator(&s.env, &s.registry, bond_units(5));
+    let arb3 = setup_registered_arbitrator(&s.env, &s.registry, bond_units(10));
+    s.client.register_arbitrator(&arb2);
+    s.client.register_arbitrator(&arb3);
 
     let id = open_dispute(&s);
-    s.client.vote(&s.arb, &id, &1); // outcome 1, weight 10
-    s.client.vote(&arb2, &id, &1); // outcome 1, weight 5 (cumulative: 15)
-    s.client.vote(&arb3, &id, &2); // outcome 2, weight 10 → tie at max_weight=15 then max_weight=10
+    s.client.vote(&s.arb, &id, &1); // outcome 1, weight bond_units(10)
+    s.client.vote(&arb2, &id, &1); // outcome 1, weight bond_units(5) (cumulative: 15)
+    s.client.vote(&arb3, &id, &2); // outcome 2, weight bond_units(10) → tie at max_weight=15 then max_weight=10
 
     // At this point: outcome 1 = 15, outcome 2 = 10 (clear winner)
     advance(&s.env, 3601);
@@ -495,8 +481,8 @@ fn test_tie_multiple_votes_same_outcome_then_tie() {
 #[test]
 fn test_tied_dispute_cannot_be_resolved_twice() {
     let s = setup();
-    let arb2 = Address::generate(&s.env);
-    s.client.register_arbitrator(&arb2, &10);
+    let arb2 = setup_registered_arbitrator(&s.env, &s.registry, bond_units(10));
+    s.client.register_arbitrator(&arb2);
 
     let id = open_dispute(&s);
     s.client.vote(&s.arb, &id, &1);
@@ -513,8 +499,8 @@ fn test_tied_dispute_cannot_be_resolved_twice() {
 #[test]
 fn test_cant_vote_on_tied_dispute() {
     let s = setup();
-    let arb2 = Address::generate(&s.env);
-    s.client.register_arbitrator(&arb2, &10);
+    let arb2 = setup_registered_arbitrator(&s.env, &s.registry, bond_units(10));
+    s.client.register_arbitrator(&arb2);
 
     let id = open_dispute(&s);
     s.client.vote(&s.arb, &id, &1);
@@ -531,8 +517,8 @@ fn test_cant_vote_on_tied_dispute() {
 #[test]
 fn test_cant_cancel_tied_dispute() {
     let s = setup();
-    let arb2 = Address::generate(&s.env);
-    s.client.register_arbitrator(&arb2, &10);
+    let arb2 = setup_registered_arbitrator(&s.env, &s.registry, bond_units(10));
+    s.client.register_arbitrator(&arb2);
 
     let id = open_dispute(&s);
     s.client.vote(&s.arb, &id, &1);
@@ -554,12 +540,12 @@ fn test_cant_cancel_tied_dispute() {
 #[test]
 fn test_clear_winner_outcomes_not_tied() {
     let s = setup();
-    let arb2 = Address::generate(&s.env);
-    s.client.register_arbitrator(&arb2, &5);
+    let arb2 = setup_registered_arbitrator(&s.env, &s.registry, bond_units(5));
+    s.client.register_arbitrator(&arb2);
 
     let id = open_dispute(&s);
-    s.client.vote(&s.arb, &id, &1); // outcome 1, weight 10
-    s.client.vote(&arb2, &id, &2); // outcome 2, weight 5
+    s.client.vote(&s.arb, &id, &1); // outcome 1, weight bond_units(10)
+    s.client.vote(&arb2, &id, &2); // outcome 2, weight bond_units(5)
 
     advance(&s.env, 3601);
     let outcome = s.client.resolve_dispute(&id);

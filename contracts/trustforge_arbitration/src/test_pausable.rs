@@ -40,15 +40,13 @@ fn test_pause_blocks_state_changes_but_allows_reads() {
 
     // State change should fail
     let arbitrator = Address::generate(&env);
-    assert!(client
-        .try_register_arbitrator(&arbitrator, &10_i128)
-        .is_err());
+    assert!(client.try_register_arbitrator(&arbitrator).is_err());
 
     client.unpause(&admin);
     assert!(!client.is_paused());
 
     // State change works again
-    client.register_arbitrator(&arbitrator, &10_i128);
+    client.register_arbitrator(&arbitrator);
 }
 
 #[test]
@@ -80,7 +78,7 @@ fn test_pause_does_not_block_existing_tests_flow_when_unpaused() {
     let (env, _admin, client) = setup();
 
     let arb = Address::generate(&env);
-    client.register_arbitrator(&arb, &10_i128);
+    client.register_arbitrator(&arb);
 
     let creator = Address::generate(&env);
     let description = String::from_str(&env, "Dispute");
