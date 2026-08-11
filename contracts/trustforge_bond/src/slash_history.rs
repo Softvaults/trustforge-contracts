@@ -183,14 +183,14 @@ pub mod testutils {
     /// Return a single slash record by index.
     ///
     /// # Panics
-    /// Panics with `"slash record not found"` when `index >= slash_count`.
+    /// Panics with [`ContractError::SlashRecordNotFound`] when `index >= slash_count`.
     #[must_use]
     pub fn get_slash_record(e: &Env, identity: &Address, index: u32) -> SlashRecord {
         let key = SlashStorageKey::SlashRecord(identity.clone(), index);
         e.storage()
             .persistent()
             .get(&key)
-            .unwrap_or_else(|| panic!("slash record not found"))
+            .unwrap_or_else(|| panic_with_error!(e, ContractError::SlashRecordNotFound))
     }
 
     /// Sum all slash amounts from history. O(n) — use only in tests.

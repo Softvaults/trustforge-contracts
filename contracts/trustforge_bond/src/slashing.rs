@@ -280,6 +280,7 @@ pub fn unslash_bond(e: &Env, admin: &Address, amount: i128) -> crate::IdentityBo
 /// `Env` available here to escalate a contract error through. `slash_bond`
 /// performs the equivalent check inline via `ContractError::SlashExceedsBond`.
 #[allow(dead_code)]
+#[allow(clippy::expect_used)]
 #[must_use]
 pub fn get_available_balance(bonded_amount: i128, slashed_amount: i128) -> i128 {
     bonded_amount

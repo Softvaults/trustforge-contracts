@@ -1,4 +1,11 @@
 #![no_std]
+// Ceiling from the Phase 3 unwrap/expect/panic cleanup (see QUALITY_UPGRADE_ROADMAP.md):
+// the compiled non-test surface must not regress back to string panics. Scoped to
+// `not(test)` so the many `.unwrap()`s inside `#[cfg(test)]` modules stay unaffected —
+// those aren't part of the deployed contract. validation.rs's two dead-code panics and
+// slashing.rs's `get_available_balance` are individually allowed at their call sites
+// (see docs/ORPHANED_MODULES.md for why they're exempt).
+#![cfg_attr(not(test), deny(clippy::unwrap_used, clippy::expect_used))]
 
 #[cfg(any(test, feature = "testutils"))]
 mod batch;

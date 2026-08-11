@@ -71,21 +71,24 @@ pub fn validate_batch_bonds(e: &Env, params_list: &Vec<BatchBondParams>) {
     let bond_start = e.ledger().timestamp();
 
     for i in 0..params_list.len() {
-        let params = params_list.get(i).unwrap();
+        // `i` is bounded by `params_list.len()` above, so this index is always valid.
+        let params = params_list
+            .get(i)
+            .unwrap_or_else(|| unreachable!("index bounded by loop range above"));
 
         // Validate amount
         if params.amount <= 0 {
-            panic!("invalid amount in batch");
+            panic_with_error!(e, ContractError::InvalidBondAmount);
         }
 
         // Validate duration doesn't overflow
         if bond_start.checked_add(params.duration).is_none() {
-            panic!("duration overflow in batch");
+            panic_with_error!(e, ContractError::Overflow);
         }
 
         // Validate notice period for rolling bonds
         if params.is_rolling && params.notice_period_duration == 0 {
-            panic!("rolling bond requires notice period");
+            panic_with_error!(e, ContractError::InvalidNoticePeriod);
         }
     }
 }
@@ -139,19 +142,25 @@ pub fn create_batch_bonds(e: &Env, params_list: Vec<BatchBondParams>) -> BatchBo
 
     // Step 2: Check for existing bonds (before creating any)
     for i in 0..params_list.len() {
-        let _params = params_list.get(i).unwrap();
+        // `i` is bounded by `params_list.len()` above, so this index is always valid.
+        let _params = params_list
+            .get(i)
+            .unwrap_or_else(|| unreachable!("index bounded by loop range above"));
         let bond_key = DataKey::Bond; // Note: Current implementation uses single bond
 
         // In a multi-identity system, you'd check per-identity:
         // let bond_key = DataKey::IdentityBond(params.identity.clone());
         if e.storage().instance().has(&bond_key) {
-            panic!("bond already exists");
+            panic_with_error!(e, ContractError::BondAlreadyExists);
         }
     }
 
     // Step 3: Create all bonds (atomic - all or nothing)
     for i in 0..params_list.len() {
-        let params = params_list.get(i).unwrap();
+        // `i` is bounded by `params_list.len()` above, so this index is always valid.
+        let params = params_list
+            .get(i)
+            .unwrap_or_else(|| unreachable!("index bounded by loop range above"));
 
         let bond = IdentityBond {
             identity: params.identity.clone(),
@@ -233,10 +242,13 @@ pub fn get_batch_total_amount(e: &Env, params_list: &Vec<BatchBondParams>) -> i1
     let mut total: i128 = 0;
 
     for i in 0..params_list.len() {
-        let params = params_list.get(i).unwrap();
+        // `i` is bounded by `params_list.len()` above, so this index is always valid.
+        let params = params_list
+            .get(i)
+            .unwrap_or_else(|| unreachable!("index bounded by loop range above"));
         total = total
             .checked_add(params.amount)
-            .expect("batch total overflow");
+            .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
     }
 
     total
