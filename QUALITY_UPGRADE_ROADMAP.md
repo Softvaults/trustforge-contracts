@@ -216,19 +216,58 @@ Priority order (highest centralization/trust risk first):
 
 ## Phase 5 — Security (get to a real audit)
 
+**A note on what an AI coding agent can and can't do here (2026-08-12):** most of this phase
+is a real-world business engagement — paying and contracting an external firm, committing
+bug-bounty funds, staffing a monitored inbox. None of that can be done from inside this
+repository, and this pass deliberately did not fabricate an audit report or a live bounty
+program to make these boxes look checked — that would be exactly the kind of overclaiming
+Phase 1 existed to remove, on a document people may use to decide whether to trust this
+codebase with real money. What follows is what was actually done, and what still requires a
+human/business decision.
+
 - [ ] Fix everything from Phases 3-4 *before* engaging an external auditor — audits are expensive
       per finding-round, and self-fixable issues shouldn't burn auditor time.
+      **Verified 2026-08-12, not fully satisfied.** Phase 3 is complete (0 unwrap/expect/panic
+      in the compiled surface, CI-enforced). Phase 4 has one open item: `THREATS.md`'s stale
+      test-fixture references, which on inspection turned out to mean **zero live automated
+      test coverage for reentrancy, replay-prevention, and arithmetic-overflow** — the only
+      tests that ever covered those categories were dead code that never compiled. That's a
+      real, cheap-to-self-fix gap (write real tests) that would otherwise cost auditor time to
+      flag, so it should be closed before commissioning an audit rather than carried into it.
+      Left unchecked and unfixed here per user direction — this box records the finding, not a
+      false "done." CI-green-on-main (Phase 2's remaining box) was also not reconfirmed this
+      pass; `gh run list` showed an in-progress run at the time of writing.
 - [ ] Commission a third-party audit from one of the firms already named in `SECURITY_AUDIT.md`
       (Trail of Bits / OpenZeppelin / Quantstamp / Certora). Scope: all eight contracts, with
       particular attention to `trustforge_bond` (largest, custodies value) and the
       arbitration/multisig/timelock trio (governance trust boundary).
+      **Cannot be done by an AI agent** — requires your organization to actually contract and
+      pay a firm. [`docs/AUDIT_READINESS.md`](docs/AUDIT_READINESS.md) was written to make that
+      engagement fast once you're ready: contract inventory with LOC, priority order, known
+      open issues to disclose up front, and an RFP outline.
 - [ ] Publish the actual audit report (not just a summary) alongside `SECURITY_AUDIT.md`, and only
       then restore audit-related badges/claims in the README.
+      Blocked on the item above — no report exists to publish. `SECURITY_AUDIT.md`'s stale
+      "Known Issues" section (three items that were actually resolved back in Phase 4:
+      multisig expiry, registry pagination, arbitrator weight) was corrected 2026-08-12 so the
+      document an auditor reads first is at least internally accurate in the meantime.
 - [ ] Stand up the bug bounty program that's currently listed as "to be launched post-deployment" —
       tie it to real testnet/mainnet deployment, not left indefinite.
+      **Not started.** Needs a real funding and platform decision (Immunefi, HackerOne, or
+      self-run) from the team; drafting a policy speculatively without that input was
+      explicitly out of scope for this pass. See
+      [`docs/SECURITY_CONTACT_PLAN.md`](docs/SECURITY_CONTACT_PLAN.md)'s note on how it should
+      share a disclosure channel with the item below once it exists.
 - [ ] Replace the placeholder `security@trustforge.io (coming soon)` contact with a working channel
       before any public deployment — an unreachable security contact on a financial contract is a
       real gap, not cosmetic.
+      **Partially resolved 2026-08-12.** Turned out `SECURITY.md` already pointed to a real,
+      working channel (GitHub Security Advisories) — `SECURITY_AUDIT.md`'s separate
+      `security@trustforge.io` placeholder was dead and redundant with it, so it's been removed
+      in favor of the real one both documents already had access to. Still open: no published
+      response-time SLA, and no dedicated monitored email/PGP key if the team wants one beyond
+      GitHub's native flow — see [`docs/SECURITY_CONTACT_PLAN.md`](docs/SECURITY_CONTACT_PLAN.md)
+      for what each of those would require.
 
 ---
 

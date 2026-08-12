@@ -76,6 +76,8 @@ This document tracks the security audit status for TrustForge smart contracts. A
 ### Third-Party Audit (Required — Not Yet Performed)
 
 **Status**: **Blocking.** Mainnet deployment with real TVL must not proceed until this is complete.
+**Scoping package for prospective firms**: [`docs/AUDIT_READINESS.md`](docs/AUDIT_READINESS.md)
+— contract inventory, prior findings, and known open issues to disclose up front.
 **Suggested Auditors**:
 - Trail of Bits
 - OpenZeppelin
@@ -94,20 +96,30 @@ engagement with a published report.
 
 ### Acknowledged Limitations
 
-1. **Multisig Proposal Expiry** (Low Risk)
-   - **Issue**: Proposals don't auto-expire
-   - **Mitigation**: Admin can reject stale proposals manually
-   - **Status**: Documented in known-simplifications.md
+None currently open at Medium risk or above. See
+[`docs/known-simplifications.md`](docs/known-simplifications.md) for the full, current list
+of design tradeoffs (e.g. single-bond-per-contract-instance storage model, stubbed token
+transfer in test builds) — these are intentional, documented decisions rather than gaps.
 
-2. **Unbounded Registry Iteration** (Low Risk)
-   - **Issue**: `get_all_identities()` unbounded
-   - **Mitigation**: Event-based indexing recommended for production
-   - **Status**: Documented in architecture.md
+The three items previously listed here (multisig proposal expiry, unbounded registry
+iteration, admin-assigned arbitrator weights) were fixed on 2026-08-12 — see Resolved Issues
+below. This section is now empty on purpose; it is not evidence that no issues exist, only
+that internal review has not identified an open one — that determination is exactly what the
+pending third-party audit ([below](#third-party-audit-required-not-yet-performed)) is for.
 
-3. **Admin-Assigned Arbitrator Weights** (Medium Risk)
-   - **Issue**: Not stake-backed, requires trust in admin
-   - **Mitigation**: Multi-sig admin, governance oversight
-   - **Status**: Documented in arbitration.md
+**Not yet independently verified as complete** (flagged 2026-08-12, tracked in
+[`docs/AUDIT_READINESS.md`](docs/AUDIT_READINESS.md) and
+[`QUALITY_UPGRADE_ROADMAP.md`](QUALITY_UPGRADE_ROADMAP.md) Phase 4/5):
+- `THREATS.md`'s test-fixture references are substantially stale (42 of 50 rows point at
+  test files that don't exist), and spot checks found **zero live automated test coverage**
+  for reentrancy, replay-prevention, or arithmetic-overflow anywhere in the currently-compiled
+  test suite — their only historical tests were themselves dead code that never ran in CI.
+  This should be resolved, or at minimum independently confirmed, before or during the
+  external audit below.
+- `trustforge_bond`'s release WASM exceeds the 64KB Soroban size budget (measured 129KB on
+  2026-08-12) and is not currently deployable to any network.
+- `trustforge_bond` test coverage is 70.64% against CI's 95% gate, with `upgrade_auth.rs` at
+  0.00%.
 
 ### Resolved Issues
 
@@ -117,6 +129,16 @@ All critical and high-severity findings from internal review have been resolved:
 - ✅ Added same-ledger liquidation guard (2026-03)
 - ✅ Implemented fee-on-transfer token rejection (2026-02)
 - ✅ Added overflow protection to all arithmetic (2026-01)
+- ✅ Arbitrator voting weight derived from bonded stake instead of admin-assigned (2026-08-12)
+  — see [`docs/arbitration.md`](docs/arbitration.md)
+- ✅ Multisig proposals now expire (`expires_at`, enforced in `sign_proposal`/
+  `execute_proposal`) (2026-08-12) — see [`docs/multisig.md`](docs/multisig.md)
+- ✅ `get_all_identities()` has a bounded, paginated alternative
+  (`get_identities_page`), with the unbounded call `#[deprecated]` (2026-08-12) — see
+  [`docs/registry.md`](docs/registry.md)
+- ✅ ~70 files of dead code in `trustforge_bond` (never compiled — undeclared `mod`s)
+  deleted rather than left as a false impression of feature completeness or test coverage
+  (2026-08-12) — see [`docs/ORPHANED_MODULES.md`](docs/ORPHANED_MODULES.md)
 
 ## Continuous Security
 
@@ -160,7 +182,7 @@ Bug reports should be submitted via [GitHub Security Advisories](https://github.
 
 If you discover a security vulnerability, please follow our [Security Policy](SECURITY.md) for responsible disclosure. Do not open public issues for security concerns.
 
-**Contact**: security@trustforge.io (to be updated with actual contact)
+**Contact**: [GitHub Security Advisories](https://github.com/Softvaults/trustforge-contracts/security/advisories/new) — this is the real, working disclosure channel already described in [SECURITY.md](SECURITY.md). The `security@trustforge.io` placeholder previously listed here was never a working address and has been removed rather than left as an unreachable contact; see [`docs/SECURITY_CONTACT_PLAN.md`](docs/SECURITY_CONTACT_PLAN.md) for what a dedicated monitored inbox would additionally need.
 
 ## Audit History
 

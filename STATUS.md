@@ -8,7 +8,7 @@ _Last updated: 2026-08-12._
 
 | Question | Answer |
 |---|---|
-| Third-party audited? | **No.** Internal review only. See [SECURITY_AUDIT.md](SECURITY_AUDIT.md). |
+| Third-party audited? | **No.** Internal review only. See [SECURITY_AUDIT.md](SECURITY_AUDIT.md). Scoping package ready for when a firm is engaged: [docs/AUDIT_READINESS.md](docs/AUDIT_READINESS.md). |
 | Deployed to testnet? | **No.** See [README.md § Testnet](README.md#testnet) for the deployment layout you get after following [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). |
 | Deployed to mainnet? | **No.** Blocked on a completed third-party audit and governance approval. |
 | **Deployable at all?** | **`trustforge_bond` — no.** Its release WASM is 137KB against Soroban's ~64KB on-chain limit, more than double budget even with maximal size optimization already applied. The other 7 deployable contracts are within budget. See [VERIFICATION.md](VERIFICATION.md) §9. |
