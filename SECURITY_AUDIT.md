@@ -96,16 +96,55 @@ engagement with a published report.
 
 ### Acknowledged Limitations
 
-None currently open at Medium risk or above. See
-[`docs/known-simplifications.md`](docs/known-simplifications.md) for the full, current list
-of design tradeoffs (e.g. single-bond-per-contract-instance storage model, stubbed token
-transfer in test builds) — these are intentional, documented decisions rather than gaps.
+1. **`withdraw()`, `withdraw_bond()`, and `collect_fees()` never transfer tokens** (Critical
+   Risk — discovered 2026-08-12)
+   - **Issue**: on a real, token-backed deployment these three entrypoints update internal
+     accounting to say funds left the bond, but no tokens are transferred to anyone, and the
+     pull-payment claims system that could recover from this has no entrypoint to pay out a
+     claim. Full evidence: [`docs/BOND_REVIEW_NOTE.md`](docs/BOND_REVIEW_NOTE.md).
+   - **Mitigation**: none yet — not fixed. Do not deploy `trustforge_bond` with a real token
+     configured until this is resolved and covered by a test that asserts the caller's actual
+     on-chain token balance increases.
+   - **Status**: open, tracked in `QUALITY_UPGRADE_ROADMAP.md` Phase 6.
+2. **Unauthenticated `set_callback` can disable `withdraw_bond`/`slash_bond`/`collect_fees`**
+   (High Risk — discovered 2026-08-12)
+   - **Issue**: `set_callback` has no `require_auth()`. Any address can register a broken or
+     malicious callback and permanently break those three entrypoints for that contract
+     instance (single-bond-per-instance limits blast radius to one identity at a time, but the
+     entrypoint itself has zero access control).
+   - **Mitigation**: none yet. See `docs/BOND_REVIEW_NOTE.md` for the suggested fix shape.
+   - **Status**: open, tracked in `QUALITY_UPGRADE_ROADMAP.md` Phase 6.
+3. **Two divergent `slash` entrypoints; only one pays the treasury** (Medium Risk — discovered
+   2026-08-12)
+   - **Issue**: `slash()` correctly transfers slashed funds to the treasury; the separately
+     -implemented `slash_bond()` (which adds idempotency and reentrancy protection `slash()`
+     lacks) does not transfer anything.
+   - **Mitigation**: none yet. See `docs/BOND_REVIEW_NOTE.md`.
+   - **Status**: open, tracked in `QUALITY_UPGRADE_ROADMAP.md` Phase 6.
+4. **`create_bond()` duration/notice-period validation absent** (Medium Risk — discovered
+   2026-08-12)
+   - **Issue**: the live entrypoint validates amount and leverage only; duration and rolling
+     -bond notice-period bounds are unvalidated, masked by ~20 passing tests of a disconnected,
+     never-called duplicate function.
+   - **Mitigation**: none yet. See `docs/BOND_REVIEW_NOTE.md`.
+   - **Status**: open, tracked in `QUALITY_UPGRADE_ROADMAP.md` Phase 6.
+
+These four were found by an AI-conducted internal code review (not the human maintainer
+sign-off `QUALITY_UPGRADE_ROADMAP.md` Phase 6 originally called for, and not the third-party
+audit below) — see `docs/BOND_REVIEW_NOTE.md` for the explicit caveat on what that does and
+doesn't substitute for, and for its "not covered this pass" section (roughly 60% of
+`trustforge_bond/src/` by file count wasn't read line-by-line).
+
+See [`docs/known-simplifications.md`](docs/known-simplifications.md) for the separate list of
+intentional design tradeoffs (e.g. single-bond-per-contract-instance storage model, stubbed
+token transfer in test builds) — those are deliberate decisions, not gaps.
 
 The three items previously listed here (multisig proposal expiry, unbounded registry
 iteration, admin-assigned arbitrator weights) were fixed on 2026-08-12 — see Resolved Issues
-below. This section is now empty on purpose; it is not evidence that no issues exist, only
-that internal review has not identified an open one — that determination is exactly what the
-pending third-party audit ([below](#third-party-audit-required-not-yet-performed)) is for.
+below. An empty limitations list was never evidence that no issues exist, only that internal
+review hadn't identified one yet — as the four items above now demonstrate, and as the
+pending third-party audit ([below](#third-party-audit-required-not-yet-performed)) exists to
+check more rigorously than either of those two passes did.
 
 **Not yet independently verified as complete** (flagged 2026-08-12, tracked in
 [`docs/AUDIT_READINESS.md`](docs/AUDIT_READINESS.md) and

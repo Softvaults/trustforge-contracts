@@ -1,0 +1,35 @@
+# Code ownership for TrustForge Contracts.
+#
+# GitHub requires review from the listed owner(s) on any PR touching these
+# paths, once the repo's branch protection rule enables "Require review from
+# Code Owners" for `main` (a GitHub repo setting, not something this file
+# controls on its own -- see the note at the bottom).
+#
+# Only @hartz0 is listed today, per QUALITY_UPGRADE_ROADMAP.md Phase 6. This
+# is a starting point, not a claim that bus-factor risk is solved: this repo
+# has had 197 contributors historically (see git shortlog), and a single
+# named owner is a first step toward "someone specific is accountable for
+# contract-logic correctness," not a finished governance model. Expand this
+# list as more maintainers are formally designated.
+
+# Contract logic -- the highest-trust surface in this repo. Anyone can still
+# open a PR; this just means it can't merge without a named owner's review.
+/contracts/*/src/ @hartz0
+
+# CI and size/security gates that decide what contract logic is even allowed
+# to merge -- changing these has the same blast radius as changing the logic
+# they gate.
+/.github/workflows/ @hartz0
+/scripts/ @hartz0
+
+# Everything else (docs/**, README.md, top-level *.md files, issue/PR
+# templates) is intentionally NOT owned here. Per CONTRIBUTING.md, doc and
+# typo fixes should stay easy to merge without requiring a named reviewer --
+# that's a deliberate choice, not an oversight.
+
+# --- To make this enforced, not just advisory ---
+# GitHub only blocks merges on CODEOWNERS review if the repo has a branch
+# protection rule on `main` with "Require review from Code Owners" enabled.
+# This file alone does not turn that on -- that's a GitHub repo setting
+# (Settings > Branches > Branch protection rules) outside what a commit to
+# this repository can configure.

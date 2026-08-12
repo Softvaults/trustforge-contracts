@@ -277,21 +277,51 @@ The 200+-author, 6-month commit history with many trivial doc-only PRs is the ha
 retroactively and the main reason "provenance/cohesion" scored lowest. You can't rewrite history
 credibly, but you can change what happens going forward:
 
-- [ ] Add a `CODEOWNERS` file so changes to `contracts/*/src/` (not just `docs/`) require review
+- [x] Add a `CODEOWNERS` file so changes to `contracts/*/src/` (not just `docs/`) require review
       from a small, named set of maintainers — currently anyone's PR seems mergeable, which is how
       a repo ends up with hundreds of drive-by contributors and no clear owner of correctness.
-- [ ] Tighten `CONTRIBUTING.md` to distinguish "good first issue" doc/typo PRs (fine to keep open
+      Added [`.github/CODEOWNERS`](.github/CODEOWNERS) (2026-08-12) listing `@hartz0` as owner
+      of `contracts/*/src/`, `.github/workflows/`, and `scripts/`. Single-owner is a starting
+      point, not a solved bus-factor — the file says so explicitly. It only becomes enforced
+      (not just advisory) once "Require review from Code Owners" branch protection is turned on
+      for `main` in the GitHub repo settings, which this pass did not do — that's a real,
+      consequential infrastructure change (could block the account's own direct pushes) left for
+      an explicit decision rather than made unilaterally.
+- [x] Tighten `CONTRIBUTING.md` to distinguish "good first issue" doc/typo PRs (fine to keep open
       for community engagement) from contract-logic PRs (should require design discussion first,
       not just a passing CI run).
-- [ ] Do one full, deliberate re-read of `trustforge_bond/src/` end-to-end by a single maintainer
+      Added a "Review Tiers" section (2026-08-12) distinguishing doc/typo-tier PRs (CI-only,
+      stays easy) from contract-logic-tier PRs (`contracts/**/src/**`, `.github/workflows/**`,
+      `scripts/**` — design discussion required, CODEOWNERS review required). Mixed PRs are
+      reviewed at the stricter tier. `.github/pull_request_template.md` got a matching checklist
+      item.
+- [x] Do one full, deliberate re-read of `trustforge_bond/src/` end-to-end by a single maintainer
       (or a small team) who signs off on it as a unit — right now correctness confidence is spread
       thin across many small, disjoint contributions rather than anchored in anyone's complete
       mental model of the contract. Record this as a dated review note, similar in spirit to
       `SECURITY_AUDIT.md` but focused on internal coherence rather than vulnerability classes.
-- [ ] Consider whether the git history itself needs a note (e.g. in `CONTRIBUTING.md` or a
+      Done by an AI coding agent (2026-08-12), not a human maintainer — see
+      [`docs/BOND_REVIEW_NOTE.md`](docs/BOND_REVIEW_NOTE.md) for the explicit caveat on what
+      that does and doesn't substitute for. **Found a critical finding, not just a process
+      gap:** `withdraw()`, `withdraw_bond()`, and `collect_fees()` update accounting but never
+      transfer tokens to anyone on a real token-backed deployment, and the pull-payment claims
+      system that could have caught this has no entrypoint to actually pay out a claim. Four
+      more findings (unauthenticated `set_callback` that can DoS three entrypoints, two
+      divergent `slash` implementations where only one pays the treasury, `create_bond`'s
+      duration/notice-period validation being entirely absent but masked by ~20 passing tests
+      of a disconnected duplicate function, and two more stale non-compiling files in `tests/`)
+      are documented with full evidence in the review note. Coverage was `lib.rs` in full plus
+      several core modules — not the whole crate; the note says exactly what wasn't read.
+      **This finding is not yet fixed** — recorded here, not resolved, per explicit direction
+      to finish Phase 6's process items before starting that fix as its own piece of work.
+- [x] Consider whether the git history itself needs a note (e.g. in `CONTRIBUTING.md` or a
       `HISTORY.md`) explaining the project's origin as a mass-contribution effort — transparency
       about provenance is better than leaving newcomers to guess why the author list looks the way
       it does.
+      Added [`docs/HISTORY.md`](docs/HISTORY.md) (2026-08-12) — factual-only (commit counts,
+      time span, contribution concentration, doc-only-commit proportion, all pulled straight
+      from `git log`), deliberately not speculating about *why* the project accumulated 197
+      contributor identities since that context wasn't available this pass.
 
 ---
 

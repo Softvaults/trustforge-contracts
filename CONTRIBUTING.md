@@ -48,6 +48,31 @@ cargo test --workspace
 
 ---
 
+## Review Tiers
+
+Not every PR needs the same scrutiny, and treating them identically is part of how this repo
+ended up with 197 historical contributors and no consistent review depth (see
+[`docs/HISTORY.md`](docs/HISTORY.md)). This repo now distinguishes two tiers:
+
+**Doc/typo tier** — changes confined to `docs/**`, `*.md` files, comments, or other
+non-executable content. These are good first issues, stay open for community engagement, and
+can merge on a passing CI run alone. No design discussion required.
+
+**Contract-logic tier** — any change touching `contracts/**/src/**`, `.github/workflows/**`,
+or `scripts/**`. These require:
+
+1. **Design discussion before implementation**, not just a passing CI run — open an issue or
+   comment your approach before writing the PR, especially for anything touching auth checks,
+   storage layout, or public entrypoints. A green CI run demonstrates the code doesn't crash;
+   it says nothing about whether the design is right.
+2. **Review from a [`CODEOWNERS`](.github/CODEOWNERS)-listed maintainer** — these paths are
+   protected by `.github/CODEOWNERS`. See that file for who's currently listed and its note on
+   enabling GitHub's "Require review from Code Owners" branch protection to make this
+   enforced rather than advisory.
+
+If your PR mixes both tiers (e.g. a contract change plus its doc update), it's reviewed at
+the contract-logic tier — the stricter tier always wins.
+
 ## Development Workflow
 
 ### 1. Pick an issue
@@ -400,3 +425,5 @@ When filing an issue, include:
 | [`CHANGELOG.md`](CHANGELOG.md) | Release history and changelog |
 | [`SECURITY.md`](SECURITY.md) | Security vulnerability reporting |
 | [`rust-toolchain.toml`](rust-toolchain.toml) | Pinned Rust toolchain version |
+| [`.github/CODEOWNERS`](.github/CODEOWNERS) | Who must review contract-logic-tier PRs |
+| [`docs/HISTORY.md`](docs/HISTORY.md) | Factual record of this repo's mass-contribution history |

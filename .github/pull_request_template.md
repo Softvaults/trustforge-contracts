@@ -31,6 +31,9 @@ Closes #(issue-number)
 - [ ] `CHANGELOG.md` updated (if `contracts/**` touched)
 - [ ] Branch follows `<type>/<short-description>` naming convention
 - [ ] Commit messages follow [conventional commits](https://www.conventionalcommits.org/)
+- [ ] **If this touches `contracts/**/src/**`, `.github/workflows/**`, or `scripts/**`:**
+      design was discussed (issue/comment link below) before implementation, not just
+      demonstrated via passing CI — see [`CONTRIBUTING.md` § Review Tiers](../CONTRIBUTING.md#review-tiers)
 
 ## Additional Context
 
