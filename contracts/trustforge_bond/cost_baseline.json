@@ -4,8 +4,8 @@
   "metric_help": "cpu_insns and mem_bytes are modelled host costs; read/write_entries and read/write_bytes are the ledger rw-unit footprint. See docs/gas-regression.md.",
   "entrypoints": {
     "create_bond": {
-      "cpu_insns": 74754,
-      "mem_bytes": 9089,
+      "cpu_insns": 75823,
+      "mem_bytes": 9177,
       "read_entries": 2,
       "write_entries": 2,
       "read_bytes": 156,
@@ -20,12 +20,12 @@
       "write_bytes": 568
     },
     "withdraw": {
-      "cpu_insns": 124834,
-      "mem_bytes": 18740,
+      "cpu_insns": 128398,
+      "mem_bytes": 19108,
       "read_entries": 2,
       "write_entries": 2,
       "read_bytes": 548,
-      "write_bytes": 568
+      "write_bytes": 592
     },
     "withdraw_early": {
       "cpu_insns": 697102,
@@ -36,12 +36,12 @@
       "write_bytes": 1552
     },
     "slash_bond": {
-      "cpu_insns": 104499,
-      "mem_bytes": 15531,
-      "read_entries": 1,
-      "write_entries": 2,
-      "read_bytes": 564,
-      "write_bytes": 660
+      "cpu_insns": 295800,
+      "mem_bytes": 46876,
+      "read_entries": 3,
+      "write_entries": 4,
+      "read_bytes": 1584,
+      "write_bytes": 1344
     },
     "add_attestation": {
       "cpu_insns": 136099,

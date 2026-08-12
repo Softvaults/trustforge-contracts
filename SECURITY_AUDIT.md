@@ -96,44 +96,14 @@ engagement with a published report.
 
 ### Acknowledged Limitations
 
-1. **`withdraw()`, `withdraw_bond()`, and `collect_fees()` never transfer tokens** (Critical
-   Risk — discovered 2026-08-12)
-   - **Issue**: on a real, token-backed deployment these three entrypoints update internal
-     accounting to say funds left the bond, but no tokens are transferred to anyone, and the
-     pull-payment claims system that could recover from this has no entrypoint to pay out a
-     claim. Full evidence: [`docs/BOND_REVIEW_NOTE.md`](docs/BOND_REVIEW_NOTE.md).
-   - **Mitigation**: none yet — not fixed. Do not deploy `trustforge_bond` with a real token
-     configured until this is resolved and covered by a test that asserts the caller's actual
-     on-chain token balance increases.
-   - **Status**: open, tracked in `QUALITY_UPGRADE_ROADMAP.md` Phase 6.
-2. **Unauthenticated `set_callback` can disable `withdraw_bond`/`slash_bond`/`collect_fees`**
-   (High Risk — discovered 2026-08-12)
-   - **Issue**: `set_callback` has no `require_auth()`. Any address can register a broken or
-     malicious callback and permanently break those three entrypoints for that contract
-     instance (single-bond-per-instance limits blast radius to one identity at a time, but the
-     entrypoint itself has zero access control).
-   - **Mitigation**: none yet. See `docs/BOND_REVIEW_NOTE.md` for the suggested fix shape.
-   - **Status**: open, tracked in `QUALITY_UPGRADE_ROADMAP.md` Phase 6.
-3. **Two divergent `slash` entrypoints; only one pays the treasury** (Medium Risk — discovered
-   2026-08-12)
-   - **Issue**: `slash()` correctly transfers slashed funds to the treasury; the separately
-     -implemented `slash_bond()` (which adds idempotency and reentrancy protection `slash()`
-     lacks) does not transfer anything.
-   - **Mitigation**: none yet. See `docs/BOND_REVIEW_NOTE.md`.
-   - **Status**: open, tracked in `QUALITY_UPGRADE_ROADMAP.md` Phase 6.
-4. **`create_bond()` duration/notice-period validation absent** (Medium Risk — discovered
-   2026-08-12)
-   - **Issue**: the live entrypoint validates amount and leverage only; duration and rolling
-     -bond notice-period bounds are unvalidated, masked by ~20 passing tests of a disconnected,
-     never-called duplicate function.
-   - **Mitigation**: none yet. See `docs/BOND_REVIEW_NOTE.md`.
-   - **Status**: open, tracked in `QUALITY_UPGRADE_ROADMAP.md` Phase 6.
-
-These four were found by an AI-conducted internal code review (not the human maintainer
+None currently open at Medium risk or above. The four items below were found and fixed the
+same day (2026-08-12) by an AI-conducted internal code review — not the human maintainer
 sign-off `QUALITY_UPGRADE_ROADMAP.md` Phase 6 originally called for, and not the third-party
-audit below) — see `docs/BOND_REVIEW_NOTE.md` for the explicit caveat on what that does and
-doesn't substitute for, and for its "not covered this pass" section (roughly 60% of
-`trustforge_bond/src/` by file count wasn't read line-by-line).
+audit below, and **the fix itself was not independently verified by a human** before landing.
+Full findings, fix details, and the new tests proving each one are in
+[`docs/BOND_REVIEW_NOTE.md`](docs/BOND_REVIEW_NOTE.md) — including its "not covered this pass"
+section (roughly 60% of `trustforge_bond/src/` by file count wasn't read line-by-line, so
+absence of further findings there is not evidence of absence).
 
 See [`docs/known-simplifications.md`](docs/known-simplifications.md) for the separate list of
 intentional design tradeoffs (e.g. single-bond-per-contract-instance storage model, stubbed
@@ -178,6 +148,15 @@ All critical and high-severity findings from internal review have been resolved:
 - ✅ ~70 files of dead code in `trustforge_bond` (never compiled — undeclared `mod`s)
   deleted rather than left as a false impression of feature completeness or test coverage
   (2026-08-12) — see [`docs/ORPHANED_MODULES.md`](docs/ORPHANED_MODULES.md)
+- ✅ `withdraw()`, `withdraw_bond()`, and `collect_fees()` now transfer real tokens instead of
+  updating accounting only (Critical) (2026-08-12) — see
+  [`docs/BOND_REVIEW_NOTE.md`](docs/BOND_REVIEW_NOTE.md)
+- ✅ `set_callback` now requires the stored admin's authorization instead of being callable by
+  anyone (High) (2026-08-12) — see [`docs/BOND_REVIEW_NOTE.md`](docs/BOND_REVIEW_NOTE.md)
+- ✅ `slash_bond()` now transfers slashed funds to the treasury, matching `slash()` (Medium)
+  (2026-08-12) — see [`docs/BOND_REVIEW_NOTE.md`](docs/BOND_REVIEW_NOTE.md)
+- ✅ `create_bond()` now validates duration and rolling-bond notice-period bounds (Medium)
+  (2026-08-12) — see [`docs/BOND_REVIEW_NOTE.md`](docs/BOND_REVIEW_NOTE.md)
 
 ## Continuous Security
 

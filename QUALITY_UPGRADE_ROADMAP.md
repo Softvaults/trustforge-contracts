@@ -312,8 +312,20 @@ credibly, but you can change what happens going forward:
       of a disconnected duplicate function, and two more stale non-compiling files in `tests/`)
       are documented with full evidence in the review note. Coverage was `lib.rs` in full plus
       several core modules — not the whole crate; the note says exactly what wasn't read.
-      **This finding is not yet fixed** — recorded here, not resolved, per explicit direction
-      to finish Phase 6's process items before starting that fix as its own piece of work.
+      **All six findings fixed the same day (2026-08-12)**, as a separate follow-up pass after
+      finishing this phase's process items first, per explicit direction: `withdraw`/
+      `withdraw_bond`/`collect_fees` now transfer real tokens (gated behind `has_token()`,
+      symmetric with `create_bond`'s deposit); `set_callback` requires the stored admin's
+      auth; `slash_bond` now pays the treasury like `slash` does; `create_bond` validates
+      duration and notice-period bounds; the two additional stale `tests/` files were deleted.
+      Fixing this surfaced two more real breakages the fix itself would have introduced if not
+      caught by actually running the test suite rather than just reasoning about it: two
+      `test_auth.rs` tests were unknowingly relying on the missing notice-period validation
+      (fixed), and the `slash_bond` gas-cost baseline needed regenerating since the entrypoint
+      now does real work (`cost_baseline.json` updated via the documented
+      `update-cost-baseline` bin, not hand-edited). New tests in `test_fund_transfer_fixes.rs`
+      assert actual on-chain token-balance movement for every fix. **Not independently
+      verified by a human** — see `docs/BOND_REVIEW_NOTE.md`'s status banner.
 - [x] Consider whether the git history itself needs a note (e.g. in `CONTRIBUTING.md` or a
       `HISTORY.md`) explaining the project's origin as a mass-contribution effort — transparency
       about provenance is better than leaving newcomers to guess why the author list looks the way

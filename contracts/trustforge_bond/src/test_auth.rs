@@ -330,8 +330,7 @@ fn extend_duration_rejected_when_stranger_calls() {
 fn request_withdrawal_succeeds_when_identity_authorizes() {
     let (env, _admin, client) = setup();
     let identity = Address::generate(&env);
-    // notice_period_duration = 0 for simplicity
-    client.create_bond(&identity, &1000_i128, &86400_u64, &true, &0_u64);
+    client.create_bond(&identity, &1000_i128, &86400_u64, &true, &3600_u64);
     // Advance past timestamp 0 so withdrawal_requested_at records a non-zero value.
     env.ledger().with_mut(|l| l.timestamp = 1_000);
     let bond = client.request_withdrawal(&identity);
@@ -345,7 +344,7 @@ fn request_withdrawal_rejected_when_stranger_calls() {
     let (env, _admin, client) = setup();
     let identity = Address::generate(&env);
     let stranger = Address::generate(&env);
-    client.create_bond(&identity, &1000_i128, &86400_u64, &true, &0_u64);
+    client.create_bond(&identity, &1000_i128, &86400_u64, &true, &3600_u64);
     client.request_withdrawal(&stranger);
 }
 
@@ -358,7 +357,7 @@ fn request_withdrawal_rejected_when_stranger_calls() {
 fn renew_if_rolling_succeeds_when_identity_authorizes() {
     let (env, _admin, client) = setup();
     let identity = Address::generate(&env);
-    client.create_bond(&identity, &1000_i128, &100_u64, &true, &0_u64);
+    client.create_bond(&identity, &1000_i128, &100_u64, &true, &10_u64);
     // Advance past the bond period
     env.ledger().set(soroban_sdk::testutils::LedgerInfo {
         timestamp: 200,
@@ -381,6 +380,6 @@ fn renew_if_rolling_rejected_when_stranger_calls() {
     let (env, _admin, client) = setup();
     let identity = Address::generate(&env);
     let stranger = Address::generate(&env);
-    client.create_bond(&identity, &1000_i128, &100_u64, &true, &0_u64);
+    client.create_bond(&identity, &1000_i128, &100_u64, &true, &10_u64);
     client.renew_if_rolling(&stranger);
 }

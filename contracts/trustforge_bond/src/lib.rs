@@ -93,6 +93,12 @@ mod test_rolling_notice;
 #[cfg(test)]
 mod fee_tests;
 
+/// Regression tests for the docs/BOND_REVIEW_NOTE.md fixes (2026-08-12): real token-balance
+/// assertions for withdraw/withdraw_bond/collect_fees/slash_bond, set_callback auth, and
+/// create_bond's duration/notice-period/already-exists validation.
+#[cfg(test)]
+mod test_fund_transfer_fixes;
+
 use soroban_sdk::{
     contract, contractimpl, contracttype, panic_with_error, Address, Bytes, Env, IntoVal, String,
     Symbol, Val, Vec,
@@ -635,6 +641,11 @@ impl TrustForgeBond {
     ) -> IdentityBond {
         // auth: tree shape [Identity] -> [Bond::create_bond]; may be delegated.
         identity.require_auth();
+
+        if e.storage().instance().has(&DataKey::Bond) {
+            panic_with_error!(e, ContractError::BondAlreadyExists);
+        }
+
         if token_integration::has_token(&e) {
             token_integration::transfer_into_contract(&e, &identity, amount);
         }
@@ -649,6 +660,13 @@ impl TrustForgeBond {
         validation::validate_bond_amount(&e, amount);
         let max_leverage = parameters::get_max_leverage(&e);
         leverage::validate_leverage(&e, amount, max_leverage);
+
+        if duration == 0 {
+            panic_with_error!(e, ContractError::InvalidBondDuration);
+        }
+        if is_rolling && (notice_period_duration == 0 || notice_period_duration > duration) {
+            panic_with_error!(e, ContractError::InvalidNoticePeriod);
+        }
 
         let bond = IdentityBond {
             identity: identity.clone(),
@@ -1309,67 +1327,107 @@ impl TrustForgeBond {
     }
 
     /// Withdraw from bond after lock-up period has ended.
+    ///
+    /// Errors:
+    /// - `ContractError::ReentrancyDetected` when called re-entrantly.
     pub fn withdraw(e: Env, identity: Address, amount: i128) -> IdentityBond {
         // auth: bond owner must authorize withdrawals.
         identity.require_auth();
+        Self::acquire_lock(&e);
+
         let key = DataKey::Bond;
-        let mut bond: IdentityBond = e
-            .storage()
-            .instance()
-            .get(&key)
-            .unwrap_or_else(|| panic_with_error!(e, ContractError::BondNotFound));
+        let mut bond: IdentityBond = match e.storage().instance().get(&key) {
+            Some(b) => b,
+            None => {
+                Self::release_lock(&e);
+                panic_with_error!(e, ContractError::BondNotFound);
+            }
+        };
         if bond.identity != identity {
+            Self::release_lock(&e);
             panic_with_error!(e, ContractError::NotBondOwner);
         }
         bump_instance_ttl(&e);
 
         let now = e.ledger().timestamp();
-        let end = bond
-            .bond_start
-            .checked_add(bond.bond_duration)
-            .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
+        let end = match bond.bond_start.checked_add(bond.bond_duration) {
+            Some(end) => end,
+            None => {
+                Self::release_lock(&e);
+                panic_with_error!(e, ContractError::Overflow);
+            }
+        };
         if now < end {
+            Self::release_lock(&e);
             panic_with_error!(e, ContractError::LockupNotExpired);
         }
 
         if bond.is_rolling {
             if bond.withdrawal_requested_at == 0 {
+                Self::release_lock(&e);
                 panic_with_error!(e, ContractError::WithdrawalNotRequested);
             }
-            let earliest = bond
+            let earliest = match bond
                 .withdrawal_requested_at
                 .checked_add(bond.notice_period_duration)
-                .unwrap_or_else(|| panic_with_error!(e, ContractError::Overflow));
+            {
+                Some(earliest) => earliest,
+                None => {
+                    Self::release_lock(&e);
+                    panic_with_error!(e, ContractError::Overflow);
+                }
+            };
             if e.ledger().timestamp() < earliest {
+                Self::release_lock(&e);
                 panic_with_error!(e, ContractError::NoticePeriodNotElapsed);
             }
         } else if e.ledger().timestamp() < bond.bond_start.saturating_add(bond.bond_duration) {
+            Self::release_lock(&e);
             panic_with_error!(e, ContractError::LockupNotExpired);
         }
 
-        let available = bond
-            .bonded_amount
-            .checked_sub(bond.slashed_amount)
-            .unwrap_or_else(|| panic_with_error!(e, ContractError::SlashExceedsBond));
+        let available = match bond.bonded_amount.checked_sub(bond.slashed_amount) {
+            Some(available) => available,
+            None => {
+                Self::release_lock(&e);
+                panic_with_error!(e, ContractError::SlashExceedsBond);
+            }
+        };
         if amount > available {
+            Self::release_lock(&e);
             panic_with_error!(e, ContractError::InsufficientBalance);
         }
 
         let old_tier = tiered_bond::get_tier_for_amount(&e, bond.bonded_amount);
-        bond.bonded_amount = bond
-            .bonded_amount
-            .checked_sub(amount)
-            .unwrap_or_else(|| panic_with_error!(e, ContractError::Underflow));
+        bond.bonded_amount = match bond.bonded_amount.checked_sub(amount) {
+            Some(v) => v,
+            None => {
+                Self::release_lock(&e);
+                panic_with_error!(e, ContractError::Underflow);
+            }
+        };
         if bond.slashed_amount > bond.bonded_amount {
+            Self::release_lock(&e);
             panic_with_error!(e, ContractError::SlashExceedsBond);
         }
         let new_available = bond.bonded_amount.saturating_sub(bond.slashed_amount);
         let new_tier = tiered_bond::get_tier_for_amount(&e, new_available);
         tiered_bond::emit_tier_change_if_needed(&e, &bond.identity, old_tier, new_tier);
 
+        // State updated before the external token transfer (CEI pattern), matching
+        // withdraw_early/withdraw_bond/slash_bond elsewhere in this file.
         e.storage().instance().set(&key, &bond);
         bump_instance_ttl(&e);
         invariants::assert_self_consistent(&e);
+
+        // Symmetric with create_bond's deposit gating: only move real tokens when a
+        // real token is configured, so token-less (accounting-only) setups stay
+        // self-consistent end-to-end.
+        if amount > 0 && token_integration::has_token(&e) {
+            token_integration::transfer_from_contract(&e, &bond.identity, amount);
+        }
+
+        Self::release_lock(&e);
         bond
     }
 
@@ -1733,6 +1791,11 @@ impl TrustForgeBond {
         bump_instance_ttl(&e);
         invariants::assert_self_consistent(&e);
 
+        // Symmetric with create_bond's deposit gating: see withdraw() for rationale.
+        if withdraw_amount > 0 && token_integration::has_token(&e) {
+            token_integration::transfer_from_contract(&e, &identity, withdraw_amount);
+        }
+
         // chaos: external callback panic must result in atomic state revert and lock release.
         let cb_key = Symbol::new(&e, "callback");
         if let Some(cb_addr) = e.storage().instance().get::<_, Address>(&cb_key) {
@@ -1747,7 +1810,8 @@ impl TrustForgeBond {
 
     /// Slash a portion of the bond with a reentrancy guard.
     ///
-    /// Returns the cumulative slashed amount after this operation.
+    /// Returns the cumulative slashed amount after this operation. Transfers the slashed
+    /// amount to the configured slash treasury, same as [`slash`](Self::slash).
     ///
     /// Errors:
     /// - `ContractError::NotAdmin` when caller is not the admin.
@@ -1755,6 +1819,7 @@ impl TrustForgeBond {
     /// - `ContractError::SlashExceedsBond` when cumulative slash would exceed bonded amount.
     /// - `ContractError::ReentrancyDetected` when called re-entrantly.
     /// - `ContractError::DuplicateIdempotencyKey` when the same idempotency key is reused.
+    /// - `ContractError::TreasuryNotConfigured` when no slash treasury is set.
     ///
     /// See also: [`docs/slashing.md`](../../../docs/slashing.md)
     pub fn slash_bond(e: Env, admin: Address, slash_amount: i128, idempotency_salt: Bytes) -> i128 {
@@ -1815,6 +1880,13 @@ impl TrustForgeBond {
         e.storage().instance().set(&bond_key, &updated);
         invariants::assert_self_consistent(&e);
 
+        // Transfer slashed funds to the configured treasury, matching slash()'s behavior
+        // (see slashing::slash_bond). Reverts with TreasuryNotConfigured if no treasury is
+        // set, so slashed capital can never be silently stranded in the contract.
+        if slash_amount > 0 {
+            slashing::transfer_slashed_funds_to_treasury(&e, slash_amount);
+        }
+
         let cb_key = Symbol::new(&e, "callback");
         if let Some(cb_addr) = e.storage().instance().get::<_, Address>(&cb_key) {
             let fn_name = Symbol::new(&e, "on_slash");
@@ -1860,6 +1932,13 @@ impl TrustForgeBond {
         let fee_key = Symbol::new(&e, "fees");
         let fees: i128 = e.storage().instance().get(&fee_key).unwrap_or(0);
         e.storage().instance().set(&fee_key, &0_i128);
+
+        // Fees are transferred to the calling admin; this contract has no separate
+        // fee-treasury concept distinct from the admin who collects them. Symmetric
+        // with create_bond's deposit gating: see withdraw() for rationale.
+        if fees > 0 && token_integration::has_token(&e) {
+            token_integration::transfer_from_contract(&e, &admin, fees);
+        }
 
         let cb_key = Symbol::new(&e, "callback");
         if let Some(cb_addr) = e.storage().instance().get::<_, Address>(&cb_key) {
@@ -2094,11 +2173,18 @@ impl TrustForgeBond {
         updated
     }
 
-    /// Register a callback contract for testing hooks.
+    /// Register a callback contract for testing hooks. Admin-only.
     ///
     /// The registered contract receives `on_withdraw`, `on_slash`, and `on_collect` calls
     /// from [`withdraw_bond`](Self::withdraw_bond), [`slash_bond`](Self::slash_bond),
-    /// and [`collect_fees`](Self::collect_fees) respectively.
+    /// and [`collect_fees`](Self::collect_fees) respectively. Since those calls are
+    /// unconditional (`invoke_contract`, not `try_invoke_contract`), a broken or malicious
+    /// callback can permanently break all three entrypoints for this contract instance —
+    /// this requires the admin's authorization so that risk can't be triggered by an
+    /// arbitrary caller.
+    ///
+    /// Errors:
+    /// - `ContractError::NotInitialized` when admin is not set.
     ///
     /// # Example
     ///
@@ -2117,6 +2203,12 @@ impl TrustForgeBond {
     /// client.set_callback(&callback);
     /// ```
     pub fn set_callback(e: Env, addr: Address) {
+        let admin: Address = e
+            .storage()
+            .instance()
+            .get(&DataKey::Admin)
+            .unwrap_or_else(|| panic_with_error!(e, ContractError::NotInitialized));
+        admin.require_auth();
         e.storage()
             .instance()
             .set(&Symbol::new(&e, "callback"), &addr);

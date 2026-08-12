@@ -3,10 +3,14 @@ name = "trustforge_bond"
 version = "1.0.0"
 edition = "2021"
 license = "Apache-2.0"
-# Disable autodiscovery of the stale `tests/` integration crates. Those files
-# (test_access_control.rs, test_fee_on_transfer_rejection.rs) target an
-# abandoned token-based contract API (set_token/get_nonce/create_bond_with_rolling)
-# that does not exist in the canonical contract; they never compiled. The bond
+# Disable autodiscovery of the stale `tests/` integration crates.
+# `tests/test_fee_on_transfer_rejection.rs` targets an abandoned token-based
+# contract API (set_token/get_nonce/create_bond_with_rolling) that does not
+# exist in the canonical contract; it never compiled. Two more files with the
+# same abandoned-API problem (`tests/migration_test.rs`, `tests/indexer_replay.rs`)
+# were confirmed broken and deleted 2026-08-12 during the docs/BOND_REVIEW_NOTE.md
+# review rather than left as further silently-excluded dead weight; see that
+# doc for the compile-error evidence. The bond
 # invariants suite lives in the library's #[cfg(test)] modules instead, so the
 # whole package builds and tests green with `cargo test -p trustforge_bond`.
 autotests = false

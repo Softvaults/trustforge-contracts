@@ -334,7 +334,7 @@ pub fn is_partial_slash(slash_amount: i128, bonded_amount: i128) -> bool {
 /// # Panics
 /// - `ContractError::TreasuryNotConfigured` when no slash treasury is configured.
 /// - Any token-level panic propagated from the token transfer.
-fn transfer_slashed_funds_to_treasury(e: &Env, amount: i128) {
+pub(crate) fn transfer_slashed_funds_to_treasury(e: &Env, amount: i128) {
     let treasury: Address = e
         .storage()
         .instance()

@@ -156,13 +156,33 @@ pub fn measure_all() -> BTreeMap<String, EntryCost> {
         out.insert("withdraw_early".into(), measure(&env));
     }
 
-    // slash_bond — admin slashes part of an active bond.
+    // slash_bond — admin slashes part of an active bond. Transfers the slashed
+    // amount to `treasury` via a real token transfer, so this needs an actual
+    // configured token (see the withdraw_early block above for the same requirement).
     {
         let env = fresh_env();
         let client = TrustForgeBondClient::new(&env, &env.register(TrustForgeBond, ()));
         let admin = Address::generate(&env);
+        let treasury = Address::generate(&env);
         let identity = Address::generate(&env);
         client.initialize(&admin, &None);
+
+        let token_admin = Address::generate(&env);
+        let token_id = env
+            .register_stellar_asset_contract_v2(token_admin)
+            .address();
+        let token_admin_client = token::StellarAssetClient::new(&env, &token_id);
+        token_admin_client.mint(&identity, &(bond_amount * 2));
+        client.set_accepted_tokens(&admin, &soroban_sdk::vec![&env, token_id.clone()]);
+        client.set_token(&admin, &token_id);
+        token::Client::new(&env, &token_id).approve(
+            &identity,
+            &client.address,
+            &(bond_amount * 2),
+            &99999,
+        );
+        client.set_slash_treasury(&admin, &treasury);
+
         client.create_bond(&identity, &bond_amount, &duration, &false, &0_u64);
         client.slash_bond(&admin, &(bond_amount / 10), &soroban_sdk::Bytes::new(&env));
         out.insert("slash_bond".into(), measure(&env));

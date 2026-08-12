@@ -1,10 +1,18 @@
 # `trustforge_bond` Internal Coherence Review
 
-**Date:** 2026-08-12
+**Date:** 2026-08-12 (findings); fixes applied 2026-08-12, same day
 **Reviewer:** Claude (Anthropic), acting as a coding agent for this repository's maintainer
 **Scope requested:** `QUALITY_UPGRADE_ROADMAP.md` Phase 6 — "one full, deliberate re-read of
 `trustforge_bond/src/` end-to-end by a single maintainer... who signs off on it as a unit,"
 recorded as a dated review note.
+
+> **Status: all six findings below have been fixed**, same day, per explicit direction to
+> finish Phase 6's process items first and then treat the fix as its own piece of work. Each
+> section is marked `RESOLVED` with what changed and which new test proves it. This note is
+> kept as the historical record of the findings and the reasoning behind each fix — not
+> rewritten to hide that these bugs existed. **The findings were not independently verified by
+> a human before the fix was applied** — the same caveat below about AI-conducted review
+> applies to the fix itself.
 
 ## What this is, and isn't
 
@@ -27,7 +35,19 @@ this pass — see [Not Covered](#not-covered-this-pass) at the end.
 
 ---
 
-## Critical: the normal withdrawal and fee-collection paths never transfer tokens
+## Critical: the normal withdrawal and fee-collection paths never transfer tokens — RESOLVED
+
+**Fix (2026-08-12):** `withdraw()`, `withdraw_bond()`, and `collect_fees()` now call
+`token_integration::transfer_from_contract` for the amount they were already computing,
+gated behind `token_integration::has_token(&e)` — symmetric with how `create_bond()`'s
+deposit is already gated, so a deliberately token-less (accounting-only) deployment stays
+self-consistent rather than panicking on `BondTokenNotConfigured`. `withdraw()` also gained
+the reentrancy lock (`acquire_lock`/`release_lock`) the other fund-moving entrypoints already
+had, since it now makes an external call. `collect_fees()` pays the calling admin — this
+contract has no separate fee-treasury concept. New tests in `test_fund_transfer_fixes.rs`
+assert the actual on-chain token balance changes for all three, not just internal accounting.
+`process_claims`'s dead-code status (still zero callers) was left as-is — it's not this
+review's payout mechanism and wiring it in was out of scope for this fix.
 
 **This is the headline finding.** In the currently deployed contract, calling `withdraw()`,
 `withdraw_bond()`, or `collect_fees()` on a real, token-backed deployment updates internal
@@ -98,7 +118,14 @@ would have been exactly that test, had it ever been compiled; see
 
 ---
 
-## High: `set_callback` has no access control and can permanently break `withdraw_bond`, `slash_bond`, and `collect_fees`
+## High: `set_callback` has no access control and can permanently break `withdraw_bond`, `slash_bond`, and `collect_fees` — RESOLVED
+
+**Fix (2026-08-12):** `set_callback` now loads the stored admin and calls
+`admin.require_auth()` before writing the callback address — no signature change needed,
+since Soroban's `require_auth()` works on any `Address` value regardless of whether it came
+from a parameter or a storage read. `test_fund_transfer_fixes.rs` asserts both that an
+unauthenticated call is rejected and that a properly-authorized admin call still succeeds.
+The doc comment now states this is admin-only and explains why.
 
 `set_callback(e: Env, addr: Address)` (`lib.rs:2119-2123`) has no `require_auth()` call and no
 admin check — any address can call it. Its own doc comment says "Register a callback contract
@@ -123,7 +150,20 @@ at the top of `lib.rs`), or add an admin check if it's meant to be a real produc
 
 ---
 
-## Medium: two divergently-named `slash` entrypoints, only one of which pays the treasury
+## Medium: two divergently-named `slash` entrypoints, only one of which pays the treasury — RESOLVED
+
+**Fix (2026-08-12):** `slashing::transfer_slashed_funds_to_treasury` was made `pub(crate)`
+and `TrustForgeBond::slash_bond` now calls it (unconditionally, matching `slash()`'s existing
+requirement — not gated by `has_token()`, since a real slash treasury and token must be
+configured for either slash path to work, unlike the withdrawal paths above). This meant
+several existing tests that called `slash_bond()` without a configured treasury/token now
+correctly fail fast instead of silently stranding funds — `test_chaos.rs`, `test_cost_regression.rs`,
+and `benches/harness.rs` were updated to configure a real mock token and treasury (mirroring
+the pattern already used for `withdraw_early` in those same files). The gas-cost baseline for
+`slash_bond` increased accordingly (a real transfer costs more) and was regenerated via
+`cargo run -p trustforge_bond --features gas-bench --bin update-cost-baseline` — a real,
+reviewable cost increase, not noise. `test_fund_transfer_fixes.rs` adds a balance assertion
+and a test confirming a missing treasury now reverts instead of succeeding silently.
 
 `TrustForgeBond::slash(admin, amount)` (`lib.rs:1574-1576`) delegates to
 `slashing::slash_bond()`, which **does** correctly transfer slashed funds to the configured
@@ -146,7 +186,14 @@ deprecate one of the two in favor of the other so there's a single slash path.
 
 ---
 
-## Medium: `create_bond()` has no `BondAlreadyExists` guard; a second call silently overwrites the bond
+## Medium: `create_bond()` has no `BondAlreadyExists` guard; a second call silently overwrites the bond — RESOLVED
+
+**Fix (2026-08-12):** added the same `e.storage().instance().has(&DataKey::Bond)` check
+`batch.rs` already had, raising `ContractError::BondAlreadyExists`. Verified this doesn't
+false-positive against the fuzz suite (`tests/proptest_tier.rs`), which can legitimately
+generate multiple `Deposit` actions per run sequence — a rejected second deposit there is
+tolerated by that harness's existing "only check invariants on success" design, not a new
+failure. `test_fund_transfer_fixes.rs` adds a direct test.
 
 `ContractError::BondAlreadyExists = 217` exists in `trustforge_errors`, documented as
 "Triggered by: create_bond called for an identity that already has an active bond" — and
@@ -163,7 +210,26 @@ instance via the registry flow, but nothing in the contract itself enforces that
 
 ---
 
-## Medium: `create_bond()`'s duration/notice-period validation is fully absent, masked by ~20 passing tests of a disconnected, uncalled function
+## Medium: `create_bond()`'s duration/notice-period validation is fully absent, masked by ~20 passing tests of a disconnected, uncalled function — RESOLVED
+
+**Fix (2026-08-12):** added `duration == 0` and rolling-bond notice-period checks
+(`notice_period_duration == 0 || notice_period_duration > duration`) directly in the real
+`create_bond()` entrypoint, using the existing `ContractError::InvalidBondDuration` /
+`InvalidNoticePeriod` variants — deliberately *not* pulling in `validation::validate_bond_duration`'s
+separate `MIN_BOND_DURATION`/`MAX_BOND_DURATION` (1 day / 365 days) policy, since that's a
+different, more restrictive concept the error variants' own descriptions don't mention, and
+wiring it in would have broken a large number of existing tests using short test-convenience
+durations for no security benefit. Running the real test suite (not just reasoning about it)
+found two existing tests in `test_auth.rs` that were unknowingly relying on the validation gap
+— `renew_if_rolling_succeeds_when_identity_authorizes` and
+`request_withdrawal_succeeds_when_identity_authorizes` both created rolling bonds with
+`notice_period_duration = 0` "for simplicity." Fixed to use valid notice periods (their
+`#[should_panic]` sibling tests for stranger-rejection used the same invalid input but were
+masked from failing by a bare `#[should_panic]` with no `expected =` string — fixed too, for
+correctness, even though they weren't failing). The disconnected free `create_bond` function
+and its `Bond` type were left in place rather than deleted — removing them was judged separate
+scope from fixing the security gap they masked; the fix here doesn't depend on them.
+`test_fund_transfer_fixes.rs` adds three tests against the real entrypoint via the client.
 
 The real `TrustForgeBond::create_bond()` entrypoint validates only `amount` (via
 `validation::validate_bond_amount`) and leverage. It does **not** call
@@ -198,7 +264,7 @@ suite or repurpose them as the real validation path.
 
 ---
 
-## Low: stale, non-compiling files remain in `contracts/trustforge_bond/tests/`
+## Low: stale, non-compiling files remain in `contracts/trustforge_bond/tests/` — RESOLVED (deleted)
 
 `Cargo.toml`'s `autotests = false` (with a comment explaining why) already correctly prevents
 `tests/test_fee_on_transfer_rejection.rs` from being compiled — verified during this review
@@ -217,10 +283,13 @@ build attempt to fail compilation: `initialize(&admin)` missing the `registry` a
 undefined `identity` variable at four call sites, the same typo pattern as the other stale
 file).
 
-**Fix shape:** either delete these two files (matching the treatment given to the orphaned
-`src/` files) or fix and wire them in properly — `indexer_replay.rs` in particular looks like
-it would be a valuable, real test suite for the event-replay guarantees `docs/EVENTS.md` and
-`docs/indexer-replay-contract.md` already document, if fixed rather than deleted.
+**Fix applied (2026-08-12):** deleted both, matching the treatment given to the orphaned
+`src/` files — the `Cargo.toml` comment explaining `autotests = false` was updated to name
+them. `indexer_replay.rs` in particular looked like it would be a valuable, real test suite
+for the event-replay guarantees `docs/EVENTS.md` and `docs/indexer-replay-contract.md` already
+document; rewriting it against the current API rather than deleting it was judged separate,
+real feature work (effectively authoring a new test suite from scratch) and out of scope for
+this bug-fix pass — noted here so it isn't lost as a future opportunity.
 
 ---
 

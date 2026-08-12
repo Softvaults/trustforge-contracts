@@ -143,8 +143,29 @@ fn measure_all() -> BTreeMap<String, EntryCost> {
         let client =
             TrustForgeBondClient::new(&env, &env.register(trustforge_bond::TrustForgeBond, ()));
         let admin = Address::generate(&env);
+        let treasury = Address::generate(&env);
         let identity = Address::generate(&env);
         client.initialize(&admin, &None);
+
+        // slash_bond transfers the slashed amount to `treasury` via a real token
+        // transfer, so this block needs an actual configured token (see the
+        // withdraw_early block above for the same requirement).
+        let token_admin = Address::generate(&env);
+        let token_id = env
+            .register_stellar_asset_contract_v2(token_admin.clone())
+            .address();
+        let token_admin_client = soroban_sdk::token::StellarAssetClient::new(&env, &token_id);
+        token_admin_client.mint(&identity, &(bond_amount * 2));
+        client.set_accepted_tokens(&admin, &vec![&env, token_id.clone()]);
+        client.set_token(&admin, &token_id);
+        soroban_sdk::token::Client::new(&env, &token_id).approve(
+            &identity,
+            &client.address,
+            &(bond_amount * 2),
+            &99999,
+        );
+        client.set_slash_treasury(&admin, &treasury);
+
         client.create_bond(&identity, &bond_amount, &duration, &false, &0_u64);
         client.slash_bond(&admin, &(bond_amount / 10), &Bytes::new(&env));
         out.insert("slash_bond".into(), measure(&env));

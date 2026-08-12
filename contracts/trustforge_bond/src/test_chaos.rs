@@ -80,13 +80,16 @@ mod tests {
     // ─── Setup helper ────────────────────────────────────────────────────────
 
     /// Create a bond contract + one active non-rolling bond (1 000 units, 24 h).
+    ///
+    /// Wires up a real mock token and slash treasury (via `test_helpers::setup_with_token`)
+    /// rather than running token-less, since `slash_bond`/`withdraw_bond`/`collect_fees` now
+    /// transfer real funds and need both configured to reach their callback-invocation code
+    /// (the part these chaos scenarios actually probe).
     fn setup_with_bond(e: &Env) -> (TrustForgeBondClient<'_>, Address, Address) {
-        e.mock_all_auths();
-        let contract_id = e.register(TrustForgeBond, ());
-        let client = TrustForgeBondClient::new(e, &contract_id);
-        let admin = Address::generate(e);
-        let identity = Address::generate(e);
-        client.initialize(&admin, &None);
+        let (client, admin, identity, _token, _contract_id) =
+            crate::test_helpers::setup_with_token(e);
+        let treasury = Address::generate(e);
+        client.set_slash_treasury(&admin, &treasury);
         client.create_bond(&identity, &1000_i128, &86400_u64, &false, &0_u64);
         (client, admin, identity)
     }
