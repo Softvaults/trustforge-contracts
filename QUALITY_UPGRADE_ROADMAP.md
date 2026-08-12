@@ -130,7 +130,7 @@ protocol calling itself production-ready.
 
 Priority order (highest centralization/trust risk first):
 
-- [ ] **Restore or deliberately delete ~60 orphaned files in `trustforge_bond`**
+- [x] **Restore or deliberately delete ~60 orphaned files in `trustforge_bond`**
       (`access_control.rs`, `verifier.rs`, `governance_approval.rs`, `evidence.rs`,
       `cooldown.rs`, `fees.rs`, `status_snapshot.rs`, the pause-multisig functions in
       `pausable.rs`, and ~53 test files) — not declared as `mod` in `lib.rs`, so never
@@ -138,6 +138,34 @@ Priority order (highest centralization/trust risk first):
       with real auth/error design, not a mechanical reconnect. See
       [docs/ORPHANED_MODULES.md](docs/ORPHANED_MODULES.md) for the full finding
       (discovered 2026-08-10 during Phase 2 verification).
+      Deleted rather than restored (2026-08-12) — restoring means adding ~45 new
+      value-custody entrypoints, which this doc's own recommendation says needs
+      design-review/audit-level care, not a cleanup-pass rush job. 70 files removed
+      total: the original ~61 plus 9 more the initial audit missed in `security/`,
+      `integration/`, and `fuzz/` subdirectories. Build/test/clippy verified clean
+      afterward; wasm size unchanged (nothing here was ever compiled). Docs that
+      described these modules as live (`docs/architecture.md`,
+      `docs/access-control.md`, `docs/status-snapshot.md`, `docs/trustforge-bond.md`,
+      `docs/liquidation.md`, `contracts/trustforge_bond/docs/pagination.md`) updated
+      to say so. Byproduct finding: this exposed that `THREATS.md`'s test-fixture
+      references are substantially stale independent of this cleanup (42/50 rows
+      point at nonexistent files) — flagged with a warning banner there, not fixed;
+      see the note added to `docs/ORPHANED_MODULES.md`'s resolution section. That
+      remediation is unscoped, tracked as a new follow-up, not part of this item.
+- [ ] **`THREATS.md` test-fixture references are substantially stale** (discovered
+      2026-08-12 as a byproduct of the orphaned-modules deletion above) — a
+      file-existence check found 42 of 50 threat rows point at test files that don't
+      exist (some because they lived in the orphaned files just deleted and were
+      never actually compiled; others never existed under the referenced name at
+      all). Spot checks found zero live coverage anywhere in the compiled surface for
+      reentrancy, replay-prevention, or arithmetic-overflow test categories — the only
+      tests that ever covered them were themselves orphaned. The `tests/threats_link.rs`
+      bidirectional-traceability validator this document describes does not exist.
+      Needs a dedicated pass: verify or restore real coverage per threat, correct each
+      row's Test Fixture column, and either build the described validator or stop
+      claiming it exists. Not fixed as part of the orphaned-modules item above —
+      flagged with a warning banner in `THREATS.md` instead, since a rushed row-by-row
+      edit risked introducing new inaccuracies without deeper investigation.
 - [x] **Arbitrator weights not stake-backed** (`trustforge_arbitration`) — currently pure
       admin-assigned integers, i.e. the admin key fully controls dispute outcomes. Derive weight
       from `trustforge_bond` balance via cross-contract call, or require arbitrators to stake into

@@ -1,5 +1,16 @@
 # Access Control System
 
+> **Status (2026-08-12): the `crate::access_control` module described in this document does
+> not exist in the deployed contract.** `access_control.rs` was never declared as a `mod` in
+> `trustforge_bond`'s `lib.rs`, so it never compiled, and it has since been deleted as dead
+> code rather than mechanically restored — see [`docs/ORPHANED_MODULES.md`](ORPHANED_MODULES.md).
+> The `require_admin`/`require_verifier`/`require_identity_owner`/`require_admin_or_verifier`
+> helpers below are a design record, not live code. `trustforge_bond`'s actual access control
+> is simpler inline admin/attester logic in `lib.rs`, exercised by the real, currently-compiled
+> `src/test_access_control.rs` (its test names — e.g. `test_admin_success`,
+> `test_exhaustive_non_admin_rejected` — don't match the ones referenced further down this
+> doc, which described the deleted module's own test suite).
+
 ## Overview
 
 The TrustForge access control module provides reusable, composable role-based access control modifiers for smart contracts. It implements three primary roles (Admin, Verifier, Identity Owner) with support for role composition and comprehensive security event logging.

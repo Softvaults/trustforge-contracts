@@ -4,6 +4,21 @@
 **Last Updated:** 2026-06-01  
 **Scope:** Bond operations (`trustforge_bond`), delegation (`trustforge_delegation`), treasury guardrails
 
+> **Accuracy warning (2026-08-12):** while deleting `trustforge_bond`'s orphaned modules (see
+> [`docs/ORPHANED_MODULES.md`](docs/ORPHANED_MODULES.md)), a file-existence check against every
+> `Test Fixture` reference in the table below found **42 of the 50 rows point at test files that
+> do not exist** — some because they lived in the orphaned files just deleted (never compiled,
+> so "✅ Covered" was already false before deletion), others because the referenced file never
+> existed under that name in this codebase at all. Spot checks (`reentrancy`, `replay`,
+> arithmetic-`overflow` test function names) found **zero live test coverage** for those
+> categories anywhere in the currently-compiled surface — the only tests that ever exercised
+> them were themselves orphaned and never ran in CI. The `tests/threats_link.rs` validator this
+> document describes below does not exist in the repository either, so nothing has been
+> enforcing this table's accuracy. Rows are left unedited pending a dedicated remediation pass
+> (tracked in `QUALITY_UPGRADE_ROADMAP.md`) rather than being hand-patched now — that would risk
+> introducing new inaccuracies without the deeper investigation this deserves. **Do not treat
+> "✅ Covered" in this table as verified until that pass is done.**
+
 This document enumerates security threats to the TrustForge bond and delegation system, mitigations applied, and test fixtures that validate each mitigation. Each threat row is referenced by test comments via `/// THREAT: T-XXX` to establish bidirectional traceability.
 
 ---

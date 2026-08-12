@@ -23,8 +23,11 @@ pub const MAX_QUERY_LIMIT: u32 = 200;
 ```
 
 This is the single source of truth for all paginated reads in `trustforge_bond`.
-The value `200` aligns with `liquidation_scanner::MAX_ITER_HARD_CAP` so all
-collection-read caps stay consistent across the codebase.
+The value `200` was originally chosen to align with `liquidation_scanner::MAX_ITER_HARD_CAP`;
+`liquidation_scanner.rs` was dead code (never compiled — see
+[`docs/ORPHANED_MODULES.md`](../../../docs/ORPHANED_MODULES.md)) and has since been deleted,
+so that cap no longer exists to stay consistent with. `200` remains `MAX_QUERY_LIMIT`'s value
+on its own merits.
 
 **Do not duplicate this constant.** Import it as `crate::parameters::MAX_QUERY_LIMIT`
 wherever you need it.
@@ -137,5 +140,4 @@ The same pattern applies to `get_slash_history_page`.
 ## See Also
 
 - `contracts/trustforge_bond/src/parameters.rs` — `MAX_QUERY_LIMIT` definition
-- `contracts/trustforge_bond/src/liquidation_scanner.rs` — `MAX_ITER_HARD_CAP` (matching cap for scanner)
 - `contracts/trustforge_bond/src/test_pagination.rs` — test suite for all paginated reads

@@ -1,5 +1,41 @@
 # Finding: Orphaned Modules in `trustforge_bond` (discovered 2026-08-10)
 
+## Resolution (2026-08-12): deleted, not restored
+
+Per [`QUALITY_UPGRADE_ROADMAP.md`](QUALITY_UPGRADE_ROADMAP.md) Phase 4, the decision was made
+to delete these files rather than restore them. Restoring them would mean adding ~45 new
+public entrypoints to a contract that custodies staked value, each needing a real auth/error
+design decision — exactly what this document's own [Recommendation](#recommendation) below
+says should go through design review and, ultimately, a third-party audit, not be pushed
+through as part of a dead-code cleanup. Given that scope, leaving the tree honest about what's
+actually deployed (nothing from this list) was judged safer than a rushed restoration.
+
+70 files were deleted in total — the ~61 files this document originally catalogued (8
+production modules + ~53 test files, all directly under `src/`), plus **9 more that this
+document's original audit missed** because it only scanned top-level `src/*.rs` files, not
+subdirectories: `security/mod.rs` + `security/test_arithmetic.rs` (arithmetic
+overflow/underflow tests — T-004/T-005/T-006 in `THREATS.md`), `integration/mod.rs` +
+`integration/test_bond_lifecycle.rs` + `integration/test_governance.rs`, and three unreferenced
+files inside `fuzz/` (`fuzz/mod.rs`, `fuzz/test_bond_fuzz.rs`,
+`fuzz/test_reward_accrual_fuzz.rs`, `fuzz/test_slashing_tier_invariants.rs` — note `fuzz/`
+also contains two files that *are* live, pulled in via individual `#[path]` attributes in
+`lib.rs` rather than through `fuzz/mod.rs`, which was itself never declared).
+
+Verified after deletion: `cargo build --workspace`, `cargo test -p trustforge_bond --lib`
+(266 passed), and `cargo clippy --workspace --all-targets --all-features -- -D warnings` all
+clean. `trustforge_bond.wasm`'s size is unchanged (still the pre-existing, separately-tracked
+64KB-budget overshoot) — expected, since none of the deleted files were ever compiled into it.
+
+Byproduct finding: deleting these files exposed that `THREATS.md`'s test-fixture references
+were already substantially stale even before this deletion — see the warning banner added to
+the top of that document. That's a separate, larger accuracy problem than this one and was not
+fixed here; it's noted as a follow-up.
+
+If this functionality (verifier staking, governance slash-voting, evidence storage, cooldown
+withdrawals, fees, a liquidation scanner, read-only status snapshots, arithmetic-overflow and
+reentrancy/replay test coverage) is wanted later, treat it as new, deliberately-scoped feature
+work — not a restoration — following this document's [Recommendation](#recommendation).
+
 ## Summary
 
 `contracts/trustforge_bond/src/lib.rs` does not declare `mod` for roughly 60 of the

@@ -1,5 +1,12 @@
 # Bond Status Snapshot Helper
 
+> **Status (2026-08-12): not currently part of the deployed contract.** `status_snapshot.rs`
+> was never declared as a `mod` in `trustforge_bond`'s `lib.rs`, so it never compiled into
+> the release WASM or `cargo test` — and it has since been deleted as dead code rather than
+> mechanically restored. See [`docs/ORPHANED_MODULES.md`](ORPHANED_MODULES.md). This document
+> is kept as a design record of the feature; everything below describes what *would* need to
+> exist, not what does today.
+
 ## Overview
 
 `get_bond_status_snapshot()` is a read-only contract method that returns a stable, flat struct describing the current state of a bond. It is designed for backend ingestion: one call, no joins, deterministic schema.
@@ -98,5 +105,4 @@ println!("Snapshot at:       {}", snap.snapshot_timestamp);
 - [Slashing](slashing.md)
 - [Tier System](tier-system.md)
 - [Emergency](emergency.md)
-- Source: `contracts/trustforge_bond/src/status_snapshot.rs`
-- Tests: `contracts/trustforge_bond/src/test_status_snapshot.rs`
+- [Orphaned Modules finding](ORPHANED_MODULES.md) — why this doesn't exist in the tree anymore

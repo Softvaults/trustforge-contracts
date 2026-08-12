@@ -36,26 +36,24 @@ This table is generated from the `members` list in the root [`Cargo.toml`](../Ca
 
 **Internal modules:**
 
-Modules marked ⚠️ are **not** declared as `mod` in `lib.rs` and therefore never compile
-into anything — not the release WASM, not `cargo test`. They exist as complete,
-documented source files but are dead code today. See
-[docs/ORPHANED_MODULES.md](ORPHANED_MODULES.md) for how this happened and why
-restoring them isn't a mechanical fix.
+As of 2026-08-12, the modules that were never declared as `mod` in `lib.rs` — and
+therefore never compiled into anything — have been deleted rather than restored. See
+[docs/ORPHANED_MODULES.md](ORPHANED_MODULES.md) for the finding, why a mechanical
+restore was rejected, and what deleting them entailed. `access_control`, `cooldown`,
+`evidence`, `fees`, `governance_approval`, `liquidation_scanner`, `status_snapshot`, and
+`verifier` no longer exist in the tree; their described functionality (verifier
+staking, governance slash-voting, evidence storage, cooldown withdrawals, fees, a
+liquidation scanner, read-only status snapshots) is not currently part of the deployed
+contract and would need to be deliberately redesigned, not reconnected, if it's wanted.
 
 | Module | Role |
 |---|---|
-| `access_control` ⚠️ orphaned | Verifier role add/remove |
 | `batch` | Atomic multi-bond creation |
 | `claims` | Pending verifier reward claims |
-| `cooldown` ⚠️ orphaned | Configurable withdrawal cooldown period |
 | `early_exit_penalty` | Penalty calculation and treasury transfer |
 | `emergency` | Dual-auth emergency withdrawal with audit records |
 | `events` | All event emission helpers |
-| `evidence` ⚠️ orphaned | IPFS/hash evidence storage for slash proposals |
-| `fees` ⚠️ orphaned | Bond-creation fee calculation and accumulation |
-| `governance_approval` ⚠️ orphaned | Governor-based slash proposal voting |
 | `leverage` | Max-leverage validation |
-| `liquidation_scanner` ⚠️ orphaned | Same-ledger collateral-increase guard |
 | `math` | Internal arithmetic (wraps `trustforge_math`) |
 | `nonce` | Permit-style replay prevention |
 | `normalization` | Amount normalization utilities |
@@ -66,13 +64,11 @@ restoring them isn't a mechanical fix.
 | `same_ledger_liquidation_guard` | Prevents same-ledger collateral manipulation |
 | `slash_history` | Immutable slash history log |
 | `slashing` | Core slash logic |
-| `status_snapshot` ⚠️ orphaned | Read-only backend-friendly bond status snapshot |
 | `tiered_bond` | Bronze/Silver/Gold/Platinum tier derivation |
 | `token_integration` | USDC transfer with balance-delta verification |
 | `types` | Shared `Attestation` type |
 | `upgrade_auth` | Proposer/approver upgrade authorization |
 | `validation` | Amount and duration validation |
-| `verifier` ⚠️ orphaned | Verifier stake, reputation, and attestation tracking |
 | `weighted_attestation` | Weight computation from verifier stake |
 
 **State (instance storage):**

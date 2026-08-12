@@ -16,8 +16,13 @@ motivates this entrypoint, see:
   - [`docs/trustforge-bond.md`](./trustforge-bond.md) — bond lifecycle overview
   - [`docs/slashing.md`](./slashing.md) — how `slash` and `bond_slashed_v2`
     events relate to liquidation
-  - [`docs/liquidation_scanner.md`](./liquidation_scanner.md) — paginated
-    scanner that surfaces liquidation candidates to keepers (companion work)
+
+The companion `liquidation_scanner` (a paginated scanner surfacing liquidation candidates
+to keepers) was planned but its source, `liquidation_scanner.rs`, was never declared as a
+`mod` in `lib.rs` — it never compiled, and no `docs/liquidation_scanner.md` was ever written
+for it. The module has since been deleted as dead code; see
+[`docs/ORPHANED_MODULES.md`](ORPHANED_MODULES.md). Keeper-driven liquidation discovery does
+not currently exist — the `liquidate` entrypoint documented below must be called directly.
 
 ---
 

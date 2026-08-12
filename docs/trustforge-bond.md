@@ -2,6 +2,16 @@
 
 **Path:** `contracts/trustforge_bond`
 
+> **Note (2026-08-12):** this document predates a significant refactor and describes some
+> entrypoints and modules that no longer match the live contract — notably the governance/
+> voting slash flow (`propose_slash`, `vote`, `execute_slash_if_approved`) and `access_control.rs`,
+> both of which lived only in files that were never compiled (`mod` was never declared in
+> `lib.rs`) and have since been deleted as dead code. See
+> [`docs/ORPHANED_MODULES.md`](ORPHANED_MODULES.md). Current slashing is admin-only via
+> `slash`/`slash_bond` in `lib.rs`; there is no on-chain governance vote today. Treat the
+> entrypoint table below as a design reference, not a current API list — check `lib.rs`'s
+> `#[contractimpl]` block for what's actually callable.
+
 ## Overview
 
 The TrustForge Bond contract is the foundational security layer for the protocol. It manages the lifecycle of USDC-collateralized bonds, tiered identity statuses, and the enforcement of slashing via governance.
@@ -42,11 +52,14 @@ For the contributor-facing lifecycle reference, see [Bond State Transitions](bon
 
 ## 2. Role Definitions & Access Control
 
-Managed via `access_control.rs`. All restricted paths emit `access_denied` on unauthorized calls.
+Access control is inline logic in `lib.rs`, not a separate module — `access_control.rs` and
+`governance_approval.rs` were dead code (never compiled) and have been deleted; see the note
+at the top of this document.
 
-- **Admin (`ADMIN_KEY`)**: Manages verifier registration, initializes governance, and sets global constants (BPS, leverage).
-- **Verifier (`VERIFIER_PREFIX`)**: Authorized addresses that can validate identity claims.
-- **Governor**: A set of addresses (defined in `governance_approval`) authorized to vote on slashing.
+- **Admin**: Manages attester registration, sets global constants (BPS, leverage), and is the
+  sole authority for slashing (`slash`/`slash_bond`) — there is no governance vote today.
+- **Attester (`register_attester`/`unregister_attester`)**: Authorized addresses that can
+  issue attestations via `add_attestation`.
 - **Identity Owner**: The address that owns the locked capital.
 
 ## 3. Backend Integration Notes
